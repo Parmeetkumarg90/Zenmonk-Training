@@ -59,8 +59,9 @@ const LoginForm = () => {
         const isValidCredentials = isUserValid(data);
         if (isValidCredentials.success) {
             reset();
+            dispatch(addCredentials(data));
             enqueueSnackbar("Login Success");
-            redirect(' /recipe/create');
+            redirect('/dashboard');
         }
         else {
             enqueueSnackbar("Credentials you have entered are incorrect");

@@ -38,7 +38,7 @@ const SignUpForm = () => {
     useEffect(() => {
         const isValidLogIn = isUserValid(loggedInUser);
         if (isValidLogIn.success) {
-            redirect(' /dashboard');
+            redirect('/dashboard');
         }
     }, []);
 
@@ -48,6 +48,7 @@ const SignUpForm = () => {
         if (isValid.success) {
             const userDetail = users.find((eachUser) => eachUser.email === user.email && eachUser.username === user.username && eachUser.password === user.password);
             if (signUpUserSchema.safeParse(userDetail).success) {
+                dispatch(addCredentials(userDetail!));
                 return { success: true, email: userDetail?.email === user.email, username: userDetail?.username === user.username };
             }
         }
@@ -70,7 +71,7 @@ const SignUpForm = () => {
                 dispatch(addCredentials(data));
                 dispatch(addNewUser(data));
                 enqueueSnackbar("Signup Success");
-                redirect(' /recipe/create');
+                redirect('/dashboard');
             }
         }
         else {
