@@ -49,6 +49,7 @@ const RecipeCards = () => {
       const result = await getAllProducts(current_skip);
       // console.log(result);
       const isValidResult = recipesSchema.safeParse(result.recipes);
+      console.log(isValidResult)
       if (isValidResult.success) {
         setTotalProducts(Math.floor(result.total / 10));
         setProductList(result.recipes);

@@ -18,13 +18,39 @@ import Autocomplete from "@mui/material/Autocomplete";
 import Chip from "@mui/material/Chip";
 import { enqueueSnackbar } from "notistack";
 
+type AllowedKeys =
+    | "caloriesPerServing"
+    | "cookTimeMinutes"
+    | "cuisine"
+    | "difficulty"
+    | "id"
+    | "image"
+    | "ingredients"
+    | "instructions"
+    | "mealType"
+    | "name"
+    | "prepTimeMinutes"
+    | "rating"
+    | "reviewCount"
+    | "servings"
+    | "tags"
+    | "userId"
+    | `ingredients.${number}`
+    | `instructions.${number}`
+    | `mealType.${number}`
+    | `tags.${number}`;
+
+const stringInputs: AllowedKeys[] = ["name", "image", "cuisine", "difficulty"];
+const numberInputs: AllowedKeys[] = ["caloriesPerServing", "cookTimeMinutes", "prepTimeMinutes", "rating", "reviewCount", "servings"];
+const arrayInputs: AllowedKeys[] = ["mealType", "ingredients", "instructions", "tags"];
+
 const CreateRecipeForm = () => {
     const recipes = useSelector((state: RootState) => state.recipes);
 
     const { handleSubmit, reset, register, control, formState: { errors } } = useForm({
         resolver: zodResolver(recipeSchema),
         defaultValues: {
-            id: recipes.length + 1,
+            id: Math.floor(Math.random() * 100),
             name: "",
             image: "",
             caloriesPerServing: 0,
@@ -39,7 +65,7 @@ const CreateRecipeForm = () => {
             instructions: [],
             mealType: [],
             tags: [],
-            userId: Math.floor(Math.random() * 100)
+            userId: Math.floor(Math.random() * 1000)
         },
     });
 
@@ -59,354 +85,91 @@ const CreateRecipeForm = () => {
                         Make your own recipes
                     </Typography>
                     <CardContent className={` ${style.grid} `}>
-                        <Card className={`${style.mX} ${style.hidden}`}>
-                            <Controller
-                                name="id"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        {...field}
-                                        helperText={error ? error.message : ""}
-                                        error={!!error}
-                                        id="filled-basic-id"
-                                        label="Id"
-                                        variant="filled"
-                                        type="number"
-                                    />
-                                }}
-                            />
-                        </Card>
-                        <Card className={`${style.mX}`}>
-                            <Controller
-                                name="name"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        helperText={error ? error.message : ""}
-                                        id="filled-basic-name"
-                                        label="Name"
-                                        variant="filled"
-                                        error={!!error}
-                                        {...field}
-                                    />
-                                }}
-                            />
-                        </Card>
-                        <Card className={`${style.mX}`}>
-                            <Controller
-                                name="image"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        helperText={error ? error.message : ""}
-                                        error={!!error}
-                                        id="filled-basic-image"
-                                        label="Image Link"
-                                        variant="filled"
-                                        {...field}
-                                    />
-                                }}
-                            />
-                        </Card>
-                        <Card className={`${style.mX}`}>
-                            <Controller
-                                name="caloriesPerServing"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        helperText={error ? error.message : ""}
-                                        error={!!error}
-                                        id="filled-basic-caloriesPerServing"
-                                        label="Calories(Per Serving)"
-                                        type="number"
-                                        variant="filled"
-                                        {...field}
-                                    />
-                                }}
-                            />
-                        </Card>
-                        <Card className={`${style.mX}`}>
-                            <Controller
-                                name="cookTimeMinutes"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        helperText={error ? error.message : ""}
-                                        error={!!error}
-                                        id="filled-basic-cookTimeMinutes"
-                                        label="Cook Time(Minutes)"
-                                        type="number"
-                                        variant="filled"
-                                        {...field}
-                                    />
-                                }}
-                            />
-                        </Card>
-                        <Card className={`${style.mX}`}>
-                            <Controller
-                                name="cuisine"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        helperText={error ? error.message : ""}
-                                        id="filled-basic-cuisine"
-                                        label="Cuisine"
-                                        variant="filled"
-                                        error={!!error}
-                                        {...field}
-                                    />
-                                }}
-                            />
-                        </Card>
-                        <Card className={`${style.mX}`}>
-                            <Controller
-                                name="difficulty"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        helperText={error ? error.message : ""}
-                                        id="filled-basic-difficulty"
-                                        label="Difficulty"
-                                        variant="filled"
-                                        error={!!error}
-                                        {...field}
-                                    />
-                                }}
-                            />
-                        </Card>
-                        <Card className={`${style.mX}`}>
-                            <Controller
-                                name="prepTimeMinutes"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        helperText={error ? error.message : ""}
-                                        id="filled-basic-prepTimeMinutes"
-                                        label="Preparation Time(Minutes)"
-                                        variant="filled"
-                                        type="number"
-                                        error={!!error}
-                                        {...field}
-                                    />
-                                }}
-                            />
-                        </Card>
-                        <Card className={`${style.mX}`}>
-                            <Controller
-                                name="rating"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        helperText={error ? error.message : ""}
-                                        id="filled-basic-rating"
-                                        label="Rating"
-                                        variant="filled"
-                                        type="number"
-                                        error={!!error}
-                                        {...field}
-                                    />
-                                }}
-                            />
-                        </Card>
-                        <Card className={`${style.mX}`}>
-                            <Controller
-                                name="reviewCount"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        helperText={error ? error.message : ""}
-                                        id="filled-basic-reviewCount"
-                                        label="Review Count"
-                                        variant="filled"
-                                        type="number"
-                                        error={!!error}
-                                        {...field}
-                                    />
-                                }}
-                            />
-                        </Card>
-                        <Card className={`${style.mX}`}>
-                            <Controller
-                                name="servings"
-                                control={control}
-                                render={({
-                                    field, formState: { errors }, fieldState: {
-                                        error,
-                                    } }) => {
-                                    return <TextField
-                                        helperText={error ? error.message : ""}
-                                        id="filled-basic-servings"
-                                        label="Servings"
-                                        variant="filled"
-                                        type="number"
-                                        error={!!error}
-                                        {...field}
-                                    />
-                                }}
-                            />
-                        </Card>
+                        {stringInputs.map(each => {
+                            return <Card className={`${style.mX}`} key={each}>
+                                <Controller
+                                    name={each}
+                                    control={control}
+                                    render={({
+                                        field, formState: { errors }, fieldState: {
+                                            error,
+                                        } }) => {
+                                        return <TextField
+                                            {...field}
+                                            className={`${style.w_full} ${style.overflow_hidden}`}
+                                            helperText={error ? error.message : ""}
+                                            id={`filled-basic-${each}`}
+                                            label={(each).toUpperCase()}
+                                            variant="filled"
+                                            error={!!error}
+                                        />
+                                    }}
+                                />
+                            </Card>
+                        })}
+                        {numberInputs.map(each => {
+                            return <Card className={`${style.mX}`} key={each}>
+                                <Controller
+                                    name={each}
+                                    control={control}
+                                    render={({
+                                        field, formState: { errors }, fieldState: {
+                                            error,
+                                        } }) => {
+                                        return <TextField
+                                            {...field}
+                                            helperText={error ? error.message : ""}
+                                            className={`${style.w_full} ${style.overflow_hidden}`}
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                            error={!!error}
+                                            id={`filled-basic-${each}`}
+                                            label={(each).toUpperCase()}
+                                            type="number"
+                                            variant="filled"
+                                        />
+                                    }}
+                                />
+                            </Card>
+                        })}
                     </CardContent>
                     <Card className={`${style.mX} ${style.w_full}`}>
-                        <Controller
-                            name="mealType"
-                            control={control}
-                            render={({
-                                field, formState: { errors }, fieldState: { error },
-                            }) => (
-                                <Autocomplete
-                                    multiple
-                                    id="filled-basic-mealType"
-                                    value={Array.isArray(field.value) ? field.value : []}
-                                    onChange={(_, newValue) => field.onChange(newValue)}
-                                    options={[]}
-                                    freeSolo
-                                    renderValue={(value) => {
-                                        const safeValue = Array.isArray(value) ? value : [];
-                                        return safeValue.map((option, index) => (
-                                            <Chip variant="outlined" label={option} key={index} />
-                                        ));
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Meal Type"
-                                            variant="filled"
-                                            error={!!error}
-                                            helperText={error?.message || ""}
+                        {arrayInputs.map(each => {
+                            return <Card className={`${style.w_full}`} key={each}>
+                                <Controller
+                                    name={each}
+                                    control={control}
+                                    render={({
+                                        field, formState: { errors }, fieldState: {
+                                            error,
+                                        } }) => {
+                                        return <Autocomplete
+                                            multiple
+                                            id={`filled-basic-${each}`}
+                                            value={Array.isArray(field.value) ? field.value : []}
+                                            onChange={(_, newValue) => field.onChange(newValue)}
+                                            options={[]}
+                                            freeSolo
+                                            renderValue={(value) => {
+                                                const safeValue = Array.isArray(value) ? value : [];
+                                                return safeValue.map((option, index) => (
+                                                    <Chip variant="outlined" label={option} key={index} />
+                                                ));
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    className={`${style.w_full} ${style.overflow_hidden}`}
+                                                    {...params}
+                                                    helperText={error ? error.message : ""}
+                                                    label={(each).toUpperCase()}
+                                                    variant="filled"
+                                                    error={!!error}
+                                                />
+                                            )}
                                         />
-                                    )}
-                                />
-                            )}
-                        />
-                    </Card>
-                    <Card className={`${style.mX} ${style.w_full}`}>
-                        <Controller
-                            name="ingredients"
-                            control={control}
-                            render={({ field, fieldState: { error } }) => (
-                                <Autocomplete
-                                    multiple
-                                    id="filled-basic-ingredients"
-                                    value={Array.isArray(field.value) ? field.value : []}
-                                    onChange={(_, newValue) => field.onChange(newValue)}
-                                    options={[]}
-                                    freeSolo
-                                    renderValue={(value) => {
-                                        const safeValue = Array.isArray(value) ? value : [];
-                                        return safeValue.map((option, index) => (
-                                            <Chip variant="outlined" label={option} key={index} />
-                                        ));
                                     }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            helperText={error ? error.message : ""}
-                                            {...params}
-                                            label="Ingredients"
-                                            variant="filled"
-                                            error={!!error}
-                                        />
-                                    )}
                                 />
-                            )}
-                        />
-                    </Card>
-                    <Card className={`${style.mX} ${style.w_full}`}>
-                        <Controller
-                            name="instructions"
-                            control={control}
-                            render={({
-                                field, formState: { errors }, fieldState: {
-                                    error,
-                                } }) => {
-                                return <Autocomplete
-                                    multiple
-                                    id="filled-basic-instructions"
-                                    value={Array.isArray(field.value) ? field.value : []}
-                                    onChange={(_, newValue) => field.onChange(newValue)}
-                                    options={[]}
-                                    freeSolo
-                                    renderValue={(value) => {
-                                        const safeValue = Array.isArray(value) ? value : [];
-                                        return safeValue.map((option, index) => (
-                                            <Chip variant="outlined" label={option} key={index} />
-                                        ));
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            helperText={error ? error.message : ""}
-                                            {...params}
-                                            label="Instructions"
-                                            variant="filled"
-                                            error={!!error}
-                                        />
-                                    )}
-                                />
-                            }}
-                        />
-                    </Card>
-                    <Card className={`${style.mX} ${style.w_full}`}>
-                        <Controller
-                            name="tags"
-                            control={control}
-                            render={({
-                                field, formState: { errors }, fieldState: {
-                                    error,
-                                } }) => {
-                                return <Autocomplete
-                                    multiple
-                                    id="filled-basic-tags"
-                                    value={Array.isArray(field.value) ? field.value : []}
-                                    onChange={(_, newValue) => field.onChange(newValue)}
-                                    options={[]}
-                                    freeSolo
-                                    renderValue={(value) => {
-                                        const safeValue = Array.isArray(value) ? value : [];
-                                        return safeValue.map((option, index) => (
-                                            <Chip variant="outlined" label={option} key={index} />
-                                        ));
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            helperText={error ? error.message : ""}
-                                            {...params}
-                                            label="Tags"
-                                            variant="filled"
-                                            error={!!error}
-                                        />
-                                    )}
-                                />
-                            }}
-                        />
+                            </Card>
+                        })}
                     </Card>
                 </CardContent>
                 <CardActions>

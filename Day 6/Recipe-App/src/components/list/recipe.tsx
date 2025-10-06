@@ -97,7 +97,7 @@ const RecipeList = ({ data, loading, isBookmarkRecipes }: { data: recipeInterfac
                                     <Typography>
                                         Meal Type: {item.mealType}
                                     </Typography>
-                                    <Image src={item.image} alt={item.name + " image"} width={300} height={300} />
+                                    <Image src={item.image} alt={item.name + " image"} width={300} height={300} priority/>
                                     <Typography sx={{ color: 'text.secondary', mb: 1.5 }}>Review: {item.rating}</Typography>
                                     <Typography variant="body2">
                                         Preparation Time: {item.prepTimeMinutes}
