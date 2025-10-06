@@ -36,19 +36,19 @@ const SignUpForm = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        const isValidLogIn = isUserValid(loggedInUser);
+        const isValidLogIn = isUserPresent(loggedInUser);
         if (isValidLogIn.success) {
             redirect('/dashboard');
         }
     }, []);
 
-    const isUserValid = (user: logInUserInterface) => {
+    const isUserPresent = (user: logInUserInterface) => {
         const isValid = logInUserSchema.safeParse(user);
-        // console.log("🚀 ~ isUserValid ~ isValid:", isValid);
+        // console.log("🚀 ~ isUserPresent ~ isValid:", isValid);
         if (isValid.success) {
-            const userDetail = users.find((eachUser) => eachUser.email === user.email && eachUser.username === user.username && eachUser.password === user.password);
+            const userDetail = users.find((eachUser) => eachUser.email === user.email || eachUser.username === user.username);
+            // console.log("🚀 ~ isUserPresent ~ userDetail:", userDetail);
             if (signUpUserSchema.safeParse(userDetail).success) {
-                dispatch(addCredentials(userDetail!));
                 return { success: true, email: userDetail?.email === user.email, username: userDetail?.username === user.username };
             }
         }
@@ -61,7 +61,7 @@ const SignUpForm = () => {
         data.confirmPassword = data?.confirmPassword?.trim();
         data.username = data?.username?.trim();
         if (data.password === data.confirmPassword) {
-            const isValidCredentials = isUserValid(data);
+            const isValidCredentials = isUserPresent(data);
             if (isValidCredentials.success) {
                 const reason = isValidCredentials.username ? "This username is already taken. Please choose another one" : "Account with same email already exists";
                 enqueueSnackbar(reason);
@@ -135,6 +135,7 @@ const SignUpForm = () => {
                                     label="Password"
                                     variant="filled"
                                     error={!!error}
+                                    type="password"
                                 />
                             }}
                         />
@@ -152,6 +153,7 @@ const SignUpForm = () => {
                                     label="Confirm Password"
                                     variant="filled"
                                     error={!!error}
+                                    type="password"
                                 />
                             }}
                         />
@@ -159,7 +161,7 @@ const SignUpForm = () => {
                 </CardContent>
                 <CardActions className={`${style.input_card}`}>
                     <Button size="small" className={`${style.border}`} type='submit'>Create</Button>
-                    <Button size="small" className={`${style.border}`} onClick={() => { redirect('/login') }}>Already have an account?</Button>
+                    <Button size="small" className={`${style.border}`} onClick={() => { redirect('/') }}>Already have an account?</Button>
                 </CardActions>
             </Card>
         </form >

@@ -53,14 +53,14 @@ const LoginForm = () => {
     }
 
     const onSubmit: SubmitHandler<logInUserInterface> = (data) => {
-        data.email = data?.email?.trim();
+        data.email = data?.email?.trim() || undefined;
+        data.username = data?.username?.trim() || undefined;
         data.password = data?.password?.trim();
-        data.username = data?.username?.trim();
         const isValidCredentials = isUserValid(data);
         if (isValidCredentials.success) {
             reset();
             enqueueSnackbar("Login Success");
-            redirect(' /recipe/create');
+            redirect('/recipe/create');
         }
         else {
             enqueueSnackbar("Credentials you have entered are incorrect");

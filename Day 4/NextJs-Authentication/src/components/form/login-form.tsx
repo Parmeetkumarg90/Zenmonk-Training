@@ -40,6 +40,7 @@ const LoginForm = () => {
 
     const isUserValid = (user: logInUserInterface) => {
         const isValid = logInUserSchema.safeParse(user);
+        console.log("🚀 ~ isUserValid ~ userDetail:", isValid)
         if (isValid.success) {
             const userDetail = users.find((eachUser) => (eachUser.email === user.email || eachUser.username === user.username) && eachUser.password === user.password);
             if (logInUserSchema.safeParse(userDetail).success) {
@@ -53,13 +54,12 @@ const LoginForm = () => {
     }
 
     const onSubmit: SubmitHandler<logInUserInterface> = (data) => {
-        data.email = data?.email?.trim();
+        data.email = data?.email?.trim() || undefined;
+        data.username = data?.username?.trim() || undefined;
         data.password = data?.password?.trim();
-        data.username = data?.username?.trim();
         const isValidCredentials = isUserValid(data);
         if (isValidCredentials.success) {
             reset();
-            dispatch(addCredentials(data));
             enqueueSnackbar("Login Success");
             redirect('/dashboard');
         }
@@ -127,6 +127,7 @@ const LoginForm = () => {
                                     label="Password"
                                     variant="filled"
                                     error={!!error}
+                                    type="password"
                                 />
                             }}
                         />
