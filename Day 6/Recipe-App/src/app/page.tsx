@@ -30,10 +30,11 @@ const RecipeCards = () => {
     setLoading(true);
     if (calculateSkip < storedProducts.length) {
       const currentPageRecipes = [];
-      for (let index = calculateSkip; index < calculateSkip + 10; index++) {
+      for (let index = calculateSkip; index < storedProducts.length && index < calculateSkip + 10; index++) {
         currentPageRecipes.push(storedProducts[index]);
       }
       setProductList(currentPageRecipes);
+      // console.log("🚀 ~ RecipeCards ~ currentPageRecipes:", currentPageRecipes)
       const timer = setInterval(() => {
         clearInterval(timer);
         setLoading(false);
@@ -47,11 +48,10 @@ const RecipeCards = () => {
   const getProducts = async (current_skip: number) => {
     try {
       const result = await getAllProducts(current_skip);
-      // console.log(result);
       const isValidResult = recipesSchema.safeParse(result.recipes);
-      console.log(isValidResult)
       if (isValidResult.success) {
-        setTotalProducts(Math.floor(result.total / 10));
+        const maxRecipes = Math.max(Math.ceil(result.total / 10), Math.ceil(storedProducts.length / 10));
+        setTotalProducts(maxRecipes);
         setProductList(result.recipes);
         dispatch(addRecipes(result.recipes));
       }

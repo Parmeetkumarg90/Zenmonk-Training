@@ -30,10 +30,11 @@ const RecipeId = ({ params }: recipePageProps) => {
 
     const findRecipe = async () => {
         const { recipeId } = await params;
-        if (storedRecipes.length >= Number(recipeId)) {
+        if (storedRecipes.length > 0) {
             const recipe = storedRecipes.find((eachRecipe) => eachRecipe.id === Number(recipeId));
-            setRecipeDetail(recipe!);
-            console.log(recipe)
+            if (recipe) {
+                setRecipeDetail(recipe);
+            }
         }
         else {
             const result = await getProduct(recipeId);

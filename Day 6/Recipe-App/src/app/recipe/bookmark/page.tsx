@@ -16,7 +16,6 @@ const BookMarkRecipes = () => {
     const [isLoading, setLoading] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const recipes = useSelector((state: RootState) => state.recipes);
-    const [totalRecipes, setTotalRecipes] = useState<number>(Math.floor(recipes.length / 10));
     const [bookmarkRecipes, setBookmarkRecipes] = useState<recipeInterface[]>([]);
     const users = useSelector((state: RootState) => state.users);
     const loggedInUser = useSelector((state: RootState) => state.currentUser);
@@ -91,7 +90,7 @@ const BookMarkRecipes = () => {
     return (
         <Stack>
             <RecipeList data={bookmarkRecipes} loading={isLoading} isBookmarkRecipes={true} />
-            <Pagination count={totalRecipes} page={currentPage} onChange={handlePageChange}
+            <Pagination count={bookMarkRecipe?.recipeIds.length && Math.ceil(bookMarkRecipe?.recipeIds.length / 10)} page={currentPage} onChange={handlePageChange}
                 color="primary" variant="outlined" shape="rounded"
                 className={`${style.pagination} `}
                 renderItem={(item) => (
