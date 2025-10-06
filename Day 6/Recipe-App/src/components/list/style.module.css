@@ -1,0 +1,15 @@
+.Card {
+    padding: 15px;
+    margin: 15px;
+    color: white;
+    background: black;
+    border: 1px solid white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.paddingY {
+    padding: 2% 0 2% 0;
+}

@@ -1,0 +1,9 @@
+services:
+  web: # Defines a service named 'web'
+    build: .
+    env_file:
+      -       
+    ports:
+      - "3000:3000" # Maps port 5000 on the host to port 5000 in the container
+    volumes:
+      # - .:/authentication # Mounts the current directory on the host to /code in the container

@@ -1,0 +1,12 @@
+.pagination {
+    z-index: 1;
+    background: black;
+    color: white;
+    border: 1px solid white;
+    position: fixed;
+    margin: auto;
+    /* top: 20; */
+    bottom: 20;
+    left: 50%;
+    transform: translateX(-50%);
+}

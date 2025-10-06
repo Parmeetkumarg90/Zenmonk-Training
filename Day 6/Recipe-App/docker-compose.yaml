@@ -1,0 +1,9 @@
+name: "recipe-app"
+version: "1.0"
+
+services:
+  project:
+    build: .
+    ports:
+      - "3000:3000"
+      

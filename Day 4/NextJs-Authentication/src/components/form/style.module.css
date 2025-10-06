@@ -1,0 +1,49 @@
+.card {
+    width: 50%;
+    height: max-content;
+    margin: auto;
+    margin-top: 50px;
+    padding: 20px;
+    background-color: beige;
+    /* border: 0px; */
+    place-items: center;
+    text-align: center;
+}
+
+@media screen and (max-width:600px) {
+    .card {
+        width: 80%;
+        padding: 5px;
+        margin-top: 50px;
+    }
+}
+
+.input_card {
+    width: 100%;
+    gap: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.text_center {
+    text-align: center;
+}
+
+.w_full {
+    width: 100%;
+    /* display: ; */
+}
+
+.pY {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.mY {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.border {
+    border: 1px solid black;
+}
