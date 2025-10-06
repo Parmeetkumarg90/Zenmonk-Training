@@ -6,7 +6,7 @@ import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { logInUserInterface } from '@/interfaces/user';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { redirect } from 'next/navigation';
 import TextField from '@mui/material/TextField';
 import style from './style.module.css';
@@ -18,8 +18,13 @@ import { addCredentials } from '@/redux/slices/currentUser';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const LoginForm = () => {
-    const { register, handleSubmit, reset } = useForm<logInUserInterface>({
+    const { register, handleSubmit, reset, control } = useForm<logInUserInterface>({
         resolver: zodResolver(logInUserSchema),
+        defaultValues: {
+            email: "",
+            username: "",
+            password: ""
+        }
     });
     const loggedInUser = useSelector((state: RootState) => state.currentUser);
     const users = useSelector((state: RootState) => state.users);
@@ -71,33 +76,58 @@ const LoginForm = () => {
                     </Typography>
                     <Card className={`${style.card} ${style.input_card}`}>
                         {
-                            isLoginUsingUsername ? <TextField
-                                // required
-                                id="filled-basic-username"
-                                {...register("username")}
-                                label="Username"
-                                variant="filled"
-                                className={`${style.w_full}${style.pY}${style.mY}`}
+                            isLoginUsingUsername ? <Controller
+                                name="username"
+                                control={control}
+                                render={({
+                                    field, formState: { errors }, fieldState: {
+                                        error,
+                                    } }) => {
+                                    return <TextField
+                                        {...field}
+                                        helperText={error ? error.message : ""}
+                                        id={`filled-basic-username`}
+                                        label="Username"
+                                        variant="filled"
+                                        error={!!error}
+                                    />
+                                }}
                             />
                                 :
-                                <TextField
-                                    // required
-                                    id="filled-basic-email"
-                                    {...register("email")}
-                                    label="Email"
-                                    variant="filled"
-                                    type='email'
-                                    className={`${style.w_full}${style.pY}${style.mY}`}
+                                <Controller
+                                    name="email"
+                                    control={control}
+                                    render={({
+                                        field, formState: { errors }, fieldState: {
+                                            error,
+                                        } }) => {
+                                        return <TextField
+                                            {...field}
+                                            helperText={error ? error.message : ""}
+                                            id={`filled-basic-email`}
+                                            label="Email"
+                                            variant="filled"
+                                            error={!!error}
+                                        />
+                                    }}
                                 />
                         }
-                        <TextField
-                            // required
-                            id="filled-basic-password"
-                            {...register("password", { required: true })}
-                            label="Password"
-                            variant="filled"
-                            type='password'
-                            className={`${style.w_full}${style.pY}${style.mY}`}
+                        <Controller
+                            name="password"
+                            control={control}
+                            render={({
+                                field, formState: { errors }, fieldState: {
+                                    error,
+                                } }) => {
+                                return <TextField
+                                    {...field}
+                                    helperText={error ? error.message : ""}
+                                    id={`filled-basic-password`}
+                                    label="Password"
+                                    variant="filled"
+                                    error={!!error}
+                                />
+                            }}
                         />
                     </Card>
                 </CardContent>
