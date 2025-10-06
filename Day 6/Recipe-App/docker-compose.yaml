@@ -2,7 +2,7 @@ name: "recipe-app"
 version: "1.0"
 
 services:
-  project:
+  recipe-app:
     build: .
     ports:
       - "3000:3000"
