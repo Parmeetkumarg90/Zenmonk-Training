@@ -6,6 +6,8 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persister, store } from "@/redux/store";
 import { SnackbarProvider } from "notistack";
+import { ThemeProvider } from "@mui/material";
+import theme from "@/theme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,13 +32,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
-          <Provider store={store}>
-            <PersistGate loading={null} persistor={persister}>
-              {children}
-            </PersistGate>
-          </Provider>
-        </SnackbarProvider>
+        <ThemeProvider theme={theme}>
+          <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
+            <Provider store={store}>
+              <PersistGate loading={null} persistor={persister}>
+                {children}
+              </PersistGate>
+            </Provider>
+          </SnackbarProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -15,7 +15,7 @@ const usersSlice = createSlice({
             else {
                 const newState = [action.payload, ...state];
                 state = newState.filter((each, index, self) => index === self.findIndex(elem => each.email === elem.email));
-                return newState;
+                return state;
             }
         },
     }

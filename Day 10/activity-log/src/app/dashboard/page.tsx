@@ -5,27 +5,33 @@ import { RootState } from '@/redux/store';
 import { logout } from '@/redux/user/currentUser';
 import { logInUserSchema } from '@/schema/user/user';
 import { Button, Typography } from '@mui/material';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { enqueueSnackbar } from 'notistack';
 import React, { useEffect } from 'react';
+import style from "./style.module.css";
+import Card from "@mui/material/Card";
+import Stack from '@mui/material/Stack';
 
 const Dashboard = () => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const users = useAppSelector((state: RootState) => state.users);
     const activities = useAppSelector((state: RootState) => state.activities.find((each) => each.email === loggedInUser.email));
     const dispatch = useAppDispatch();
+    const router = useRouter();
 
     useEffect(() => {
         const isUserLoggedIn = isUserPresent(loggedInUser);
         if (!isUserLoggedIn.success) {
             enqueueSnackbar("Login first");
-            redirect('/');
+            router.push('/dashboard');
         }
-    });
+    }, []);
 
     const handleLogout = () => {
         dispatch(logout());
-        
+        enqueueSnackbar("Logout Success");
+        router.push("/");
+
     }
 
     const isUserPresent = (credentials: logInUserInterface) => {
@@ -40,14 +46,20 @@ const Dashboard = () => {
     }
 
     return (
-        <>
-            {
-                activities?.log.map((eachActivity) => {
-                    return <Typography key={eachActivity.time}>{eachActivity.activity}: {eachActivity.time}</Typography>
-                })
-            }
-            <Button onClick={handleLogout}>Logout</Button>
-        </>
+        <Card className={`${style.card} ${style.grid}`}>
+            <Typography className={`${style.typography}`}>
+                Your Activity Log
+            </Typography>
+            <Stack spacing={2} className={`${style.stack} ${style.mY5}`}>
+                {
+                    activities?.log.map((eachActivity, index) => {
+                        const timeStamp = new Date(eachActivity.time).toLocaleString();
+                        return <Typography key={eachActivity.time}>{index + 1}. {eachActivity.activity}: {timeStamp}</Typography>
+                    })
+                }
+            </Stack>
+            <Button onClick={handleLogout} className={`${style.button}`}>Logout</Button>
+        </Card>
     )
 }
 

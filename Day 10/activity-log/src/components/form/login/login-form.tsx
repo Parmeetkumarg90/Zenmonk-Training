@@ -5,7 +5,6 @@ import style from './style.module.css';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { logInUserInterface } from '@/interfaces/user/user';
 import { enqueueSnackbar } from 'notistack';
-import { redirect } from 'next/navigation';
 import { logInUserSchema } from '@/schema/user/user';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
@@ -15,10 +14,12 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Link from 'next/link';
 import { addActivity } from '@/redux/activity-log/activity';
+import Typography from '@mui/material/Typography';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '@/config/firebase';
 import { addNewUser } from '@/redux/user/users';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 function LoginForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -114,7 +115,10 @@ function LoginForm() {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <Card className={`${style.card} `}>
+            <Card className={`${style.card} ${style.grid} ${style.typography}`}>
+                <Typography className={`${style.typography}`}>
+                    Welcome Back
+                </Typography>
                 <Controller
                     control={control}
                     name="email"
@@ -122,9 +126,10 @@ function LoginForm() {
                         return (<TextField
                             {...field}
                             helperText={error?.message || ""}
+                            className={`${style.input} ${style.pY5}`}
                             id={`filled-basic-email`}
-                            label="Email"
-                            variant="filled"
+                            label="Email Address"
+                            variant="outlined"
                             error={!!error}
                         />);
                     }}
@@ -136,23 +141,23 @@ function LoginForm() {
                         return (<TextField
                             {...field}
                             helperText={error?.message || ""}
+                            className={`${style.input} ${style.pY5}`}
                             id={`filled-basic-password`}
                             label="Password"
-                            variant="filled"
+                            variant="outlined"
                             type="password"
                             error={!!error}
                         />);
                     }}
                 />
-                <Card>
-                    <Button onClick={handleGoogleLogin}>Login with Google</Button>
-                </Card>
-                <Card>
-                    <Button type="submit">Login</Button>
-                    <Link href="/register">
-                        <Button>Create Account</Button>
-                    </Link>
-                </Card>
+                <Button type="submit" className={`${style.button}`}>Login</Button>
+                <Button onClick={handleGoogleLogin} className={`${style.button}`}>
+                    <Image src="/google-favicon.svg" height={30} width={30} alt="google-favicon" className={`${style.mR}`}/>
+                    Login with Google
+                </Button>
+                <span className={`${style.blurText}`}>
+                    Don't have a account? <Link href="/register" className={`${style.blueColor} ${style.underline}`}>Sign up</Link>
+                </span>
             </Card>
         </form>
     );
