@@ -11,6 +11,7 @@ import React, { useEffect } from 'react';
 import style from "./style.module.css";
 import Card from "@mui/material/Card";
 import Stack from '@mui/material/Stack';
+import Cookies from 'js-cookie';
 
 const Dashboard = () => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -19,19 +20,11 @@ const Dashboard = () => {
     const dispatch = useAppDispatch();
     const router = useRouter();
 
-    useEffect(() => {
-        const isUserLoggedIn = isUserPresent(loggedInUser);
-        if (!isUserLoggedIn.success) {
-            enqueueSnackbar("Login first");
-            router.push('/dashboard');
-        }
-    }, []);
-
     const handleLogout = () => {
         dispatch(logout());
+        Cookies.remove("credentials");
         enqueueSnackbar("Logout Success");
         router.push("/");
-
     }
 
     const isUserPresent = (credentials: logInUserInterface) => {

@@ -20,6 +20,7 @@ import { auth, provider } from '@/config/firebase';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import Image from 'next/image';
 import Typography from "@mui/material/Typography";
+import Cookies from 'js-cookie';
 
 function LoginForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -49,6 +50,7 @@ function LoginForm() {
             const userDetail = users.find((eachUser) => eachUser.email === user.email && eachUser.password === user.password);
             if (logInUserSchema.safeParse(userDetail).success) {
                 dispatch(addCredentials(userDetail!));
+                Cookies.set("credentials", JSON.stringify(userDetail));
                 return { success: true, email: userDetail?.email === user.email };
             }
         }
@@ -85,6 +87,7 @@ function LoginForm() {
                 };
                 dispatch(addNewUser(data));
                 dispatch(addCredentials(data));
+                Cookies.set("credentials", JSON.stringify(data));
                 dispatch(addActivity(activityObj));
                 enqueueSnackbar("Account Register Success");
                 router.push('/dashboard');
@@ -105,6 +108,7 @@ function LoginForm() {
                     time: Date.now(),
                 };
                 dispatch(addCredentials(userDetail));
+                Cookies.set("credentials", JSON.stringify(userDetail));
                 dispatch(addNewUser(userDetail));
                 dispatch(addActivity(activityObj));
                 enqueueSnackbar("Login Success");

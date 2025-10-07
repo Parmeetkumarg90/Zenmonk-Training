@@ -20,6 +20,7 @@ import { auth, provider } from '@/config/firebase';
 import { addNewUser } from '@/redux/user/users';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Cookies from "js-cookie";
 
 function LoginForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -48,6 +49,7 @@ function LoginForm() {
             const userDetail = users.find((eachUser) => eachUser.email === user.email && eachUser.password === user.password);
             if (userDetail && logInUserSchema.safeParse(userDetail).success) {
                 dispatch(addCredentials(userDetail));
+                Cookies.set("credentials", JSON.stringify(userDetail));
                 return { success: true, email: userDetail?.email === user.email };
             }
         }
@@ -102,6 +104,7 @@ function LoginForm() {
                     time: Date.now(),
                 };
                 dispatch(addCredentials(userDetail));
+                Cookies.set("credentials", JSON.stringify(userDetail));
                 dispatch(addNewUser(userDetail));
                 dispatch(addActivity(activityObj));
                 enqueueSnackbar("Login Success");
@@ -152,7 +155,7 @@ function LoginForm() {
                 />
                 <Button type="submit" className={`${style.button}`}>Login</Button>
                 <Button onClick={handleGoogleLogin} className={`${style.button}`}>
-                    <Image src="/google-favicon.svg" height={30} width={30} alt="google-favicon" className={`${style.mR}`}/>
+                    <Image src="/google-favicon.svg" height={30} width={30} alt="google-favicon" className={`${style.mR}`} />
                     Login with Google
                 </Button>
                 <span className={`${style.blurText}`}>
