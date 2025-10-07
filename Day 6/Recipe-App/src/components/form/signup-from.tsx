@@ -36,11 +36,25 @@ const SignUpForm = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        const isValidLogIn = isUserPresent(loggedInUser);
+        const isValidLogIn = isUserValid(loggedInUser);
         if (isValidLogIn.success) {
             redirect('/recipe/create');
         }
     }, []);
+
+    const isUserValid = (user: logInUserInterface) => {
+        const isValid = logInUserSchema.safeParse(user);
+        if (isValid.success) {
+            const userDetail = users.find((eachUser) => (eachUser.email === user.email || eachUser.username === user.username) && eachUser.password === user.password);
+            if (logInUserSchema.safeParse(userDetail).success) {
+                dispatch(addCredentials(userDetail!));
+                return {
+                    success: true, email: userDetail?.email === user.email, username: userDetail?.username === user.username
+                };
+            }
+        }
+        return { success: false, email: null, username: null };
+    }
 
     const isUserPresent = (user: logInUserInterface) => {
         const isValid = logInUserSchema.safeParse(user);

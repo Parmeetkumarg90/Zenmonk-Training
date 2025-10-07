@@ -13,7 +13,7 @@ const activitySlice = createSlice({
                 activity: action.payload.activity
             };
             let isFound = false;
-            const newState = state.map((each) => {
+            state.forEach((each) => {
                 if (each.email === action.payload.email) {
                     isFound = true;
                     each.log.unshift(logObject);
@@ -21,9 +21,8 @@ const activitySlice = createSlice({
                 return each;
             });
             if (!isFound) {
-                newState.unshift({ email: action.payload.email, log: [logObject] });
+                state.unshift({ email: action.payload.email, log: [logObject] });
             }
-            return state = newState;
         }
     }
 });

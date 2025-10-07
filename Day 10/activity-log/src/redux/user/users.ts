@@ -1,18 +1,22 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { usersInterface } from "@/interfaces/user/user";
+import type { logInUserInterface } from "@/interfaces/user/user";
 
-const initialState: usersInterface[] = [];
+const initialState: logInUserInterface[] = [];
 
 const usersSlice = createSlice({
     name: "users",
     initialState,
     reducers: {
-        addNewUser: (state, action: PayloadAction<usersInterface>) => {
-            const newState = [...state];
-            newState.push(action.payload);
-            state = newState;
-            return state;
+        addNewUser: (state, action: PayloadAction<logInUserInterface>) => {
+            if (!action.payload.isSignWithGoogle) {
+                state.push(action.payload);
+            }
+            else {
+                const newState = [action.payload, ...state];
+                state = newState.filter((each, index, self) => index === self.findIndex(elem => each.email === elem.email));
+                return newState;
+            }
         },
     }
 });

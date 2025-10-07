@@ -1,11 +1,7 @@
-interface usersInterface {
-    email: string,
-    password: string,
-}
-
 interface logInUserInterface {
     email: string,
     password: string,
+    isSignWithGoogle?: boolean,
 }
 
 interface signUpUserInterface {
@@ -14,4 +10,4 @@ interface signUpUserInterface {
     confirmPassword: string,
 }
 
-export type { logInUserInterface, signUpUserInterface, usersInterface };
+export type { logInUserInterface, signUpUserInterface };

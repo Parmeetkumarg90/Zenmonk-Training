@@ -5,13 +5,13 @@ interface usersActivityInterface {
 
 interface activityInterface {
     activity: string,
-    time: string
+    time: number
 }
 
 interface activityActionInterface {
     email: string,
     activity: string,
-    time: string
+    time: number
 }
 
 export type { activityInterface, usersActivityInterface, activityActionInterface };

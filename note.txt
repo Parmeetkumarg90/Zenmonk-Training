@@ -1,4 +1,4 @@
 install these modules for mui, zod, redux-toolkit, redux-persist, react-hook-form
- npm i react-redux @reduxjs/toolkit @mui/material @emotion/react @emotion/styled redux-persist notistack @mui/styled-engine-sc styled-components @mui/icons-material react-hook-form zod
+ npm i react-redux @reduxjs/toolkit @mui/material @emotion/react @emotion/styled redux-persist notistack @mui/styled-engine-sc styled-components @mui/icons-material react-hook-form zod @hookform/resolvers
 
 now use npm run dev
