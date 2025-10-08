@@ -51,8 +51,6 @@ function LoginForm() {
         if (isValid.success) {
             const userDetail = users.find((eachUser) => eachUser.email === user.email && eachUser.password === user.password);
             if (userDetail && logInUserSchema.safeParse(userDetail).success) {
-                dispatch(addCredentials(userDetail));
-                Cookies.set("credentials", JSON.stringify(userDetail));
                 return { success: true, email: userDetail?.email === user.email };
             }
         }
@@ -68,6 +66,9 @@ function LoginForm() {
             // console.log("🚀 ~ onSubmit ~ isStored:", isStored);
             if (isStored.success) {
                 reset();
+                const userDetail = { email: isStored.user.email!, password: isStored.user.uid };
+                dispatch(addCredentials(userDetail));
+                Cookies.set("credentials", JSON.stringify(userDetail));
                 loggedInActivity(data.email, isStored.user.uid);
                 enqueueSnackbar("Login Success");
                 router.push('/dashboard');

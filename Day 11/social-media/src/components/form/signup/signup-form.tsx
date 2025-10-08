@@ -25,7 +25,7 @@ import { activityActionInterface } from '@/interfaces/activity-log/activity';
 import { firbaseDb } from '@/config/firebase';
 import { ref, push, get, set } from "firebase/database";
 
-function LoginForm() {
+function SignupForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const users = useAppSelector((state: RootState) => state.users);
     const dispatch = useAppDispatch();
@@ -52,7 +52,6 @@ function LoginForm() {
         if (isValid.success) {
             const userDetail = users.find((eachUser) => eachUser.email === user.email && eachUser.password === user.password);
             if (logInUserSchema.safeParse(userDetail).success) {
-                dispatch(addCredentials(userDetail!));
                 Cookies.set("credentials", JSON.stringify(userDetail));
                 return { success: true, email: userDetail?.email === user.email };
             }
@@ -84,8 +83,9 @@ function LoginForm() {
             if (isStored.success) {
                 reset();
                 dispatch(addNewUser(data));
-                dispatch(addCredentials(data));
-                Cookies.set("credentials", JSON.stringify(data));
+                const userDetail = { email: isStored.user.email!, password: isStored.user.uid };
+                dispatch(addCredentials(userDetail));
+                Cookies.set("credentials", JSON.stringify(userDetail));
                 newUserActivity(data.email, isStored.user.uid);
                 loggedInActivity(data.email, isStored.user.uid);
                 enqueueSnackbar("Account Register Success");
@@ -230,4 +230,4 @@ function LoginForm() {
     );
 }
 
-export default LoginForm;
+export default SignupForm;
