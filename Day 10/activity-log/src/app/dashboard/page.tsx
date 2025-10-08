@@ -39,6 +39,7 @@ const Dashboard = () => {
             time: Date.now(),
         };
         dispatch(addActivity(activityObj));
+        addActivityInDb(loggedInUser.password, activityObj);
     }
 
     const isUserPresent = (credentials: logInUserInterface) => {
@@ -70,14 +71,14 @@ const Dashboard = () => {
             </div>
             <Stack spacing={2} className={`${style.stack} ${style.mY5} ${style.pY5}`}>
                 {
-                    activities?.log.map((eachActivity) => {
+                    activities?.log.map((eachActivity,index) => {
                         const timeStamp = new Date(eachActivity.time).toLocaleString();
                         return <Card className={`${style.listItem} ${style.pY5} ${style.text_center} 
                         ${eachActivity.activity === "LoggedIn Account" && style.lightPink}
                         ${eachActivity.activity === "Register Account" && style.lightGreen}
                         ${eachActivity.activity === "Logout Account" && style.lightBlue}
                         `}
-                            key={eachActivity.time}>
+                            key={index}>
                             {eachActivity.activity}: {timeStamp}
                         </Card>
                     })

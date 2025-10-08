@@ -16,14 +16,14 @@ import Button from '@mui/material/Button';
 import Link from 'next/link';
 import { addNewUser } from '@/redux/user/users';
 import { addActivity } from '@/redux/activity-log/activity';
-import { auth, provider } from '@/config/firebase';
+import { auth, provider, firbaseDb } from '@/config/firebase';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import Image from 'next/image';
 import Typography from "@mui/material/Typography";
 import Cookies from 'js-cookie';
 import { activityActionInterface } from '@/interfaces/activity-log/activity';
-import { firbaseDb } from '@/config/firebase';
 import { ref, push, get, set } from "firebase/database";
+import { GetCall, PostCall } from '@/services/api-calls';
 
 function SignupForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -31,12 +31,12 @@ function SignupForm() {
     const dispatch = useAppDispatch();
     const router = useRouter();
 
-    useEffect(() => {
-        const isValidLogIn = isUserValid(loggedInUser);
-        if (isValidLogIn.success) {
-            router.push('/dashboard');
-        }
-    }, []);
+    // useEffect(() => {
+    //     const isValidLogIn = isUserValid(loggedInUser);
+    //     if (isValidLogIn.success) {
+    //         router.push('/dashboard');
+    //     }
+    // }, []);
 
     const { handleSubmit, reset, control } = useForm({
         resolver: zodResolver(signUpUserSchema),
@@ -52,7 +52,12 @@ function SignupForm() {
         if (isValid.success) {
             const userDetail = users.find((eachUser) => eachUser.email === user.email && eachUser.password === user.password);
             if (logInUserSchema.safeParse(userDetail).success) {
-                Cookies.set("credentials", JSON.stringify(userDetail));
+                Cookies.set("credentials", JSON.stringify(userDetail), {
+                    path: "/",
+                    expires: 7,
+                    sameSite: "Lax",
+                    secure: process.env.NODE_ENV === "production",
+                });
                 return { success: true, email: userDetail?.email === user.email };
             }
         }
@@ -81,13 +86,20 @@ function SignupForm() {
             const isStored = await handleManualLogin(data);
             // console.log("🚀 ~ onSubmit ~ isStored:", isStored);
             if (isStored.success) {
+                createOrVerifyUserFromDb("/api/register");
+
+                const userDetail = { email: isStored.result.email!, password: isStored.result.uid };
                 reset();
                 dispatch(addNewUser(data));
-                const userDetail = { email: isStored.user.email!, password: isStored.user.uid };
                 dispatch(addCredentials(userDetail));
-                Cookies.set("credentials", JSON.stringify(userDetail));
-                newUserActivity(data.email, isStored.user.uid);
-                loggedInActivity(data.email, isStored.user.uid);
+                Cookies.set("credentials", JSON.stringify(userDetail), {
+                    path: "/",
+                    expires: 7,
+                    sameSite: "Lax",
+                    secure: process.env.NODE_ENV === "production",
+                });
+                newUserActivity(data.email, isStored.result.uid);
+                loggedInActivity(data.email, isStored.result.uid);
                 enqueueSnackbar("Account Register Success");
                 router.push('/dashboard');
             }
@@ -97,17 +109,44 @@ function SignupForm() {
         }
     };
 
+    const createOrVerifyUserFromDb = async (url: string) => {
+        const token = await getToken();
+        if (!token) {
+            enqueueSnackbar("Error in verifying user");
+            return;
+        }
+        const isUserValid = await GetCall(url, {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+            }
+        });
+
+        if (!isUserValid.success) {
+            enqueueSnackbar(isUserValid.message);
+            return;
+        }
+    }
+
     const handleGoogleSignIn = () => {
         signInWithPopup(auth, provider)
-            .then((result) => {
+            .then(async (result) => {
                 const userDetail = { email: result.user.email!, password: result.user.uid, isSignWithGoogle: true };
                 const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
                 if (isNewUser) {
                     newUserActivity(result.user.email!, result.user.uid);
+                    createOrVerifyUserFromDb("/api/register");
+                }
+                else {
+                    createOrVerifyUserFromDb("/api/login");
                 }
                 loggedInActivity(result.user.email!, result.user.uid);
                 dispatch(addCredentials(userDetail));
-                Cookies.set("credentials", JSON.stringify(userDetail));
+                Cookies.set("credentials", JSON.stringify(userDetail), {
+                    path: "/",
+                    expires: 7,
+                    sameSite: "Lax",
+                    secure: process.env.NODE_ENV === "production",
+                });
                 dispatch(addNewUser(userDetail));
                 enqueueSnackbar("Login Success");
                 router.push('/dashboard');
@@ -121,11 +160,11 @@ function SignupForm() {
     const handleManualLogin = async (data: logInUserInterface) => {
         return createUserWithEmailAndPassword(auth, data.email, data.password).then((value) => {
             // console.log(value);
-            return { success: true, ...value };
+            return { success: true, result: value };
         }).catch((error) => {
             // console.log(error);
             enqueueSnackbar(error);
-            return { success: false, ...error };
+            return { success: false, result: error };
         });
     }
 
@@ -157,6 +196,20 @@ function SignupForm() {
             activity: activityObj.activity,
             time: activityObj.time,
         });
+    };
+
+    const getToken = async () => {
+        if (auth.currentUser) {
+            try {
+                const idToken = await auth.currentUser.getIdToken(/* forceRefresh */ true);
+                return idToken;
+            } catch (error) {
+                console.error("Error getting token:", error);
+            }
+        } else {
+            console.warn("No user is currently signed in.");
+        }
+        return null;
     };
 
     return (

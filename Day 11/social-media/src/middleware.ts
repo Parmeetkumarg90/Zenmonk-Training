@@ -1,23 +1,28 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
+import { admin } from './config/firebase-admin';
+
+const publicRoutes = ['/', '/register', '/path:*.svg'];
 
 const middleware = async (request: NextRequest) => {
     const cookieStore = await cookies();
-    const credentials = cookieStore.get("credentials");
-    switch (request.nextUrl.pathname) {
-        case "/dashboard":
-            if (!credentials) {
-                return NextResponse.redirect(new URL('/', request.url));
-            }
-            break;
-        default:
+    const credentials = cookieStore.get("credentials")?.value;
+    const pathname = request.nextUrl.pathname;
+    const isAuthenticated = !!credentials;
+    const isPublic = publicRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`) || pathname.endsWith('.svg'));
+
+    if (!isAuthenticated && !isPublic) {
+        return NextResponse.redirect(new URL("/", request.url));
     }
+    else if (isAuthenticated && isPublic) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    return NextResponse.next();
 }
 
+export const config = {
+    matcher: ['/((?!_next|api).*)'],
+};
 
-// See "Matching Paths" below to learn more
-const config = {
-    matcher: '/dashboard',
-}
-export { config, middleware };
+export { middleware };
