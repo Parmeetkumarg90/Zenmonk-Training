@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/redux/hook';
 import { RootState } from '@/redux/store';
 import { logout } from '@/redux/user/currentUser';
 import { logInUserSchema } from '@/schema/user/user';
-import { Button, Typography } from '@mui/material';
+import { Button, ListItem, Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { enqueueSnackbar } from 'notistack';
 import React, { useEffect } from 'react';
@@ -40,18 +40,22 @@ const Dashboard = () => {
 
     return (
         <Card className={`${style.card} ${style.grid}`}>
-            <Typography className={`${style.typography}`}>
-                Your Activity Log
-            </Typography>
-            <Stack spacing={2} className={`${style.stack} ${style.mY5}`}>
+            <div className={`${style.text_left}`}>
+                <Typography>
+                    Your Activity Log
+                </Typography>
+            </div>
+            <Stack spacing={2} className={`${style.stack} ${style.mY5} ${style.pY5}`}>
                 {
-                    activities?.log.map((eachActivity, index) => {
+                    activities?.log.map((eachActivity) => {
                         const timeStamp = new Date(eachActivity.time).toLocaleString();
-                        return <Typography key={eachActivity.time}>{index + 1}. {eachActivity.activity}: {timeStamp}</Typography>
+                        return <Card className={`${style.listItem} ${style.pY8} ${style.text_center} ${eachActivity.activity === "LoggedIn Account" ? style.lightPink : style.lightGreen}`} key={eachActivity.time}>
+                            {eachActivity.activity}: {timeStamp}
+                        </Card>
                     })
                 }
             </Stack>
-            <Button onClick={handleLogout} className={`${style.button}`}>Logout</Button>
+            <Button onClick={handleLogout} className={`${style.button} ${style.color_w_background_b} `}>Logout</Button>
         </Card>
     )
 }

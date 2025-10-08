@@ -1,6 +1,6 @@
 .card {
-    width: 40%;
-    min-height: 600px;
+    width: 585px;
+    height: 690px;
     margin: auto;
     margin-top: 2%;
     place-items: center;
@@ -11,7 +11,7 @@
 .grid {
     padding: 2% 0 2% 0;
     display: grid;
-    grid-template-rows: 1fr repeat(0.5fr, 6);
+    grid-template-rows: 1fr repeat(0.5fr, 4);
     grid-template-columns: 1fr;
 }
 
@@ -28,9 +28,8 @@
 }
 
 .typography {
-    /* font-weight: bolder !important;
-    font-size: 2rem !important; */
-    font-size: 15px;
+    font-weight: bolder;
+    font-size: 2rem;
 }
 
 .leftTypography {
@@ -41,8 +40,11 @@
 .button {
     width: 80%;
     border-radius: 5px;
-    color: white;
-    background-color: blue;
+}
+
+.color_w_background_b {
+    color: white !important;
+    background-color: #2b2bff !important;
 }
 
 .blueColor {
@@ -65,4 +67,10 @@
     .card {
         width: 70%;
     }
+}
+
+
+.text_left {
+    width: 80%;
+    text-align: left;
 }

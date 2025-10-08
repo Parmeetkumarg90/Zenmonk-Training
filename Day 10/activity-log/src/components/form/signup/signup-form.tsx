@@ -80,15 +80,11 @@ function LoginForm() {
             // console.log("🚀 ~ onSubmit ~ isStored:", isStored);
             if (isStored) {
                 reset();
-                const activityObj = {
-                    email: data.email,
-                    activity: "Register Account",
-                    time: Date.now(),
-                };
                 dispatch(addNewUser(data));
                 dispatch(addCredentials(data));
                 Cookies.set("credentials", JSON.stringify(data));
-                dispatch(addActivity(activityObj));
+                newUserActivity(data.email);
+                loggedInActivity(data.email);
                 enqueueSnackbar("Account Register Success");
                 router.push('/dashboard');
             }
@@ -102,15 +98,14 @@ function LoginForm() {
         signInWithPopup(auth, provider)
             .then((result) => {
                 const userDetail = { email: result.user.email!, password: result.user.uid, isSignWithGoogle: true };
-                const activityObj = {
-                    email: userDetail.email,
-                    activity: "LoggedIn Account",
-                    time: Date.now(),
-                };
+                const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
+                if (isNewUser) {
+                    newUserActivity(result.user.email!);
+                }
+                loggedInActivity(result.user.email!);
                 dispatch(addCredentials(userDetail));
                 Cookies.set("credentials", JSON.stringify(userDetail));
                 dispatch(addNewUser(userDetail));
-                dispatch(addActivity(activityObj));
                 enqueueSnackbar("Login Success");
                 router.push('/dashboard');
             })
@@ -131,12 +126,36 @@ function LoginForm() {
         });
     }
 
+
+    const newUserActivity = (email: string) => {
+        const activityObj = {
+            email: email,
+            activity: "Register Account",
+            time: Date.now(),
+        };
+        dispatch(addActivity(activityObj));
+    }
+
+    const loggedInActivity = (email: string) => {
+        const activityObj = {
+            email: email,
+            activity: "LoggedIn Account",
+            time: Date.now(),
+        };
+        dispatch(addActivity(activityObj));
+    }
+
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <Card className={`${style.card} ${style.grid}`}>
-                <Typography className={`${style.typography}`}>
-                    Join Us
-                </Typography>
+                <div className={`${style.text_left}`}>
+                    <p className={`${style.blurText}`}>
+                        Please Enter your details
+                    </p>
+                    <Typography>
+                        Join Us
+                    </Typography>
+                </div>
                 <Controller
                     control={control}
                     name="email"
@@ -184,7 +203,7 @@ function LoginForm() {
                         />);
                     }}
                 />
-                <Button type="submit" className={`${style.button}`}>Create Account</Button>
+                <Button type="submit" className={`${style.button}  ${style.color_w_background_b}`}>Signup</Button>
                 <Button onClick={handleGoogleSignIn} className={`${style.button}`}>
                     <Image src="/google-favicon.svg" height={30} width={30} alt="google-favicon" className={`${style.mR}`} />
                     Signup with Google

@@ -16,13 +16,14 @@ const theme = createTheme({
                         color: "white"
                     },
                 },
-
+                
             }
         },
         MuiTypography: {
             styleOverrides: {
                 root: {
-                    fontSize: "1.5rem"
+                    fontWeight:"bolder",
+                    fontSize: "2rem"
                 }
             }
         }
