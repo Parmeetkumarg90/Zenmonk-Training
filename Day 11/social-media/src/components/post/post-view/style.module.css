@@ -1,6 +1,5 @@
 .card {
     width: 100%;
-    min-height: 100%;
     position: relative;
 }
 
@@ -9,7 +8,7 @@
     place-items: center;
     place-content: center;
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: 0.5fr auto 0.5fr;
 }
 
 .rounded_logo {
@@ -30,6 +29,10 @@
 
 .pY5 {
     padding: 5% 0;
+}
+
+.pX5 {
+    padding: 0 5%;
 }
 
 .input {
@@ -58,6 +61,6 @@
     text-align: center;
 }
 
-.overflow_scroll{
+.overflow_scroll {
     overflow-y: auto;
 }

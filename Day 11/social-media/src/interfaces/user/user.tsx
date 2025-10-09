@@ -11,6 +11,7 @@ interface authorizedInterface {
     displayName: string,
     phoneNumber: string,
     isSignWithGoogle?: boolean,
+    uid: string,
 }
 
 interface signUpUserInterface {

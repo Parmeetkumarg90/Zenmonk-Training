@@ -10,9 +10,9 @@ import TextField from '@mui/material/TextField';
 import style from "./style.module.css";
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { postCreateSchema } from '@/schema/post/post';
+import { postCreateDbSchema, postCreateSchema } from '@/schema/post/post';
 import Image from 'next/image';
-import { postCreateInterface } from '@/interfaces/post/user';
+import { postCreateDbInterface, postCreateInterface } from '@/interfaces/post/user';
 import Button from "@mui/material/Button";
 import ToolTip from "@mui/material/Tooltip";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -20,13 +20,20 @@ import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import EmojiPicker from "emoji-picker-react";
 import Popover from '@mui/material/Popover';
 import { ChangeEvent, useRef, useState } from 'react';
+import { cloudinaryUpload } from '@/config/cloudinary';
+import CircularProgress from "@mui/material/CircularProgress";
+import { firestoreDb } from '@/config/firebase';
+import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
+
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 const Create = () => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const dispatch = useAppDispatch();
     const router = useRouter();
+    const [isSubmitAllowed, setSubmitAllowed] = useState<boolean>(true);
     const [emojiAnchorEl, setEmojiAnchorEl] = useState<HTMLElement | null>(null);
-    const uploadInputRef = useRef<HTMLInputElement | null>(null);
+    const uploadInputRef = useRef<HTMLInputElement>(null);
 
     const { handleSubmit, reset, control, getValues, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(postCreateSchema),
@@ -36,9 +43,54 @@ const Create = () => {
         }
     });
 
-    const onSubmit: SubmitHandler<postCreateInterface> = (data) => {
-        reset();
-        console.log(data)
+    const onSubmit: SubmitHandler<postCreateInterface> = async (data) => {
+        try {
+            setSubmitAllowed(false);
+            data.images.forEach((image) => {
+                if (image.size > MAX_FILE_SIZE_BYTES) {
+                    enqueueSnackbar(image.name + " is greater than 10mb.");
+                    return;
+                }
+            })
+            const response: any = await Promise.allSettled(data.images.map((image) => cloudinaryUpload(image)));
+            const imageURLs: string[] = response.map((image: any) => image.value);
+
+            const dbPostObject: postCreateDbInterface = {
+                text: data.text,
+                imageURLs,
+                likes: [],
+                email: loggedInUser.email,
+                uid: loggedInUser.uid,
+                time: Date.now(),
+                displayName: loggedInUser.displayName,
+                photoURL: loggedInUser.photoURL,
+            };
+
+            const isPostCreationValid = postCreateDbSchema.safeParse(dbPostObject);
+            if (isPostCreationValid.success) {
+                try {
+                    addDoc(collection(firestoreDb, "posts"), isPostCreationValid.data).then((result) => {
+                        enqueueSnackbar("Post Created Successfully");
+                    }).catch((error) => {
+                        enqueueSnackbar("Error in post creation: ", error);
+                    });
+                }
+                catch (e) {
+                    enqueueSnackbar("Error in post creation due to internal error");
+                }
+            }
+            else {
+                enqueueSnackbar("Error in post creation due to missing/invalid details");
+            }
+        }
+        catch (error) {
+            console.log("Error in creating post: ", error);
+            enqueueSnackbar("Error in post creation");
+        }
+        finally {
+            reset();
+            setSubmitAllowed(true);
+        }
     }
 
     const handleFileSelect = () => {
@@ -70,8 +122,8 @@ const Create = () => {
         <Card className={`${style.card}`}>
             <form className={`${style.form} ${style.grid}`} onSubmit={handleSubmit(onSubmit)}>
                 <div className={`${style.rounded_logo} ${style.placeInRow}`}>
-                    <Image src={loggedInUser.photoURL} width={50} height={50} alt={loggedInUser.photoURL} className={`${style.rounded_logo}`} />
-                    <p>{loggedInUser.displayName}</p>
+                    <Image src={loggedInUser.photoURL!} width={50} height={50} alt={loggedInUser.photoURL ?? "Not present"} className={`${style.rounded_logo}`} />
+                    <p>{loggedInUser.displayName ?? "Not present"}</p>
                     <Controller
                         control={control}
                         name="text"
@@ -120,10 +172,23 @@ const Create = () => {
                         <EmojiPicker onEmojiClick={handleEmojiSelected} />
                     </Popover>
                     <ToolTip title="Post">
-                        <Button type='submit'>Post</Button>
+                        <Button type='submit' disabled={!isSubmitAllowed}>
+                            Post
+                        </Button>
                     </ToolTip>
                 </div>
-                {errors.images && errors.images.message}
+                <p className={`${style.redText}`}>
+                    {errors.images && errors.images.message}
+                </p>
+                {!isSubmitAllowed && <CircularProgress size="3rem" />}
+                Files:
+                <span className={`${style.imageList}`}>
+                    {getValues("images").length > 0 &&
+                        getValues("images").map((image) => {
+                            return (<p key={image.name}>{image.name}</p>);
+                        })
+                    }
+                </span>
             </form>
         </Card>
     )

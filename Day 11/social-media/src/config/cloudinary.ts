@@ -1,38 +1,23 @@
-import { v2 as cloudinary } from 'cloudinary';
+import { PostCall } from "@/services/api-calls";
 
-cloudinary.config({
-    cloud_name: 'dgzigopd4',
-    api_key: '394175589844499',
-    api_secret: '<your_api_secret>'
-});
 
-// Upload an image
-const uploadResult = await cloudinary.uploader
-    .upload(
-        'https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg', {
-        public_id: 'shoes',
+const cloudinaryUpload = async (file: File) => {
+    if (!file) {
+        console.error('No file selected.');
+        return null;
     }
-    )
-    .catch((error) => {
-        console.log(error);
-    });
 
-console.log(uploadResult);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
 
-// Optimize delivery by resizing and applying auto-format and auto-quality
-const optimizeUrl = cloudinary.url('shoes', {
-    fetch_format: 'auto',
-    quality: 'auto'
-});
+    try {
+        const response = await PostCall(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`, formData);
+        return response.secure_url;
+    } catch (error) {
+        console.error('Error during upload:', error);
+        return null;
+    }
+}
 
-console.log(optimizeUrl);
-
-// Transform the image: auto-crop to square aspect_ratio
-const autoCropUrl = cloudinary.url('shoes', {
-    crop: 'auto',
-    gravity: 'auto',
-    width: 500,
-    height: 500,
-});
-
-console.log(autoCropUrl);
+export { cloudinaryUpload };

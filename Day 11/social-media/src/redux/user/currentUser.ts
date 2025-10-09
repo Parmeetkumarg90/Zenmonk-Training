@@ -8,6 +8,7 @@ const initialState: authorizedInterface = {
     photoURL: "",
     displayName: "",
     phoneNumber: "",
+    uid: "",
 };
 
 const logInUserSlice = createSlice({
@@ -21,6 +22,7 @@ const logInUserSlice = createSlice({
                 photoURL: action.payload.photoURL,
                 displayName: action.payload.displayName,
                 phoneNumber: action.payload.phoneNumber,
+                uid: action.payload.uid,
             }
             return state;
         },

@@ -21,6 +21,8 @@ import Image from 'next/image';
 import Cookies from "js-cookie";
 import { ref, get, set, push } from "firebase/database";
 import { activityActionInterface } from '@/interfaces/activity-log/activity';
+import { firestoreDb } from "../../../config/firebase";
+import { addDoc, collection } from 'firebase/firestore';
 
 function LoginForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -68,9 +70,11 @@ function LoginForm() {
                     token: token,
                     photoURL: isStored.result.user.photoURL,
                     phoneNumber: isStored.result.user.phoneNumber,
-                    displayName: isStored.result.user.displayName
+                    displayName: isStored.result.user.displayName,
+                    uid: isStored.result.user.uid,
                 };
                 dispatch(addCredentials(userDetail));
+                await addDoc(collection(firestoreDb, "users"), userDetail);
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",
                     expires: 7,
@@ -115,7 +119,11 @@ function LoginForm() {
                     phoneNumber: result.user.phoneNumber!,
                     displayName: result.user.displayName!,
                     isSignWithGoogle: true,
+                    uid: result.user.uid,
                 };
+                if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {
+                    await addDoc(collection(firestoreDb, "users"), userDetail);
+                }
                 dispatch(addCredentials(userDetail));
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",
