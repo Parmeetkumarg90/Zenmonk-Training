@@ -11,10 +11,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
 import { RootState } from '@/redux/store';
 import { addCredentials } from '@/redux/user/currentUser';
+import { authorizedInterface } from '@/interfaces/user/user';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Link from 'next/link';
-import { auth, provider, firbaseDb } from '@/config/firebase';
+import { auth, provider } from '@/config/firebase';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import Image from 'next/image';
 import Typography from "@mui/material/Typography";
@@ -67,7 +68,13 @@ function SignupForm() {
                     enqueueSnackbar("Invalid Credentials");
                     return;
                 }
-                const userDetail = { email: isStored.result.email!, token: token };
+                const userDetail: authorizedInterface = {
+                    email: isStored.result.user.email!,
+                    token: token,
+                    photoURL: isStored.result.user.photoURL,
+                    phoneNumber: isStored.result.user.phoneNumber,
+                    displayName: isStored.result.user.displayName
+                };
                 reset();
                 dispatch(addCredentials(userDetail));
                 Cookies.set("credentials", JSON.stringify(userDetail), {
@@ -93,8 +100,14 @@ function SignupForm() {
                     enqueueSnackbar("Invalid Credentials");
                     return;
                 }
-                const userDetail = { email: result.user.email!, token: token, isSignWithGoogle: true };
-                const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
+                const userDetail: authorizedInterface = {
+                    email: result.user.email!,
+                    token: token,
+                    photoURL: result.user.photoURL!,
+                    phoneNumber: result.user.phoneNumber!,
+                    displayName: result.user.displayName!,
+                    isSignWithGoogle: true,
+                };
                 dispatch(addCredentials(userDetail));
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",

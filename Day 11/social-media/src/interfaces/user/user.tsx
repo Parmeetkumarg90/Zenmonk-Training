@@ -7,6 +7,9 @@ interface logInUserInterface {
 interface authorizedInterface {
     email: string,
     token: string,
+    photoURL: string,
+    displayName: string,
+    phoneNumber: string,
     isSignWithGoogle?: boolean,
 }
 

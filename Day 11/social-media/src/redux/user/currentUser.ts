@@ -4,7 +4,10 @@ import { authorizedInterface } from "@/interfaces/user/user";
 
 const initialState: authorizedInterface = {
     email: "",
-    token: ""
+    token: "",
+    photoURL: "",
+    displayName: "",
+    phoneNumber: "",
 };
 
 const logInUserSlice = createSlice({
@@ -15,6 +18,9 @@ const logInUserSlice = createSlice({
             state = {
                 email: action.payload.email,
                 token: action.payload.token,
+                photoURL: action.payload.photoURL,
+                displayName: action.payload.displayName,
+                phoneNumber: action.payload.phoneNumber,
             }
             return state;
         },

@@ -1,0 +1,49 @@
+.card {
+    width: 100%;
+    min-height: 100%;
+    position: relative;
+    background-color: red;
+}
+
+.grid {
+    display: grid;
+    place-items: center;
+    place-content: center;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+}
+
+.rounded_logo {
+    border-radius: 100px;
+}
+
+.form {
+    padding: 3%;
+}
+
+.placeInRow {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10;
+    align-items: center;
+}
+
+.pY5 {
+    padding: 5% 0;
+}
+
+.input {
+    width: 100%;
+}
+
+.flex_evenly {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.hidden {
+    display: none;
+}

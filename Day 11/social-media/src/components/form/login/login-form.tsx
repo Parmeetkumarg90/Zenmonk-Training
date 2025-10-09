@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import Card from '@mui/material/Card';
 import style from './style.module.css';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
-import { logInUserInterface } from '@/interfaces/user/user';
+import { authorizedInterface, logInUserInterface } from '@/interfaces/user/user';
 import { enqueueSnackbar } from 'notistack';
 import { logInUserSchema } from '@/schema/user/user';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +19,6 @@ import { auth, provider } from '@/config/firebase';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Cookies from "js-cookie";
-import { firbaseDb } from '@/config/firebase';
 import { ref, get, set, push } from "firebase/database";
 import { activityActionInterface } from '@/interfaces/activity-log/activity';
 
@@ -64,7 +63,13 @@ function LoginForm() {
                     return;
                 }
                 reset();
-                const userDetail = { email: isStored.result.email!, token: token };
+                const userDetail: authorizedInterface = {
+                    email: isStored.result.user.email!,
+                    token: token,
+                    photoURL: isStored.result.user.photoURL,
+                    phoneNumber: isStored.result.user.phoneNumber,
+                    displayName: isStored.result.user.displayName
+                };
                 dispatch(addCredentials(userDetail));
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",
@@ -103,10 +108,14 @@ function LoginForm() {
                     enqueueSnackbar("Invalid Credentials");
                     return;
                 }
-                const userDetail = { email: result.user.email!, token: token, isSignWithGoogle: true };
-                const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
-                if (isNewUser) {
-                }
+                const userDetail: authorizedInterface = {
+                    email: result.user.email!,
+                    token: token,
+                    photoURL: result.user.photoURL!,
+                    phoneNumber: result.user.phoneNumber!,
+                    displayName: result.user.displayName!,
+                    isSignWithGoogle: true,
+                };
                 dispatch(addCredentials(userDetail));
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",
