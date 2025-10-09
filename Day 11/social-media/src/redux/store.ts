@@ -9,8 +9,6 @@ import activityReducer from '@/redux/activity-log/activity';
 
 const rootReducer = combineReducers({
     currentUser: currentUserReducer,
-    users: usersReducer,
-    activities: activityReducer,
 });
 
 const persistConfig = {

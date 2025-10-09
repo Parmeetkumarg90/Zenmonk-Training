@@ -18,49 +18,26 @@ import { ref, get, set, push } from "firebase/database";
 import { activityActionInterface } from '@/interfaces/activity-log/activity';
 
 const Dashboard = () => {
-    const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
-    const users = useAppSelector((state: RootState) => state.users);
-    const activities = useAppSelector((state: RootState) => state.activities.find((each) => each.email === loggedInUser.email));
+    // const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
+    // const users = useAppSelector((state: RootState) => state.users);
+    // const activities = useAppSelector((state: RootState) => state.activities.find((each) => each.email === loggedInUser.email));
     const dispatch = useAppDispatch();
     const router = useRouter();
-    
+
     const handleLogout = () => {
-        loggedInActivity(loggedInUser.email);
         dispatch(logout());
         Cookies.remove("credentials");
         enqueueSnackbar("Logout Success");
         router.push("/");
     }
 
-    const loggedInActivity = (email: string) => {
-        const activityObj = {
-            email: email,
-            activity: "LoggedIn Account",
-            time: Date.now(),
-        };
-        dispatch(addActivity(activityObj));
-        addActivityInDb(loggedInUser.password, activityObj);
-    }
-
     const isUserPresent = (credentials: logInUserInterface) => {
         const isSchemaValid = logInUserSchema.safeParse(credentials);
         if (isSchemaValid.success) {
-            const isUserValid = users.find(each => each.email === credentials.email && each.password === credentials.password);
-            if (isUserValid) {
-                return { success: true };
-            }
+            return { success: true };
         }
         return { success: false };
     }
-
-    const addActivityInDb = (uid: string, activityObj: activityActionInterface) => {
-        const dbRef = ref(firbaseDb, `activities/${uid}`);
-        const newActivityRef = push(dbRef);
-        set(newActivityRef, {
-            activity: activityObj.activity,
-            time: activityObj.time,
-        });
-    };
 
     return (
         <Card className={`${style.card} ${style.grid}`}>
@@ -70,19 +47,7 @@ const Dashboard = () => {
                 </Typography>
             </div>
             <Stack spacing={2} className={`${style.stack} ${style.mY5} ${style.pY5}`}>
-                {
-                    activities?.log.map((eachActivity, index) => {
-                        const timeStamp = new Date(eachActivity.time).toLocaleString();
-                        return <Card className={`${style.listItem} ${style.pY5} ${style.text_center} 
-                        ${eachActivity.activity === "LoggedIn Account" && style.lightPink}
-                        ${eachActivity.activity === "Register Account" && style.lightGreen}
-                        ${eachActivity.activity === "Logout Account" && style.lightBlue}
-                        `}
-                            key={index}>
-                            {eachActivity.activity}: {timeStamp}
-                        </Card>
-                    })
-                }
+                hi dashboard
             </Stack>
             <Button onClick={handleLogout} className={`${style.button} ${style.color_w_background_b} `}>Logout</Button>
         </Card>

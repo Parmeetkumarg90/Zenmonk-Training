@@ -13,22 +13,18 @@ import { addCredentials } from '@/redux/user/currentUser';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Link from 'next/link';
-import { addActivity } from '@/redux/activity-log/activity';
 import Typography from '@mui/material/Typography';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '@/config/firebase';
-import { addNewUser } from '@/redux/user/users';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Cookies from "js-cookie";
 import { firbaseDb } from '@/config/firebase';
 import { ref, get, set, push } from "firebase/database";
 import { activityActionInterface } from '@/interfaces/activity-log/activity';
-import { GetCall } from '@/services/api-calls';
 
 function LoginForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
-    const users = useAppSelector((state: RootState) => state.users);
     const dispatch = useAppDispatch();
     const router = useRouter();
 
@@ -50,10 +46,7 @@ function LoginForm() {
     const isUserValid = (user: logInUserInterface) => {
         const isValid = logInUserSchema.safeParse(user);
         if (isValid.success) {
-            const userDetail = users.find((eachUser) => eachUser.email === user.email);
-            if (!userDetail && !logInUserSchema.safeParse(userDetail).success) {
-                return { success: true };
-            }
+            return { success: true };
         }
         return { success: false };
     }
@@ -65,18 +58,20 @@ function LoginForm() {
         if (isValidCredentials.success) {
             const isStored = await handleManualLogin(data);
             if (isStored.success) {
-                createOrVerifyUserFromDb("/api/login");
+                const token = await getToken();
+                if (!token) {
+                    enqueueSnackbar("Invalid Credentials");
+                    return;
+                }
                 reset();
-                const userDetail = { email: isStored.result.email!, password: isStored.result.uid };
+                const userDetail = { email: isStored.result.email!, token: token };
                 dispatch(addCredentials(userDetail));
-                dispatch(addNewUser(userDetail));
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",
                     expires: 7,
                     sameSite: "Lax",
                     secure: process.env.NODE_ENV === "production",
                 });
-                loggedInActivity(data.email);
                 enqueueSnackbar("Login Success");
                 router.push('/dashboard');
             }
@@ -103,25 +98,22 @@ function LoginForm() {
     const handleGoogleLogin = () => {
         signInWithPopup(auth, provider)
             .then(async (result) => {
-                const userDetail = { email: result.user.email!, password: result.user.uid, isSignWithGoogle: true };
+                const token = await getToken();
+                if (!token) {
+                    enqueueSnackbar("Invalid Credentials");
+                    return;
+                }
+                const userDetail = { email: result.user.email!, token: token, isSignWithGoogle: true };
                 const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
                 if (isNewUser) {
-                    newUserActivity(userDetail.email);
-                    createOrVerifyUserFromDb("/api/register");
                 }
-                else {
-                    createOrVerifyUserFromDb("/api/login");
-                }
-                loggedInActivity(userDetail.email);
                 dispatch(addCredentials(userDetail));
-                dispatch(addNewUser(userDetail));
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",
                     expires: 7,
                     sameSite: "Lax",
                     secure: process.env.NODE_ENV === "production",
                 });
-                dispatch(addNewUser(userDetail));
                 enqueueSnackbar("Login Success");
                 router.push('/dashboard');
             })
@@ -131,31 +123,12 @@ function LoginForm() {
             })
     }
 
-    const createOrVerifyUserFromDb = async (url: string) => {
-        const token = await getToken();
-        if (!token) {
-            enqueueSnackbar("Error in verifying user");
-            return;
-        }
-        const isUserValid = await GetCall(url, {
-            headers: {
-                "Authorization": `Bearer ${token}`,
-            }
-        });
-
-        if (!isUserValid.success) {
-            enqueueSnackbar(isUserValid.message);
-            return;
-        }
-    }
-
     const newUserActivity = (email: string) => {
         const activityObj = {
             email: email,
             activity: "Register Account",
             time: Date.now(),
         };
-        dispatch(addActivity(activityObj));
     }
 
     const loggedInActivity = (email: string) => {
@@ -164,7 +137,6 @@ function LoginForm() {
             activity: "LoggedIn Account",
             time: Date.now(),
         };
-        dispatch(addActivity(activityObj));
     }
 
     const getToken = async () => {

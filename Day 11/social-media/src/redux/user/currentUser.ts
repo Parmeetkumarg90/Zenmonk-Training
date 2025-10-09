@@ -1,20 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { logInUserInterface } from "@/interfaces/user/user";
+import { authorizedInterface } from "@/interfaces/user/user";
 
-const initialState: logInUserInterface = {
+const initialState: authorizedInterface = {
     email: "",
-    password: ""
+    token: ""
 };
 
 const logInUserSlice = createSlice({
     name: "currentUser",
     initialState,
     reducers: {
-        addCredentials: (state, action: PayloadAction<logInUserInterface>) => {
+        addCredentials: (state, action: PayloadAction<authorizedInterface>) => {
             state = {
                 email: action.payload.email,
-                password: action.payload.password,
+                token: action.payload.token,
             }
             return state;
         },
