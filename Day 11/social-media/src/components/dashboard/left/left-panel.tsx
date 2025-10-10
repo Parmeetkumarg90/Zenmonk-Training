@@ -10,7 +10,7 @@ import Image from 'next/image';
 import Button from '@mui/material/Button';
 import { useState } from 'react';
 import Popover from '@mui/material/Popover';
-import ProfileEditForm from '@/components/misllaneous/profile-edit-form/profile-edit-form';
+import ProfileEditForm from '@/components/misllaneous/edit-form/profile-edit-form';
 
 const LeftPanel = () => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);

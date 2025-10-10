@@ -28,6 +28,7 @@ const ProfileEditForm = () => {
         console.log("submitted data: ", data);
     }
 
+    console.log("🚀 ~ ProfileEditForm ~ errors:", errors)
     return (
         <form onSubmit={handleSubmit(onSubmit)} className={`${style.grid}`}>
             <Typography>Welcome, Update Profile</Typography>
@@ -50,6 +51,7 @@ const ProfileEditForm = () => {
                 control={control}
                 name="phoneNumber"
                 render={({ field, fieldState: { error } }) => {
+                    console.log(field, error)
                     return (<TextField
                         {...field}
                         helperText={error?.message || ""}
@@ -63,11 +65,11 @@ const ProfileEditForm = () => {
                 }}
             />
             <span>
-                <input type='file' accept='image/*' name='photoURL'/>
+                <input type='file' accept='image/*' name='photoURL' />
                 {errors.photoURL && errors.photoURL.message}
             </span>
             {isSameValues ? "Please update your data" : ""}
-            <Button className={`${style.button}`}>Update Profile</Button>
+            <Button type='submit' className={`${style.button}`}>Update Profile</Button>
         </form>
     )
 }
