@@ -13,11 +13,11 @@ const commentDbSchema = zod.object({
 });
 
 const postCreateDbSchema = zod.object({
-    email: zod.email().trim().min(8),
+    email: zod.email().trim(),
     text: zod.string().trim().min(1, "Text cannot be empty or spaces").max(500, "Textsize should be smaller than 500 characters"),
     imageURLs: zod.array(zod.string()).min(1, "Provide atleast 1 image").max(4, "Provide images between 1-4"),
     likes: zod.array(zod.string()).default([]).optional(),
-    uid: zod.string().trim().min(8),
+    uid: zod.string().trim(),
     time: zod.number(),
     displayName: zod.string().trim().nullable(),
     photoURL: zod.string().trim().nullable(),

@@ -12,7 +12,7 @@ import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { postCreateDbSchema, postCreateSchema } from '@/schema/post/post';
 import Image from 'next/image';
-import { postCreateDbInterface, postCreateInterface } from '@/interfaces/post/user';
+import { postCreateDbInterface, postCreateInterface, postDbGetInterface } from '@/interfaces/post/user';
 import Button from "@mui/material/Button";
 import ToolTip from "@mui/material/Tooltip";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -24,6 +24,7 @@ import { cloudinaryUpload } from '@/config/cloudinary';
 import CircularProgress from "@mui/material/CircularProgress";
 import { firestoreDb } from '@/config/firebase';
 import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
+import { addUserPosts } from '@/redux/post/user-post';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -67,9 +68,15 @@ const Create = () => {
             };
 
             const isPostCreationValid = postCreateDbSchema.safeParse(dbPostObject);
+            // console.log(isPostCreationValid,dbPostObject)
             if (isPostCreationValid.success) {
                 try {
                     addDoc(collection(firestoreDb, "posts"), isPostCreationValid.data).then((result) => {
+                        const currentUserPost: postDbGetInterface = {
+                            ...dbPostObject,
+                            postId: result.id,
+                        }
+                        dispatch(addUserPosts(currentUserPost));
                         enqueueSnackbar("Post Created Successfully");
                     }).catch((error) => {
                         enqueueSnackbar("Error in post creation: ", error);
@@ -122,8 +129,8 @@ const Create = () => {
         <Card className={`${style.card}`}>
             <form className={`${style.form} ${style.grid}`} onSubmit={handleSubmit(onSubmit)}>
                 <div className={`${style.rounded_logo} ${style.placeInRow}`}>
-                    <Image src={loggedInUser.photoURL!} width={50} height={50} alt={loggedInUser.photoURL ?? "Not present"} className={`${style.rounded_logo}`} />
-                    <p>{loggedInUser.displayName ?? "Not present"}</p>
+                    <Image src={loggedInUser.photoURL ?? "/blank-profile-picture.svg"} width={50} height={50} alt={loggedInUser.photoURL ?? "/blank-profile-picture.svg"} className={`${style.rounded_logo}`} />
+                    <p>{loggedInUser.displayName ?? "Username"}</p>
                     <Controller
                         control={control}
                         name="text"

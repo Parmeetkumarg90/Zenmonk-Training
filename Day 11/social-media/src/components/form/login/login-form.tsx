@@ -22,19 +22,12 @@ import Cookies from "js-cookie";
 import { ref, get, set, push } from "firebase/database";
 import { activityActionInterface } from '@/interfaces/activity-log/activity';
 import { firestoreDb } from "../../../config/firebase";
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, where, query, getDocs } from 'firebase/firestore';
 
 function LoginForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const dispatch = useAppDispatch();
     const router = useRouter();
-
-    // useEffect(() => {
-    //     const isValidLogIn = isUserValid(loggedInUser);
-    //     if (isValidLogIn.success) {
-    //         router.push('/dashboard');
-    //     }
-    // }, []);
 
     const { handleSubmit, reset, control } = useForm({
         resolver: zodResolver(logInUserSchema),
@@ -73,8 +66,7 @@ function LoginForm() {
                     displayName: isStored.result.user.displayName,
                     uid: isStored.result.user.uid,
                 };
-                dispatch(addCredentials(userDetail));
-                await addDoc(collection(firestoreDb, "users"), userDetail);
+                fetchUserDetailIfLoggedIn(userDetail);
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",
                     expires: 7,
@@ -121,10 +113,13 @@ function LoginForm() {
                     isSignWithGoogle: true,
                     uid: result.user.uid,
                 };
+                dispatch(addCredentials(userDetail));
                 if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {
                     await addDoc(collection(firestoreDb, "users"), userDetail);
                 }
-                dispatch(addCredentials(userDetail));
+                else {
+                    fetchUserDetailIfLoggedIn(userDetail);
+                }
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",
                     expires: 7,
@@ -140,26 +135,27 @@ function LoginForm() {
             })
     }
 
-    const newUserActivity = (email: string) => {
-        const activityObj = {
-            email: email,
-            activity: "Register Account",
-            time: Date.now(),
-        };
-    }
-
-    const loggedInActivity = (email: string) => {
-        const activityObj = {
-            email: email,
-            activity: "LoggedIn Account",
-            time: Date.now(),
-        };
+    const fetchUserDetailIfLoggedIn = async (userDetail: authorizedInterface) => {
+        try {
+            const docRef = query(collection(firestoreDb, "users"), where("uid", "==", userDetail.uid));
+            const docSnapshot = await getDocs(docRef);
+            if (docSnapshot.docs.length) {
+                const userDoc = docSnapshot.docs[0].data();
+                userDetail = { ...userDetail, ...userDoc };
+                userDetail.photoURL = userDetail.photoURL ?? "/blank-profile-picture.svg";
+                // console.log(userDetail,userDoc)
+                dispatch(addCredentials(userDetail));
+            }
+        }
+        catch (error) {
+            console.log("Error in fetching user details: ", error);
+        }
     }
 
     const getToken = async () => {
         if (auth.currentUser) {
             try {
-                const idToken = await auth.currentUser.getIdToken(/* forceRefresh */ true);
+                const idToken = await auth.currentUser.getIdToken(true);
                 return idToken;
             } catch (error) {
                 console.error("Error getting token:", error);

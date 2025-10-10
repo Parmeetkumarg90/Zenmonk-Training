@@ -9,17 +9,19 @@ import style from "./style.module.css";
 import Card from "@mui/material/Card";
 import PostItem from '@/components/post/post-view/post-view';
 import { useEffect, useState } from 'react';
-import { postCreateDbInterface } from '@/interfaces/post/user';
+import { postDbGetInterface } from '@/interfaces/post/user';
 import { collection, getDocs, where, query } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import CircularProgress from '@mui/material/CircularProgress';
+import { addPostsCount } from '@/redux/user/currentUser';
+import { addUserPosts } from '@/redux/post/user-post';
 
 const MainPanel = () => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const dispatch = useAppDispatch();
     const router = useRouter();
     const [isLoading, setLoading] = useState<boolean>(true);
-    const [posts, setPosts] = useState<postCreateDbInterface[]>([]);
+    const [posts, setPosts] = useState<postDbGetInterface[]>([]);
 
     useEffect(() => {
         getPosts();
@@ -27,12 +29,14 @@ const MainPanel = () => {
 
     const getPosts = async () => {
         try {
+            let currentUserPosts = 0;
             const postQuerySnapshot = await getDocs(collection(firestoreDb, "posts"));
-            const postList: postCreateDbInterface[] = [];
+            const postList: postDbGetInterface[] = [];
 
             postQuerySnapshot.forEach(async (doc) => {
                 const postData = doc.data();
-                const post: postCreateDbInterface = {
+                const post: postDbGetInterface = {
+                    postId: doc.id,
                     email: postData.email,
                     text: postData.text,
                     imageURLs: postData.imageURLs,
@@ -42,10 +46,15 @@ const MainPanel = () => {
                     displayName: postData.displayName,
                     photoURL: postData.photoURL,
                 };
+                if (loggedInUser.uid === postData.uid) {
+                    currentUserPosts++;
+                    dispatch(addUserPosts(post));
+                }
                 // const userQuerySnapshot = await getDocs(query(collection(firestoreDb, "users"), where("email", "==", post.email)));
                 // console.log(post, userQuerySnapshot.metadata)
                 postList.push(post);
             });
+            dispatch(addPostsCount({ totalPosts: currentUserPosts }));
             setPosts(postList);
         }
         catch (e) {
@@ -63,14 +72,14 @@ const MainPanel = () => {
             <Create />
             <div className={`${style.card} ${style.overflow_scroll}`}>
                 {
-                    isLoading ? <CircularProgress size={"3rem"} /> :
+                    isLoading ? <CircularProgress size={"3rem"} title='Loading Post' className={`${style.marginAuto}`} /> :
                         // {
                         posts.length > 0 ? posts.map((eachDoc, index) =>
                             <span key={index}>
                                 <PostItem post={eachDoc} />
                             </span>
                         )
-                            : <>No post</>
+                            : <span>No post</span>
                 }
             </div>
         </Card>

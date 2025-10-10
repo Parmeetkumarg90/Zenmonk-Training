@@ -4,11 +4,13 @@ import persistStore from "redux-persist/es/persistStore";
 import persistReducer from "redux-persist/lib/persistReducer";
 import { FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import currentUserReducer from '@/redux/user/currentUser';
+import currentUserPostReducer from "@/redux/post/user-post";
 import usersReducer from '@/redux/user/users';
 import activityReducer from '@/redux/activity-log/activity';
 
 const rootReducer = combineReducers({
     currentUser: currentUserReducer,
+    posts: currentUserPostReducer,
 });
 
 const persistConfig = {

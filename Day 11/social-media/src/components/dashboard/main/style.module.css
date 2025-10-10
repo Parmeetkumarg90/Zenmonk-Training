@@ -2,11 +2,13 @@
     width: 100%;
     min-height: 100%;
     position: relative;
+    padding: 1% 0;
 }
 
 .grid {
     display: grid;
     place-items: center;
+    place-content: center;
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
 }
@@ -14,4 +16,8 @@
 .overflow_scroll {
     height: 10px;
     overflow-y: auto;
+}
+
+.marginAuto{
+    margin: auto;
 }

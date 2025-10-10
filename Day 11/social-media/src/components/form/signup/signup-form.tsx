@@ -23,7 +23,7 @@ import Cookies from 'js-cookie';
 import { activityActionInterface } from '@/interfaces/activity-log/activity';
 import { ref, push, get, set } from "firebase/database";
 import { firestoreDb } from "../../../config/firebase";
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, query, getDocs, where } from 'firebase/firestore';
 
 function SignupForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -83,6 +83,9 @@ function SignupForm() {
                 if (isStored.result.user.metadata.creationTime === isStored.result.user.metadata.lastSignInTime) {
                     await addDoc(collection(firestoreDb, "users"), userDetail);
                 }
+                else {
+                    fetchUserDetailIfLoggedIn(userDetail);
+                }
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",
                     expires: 7,
@@ -119,6 +122,9 @@ function SignupForm() {
                 if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {
                     await addDoc(collection(firestoreDb, "users"), userDetail);
                 }
+                else {
+                    fetchUserDetailIfLoggedIn(userDetail);
+                }
                 Cookies.set("credentials", JSON.stringify(userDetail), {
                     path: "/",
                     expires: 7,
@@ -144,20 +150,20 @@ function SignupForm() {
         });
     }
 
-    const newUserActivity = (email: string) => {
-        const activityObj = {
-            email: email,
-            activity: "Register Account",
-            time: Date.now(),
-        };
-    }
-
-    const loggedInActivity = (email: string) => {
-        const activityObj = {
-            email: email,
-            activity: "LoggedIn Account",
-            time: Date.now(),
-        };
+    const fetchUserDetailIfLoggedIn = async (userDetail: authorizedInterface) => {
+        try {
+            const docRef = query(collection(firestoreDb, "users"), where("uid", "==", userDetail.uid));
+            const docSnapshot = await getDocs(docRef);
+            if (docSnapshot.docs.length) {
+                const userDoc = docSnapshot.docs[0].data();
+                userDetail = { ...userDetail, ...userDoc };
+                userDetail.photoURL = userDetail.photoURL ?? "/blank-profile-picture.svg";
+                dispatch(addCredentials(userDetail));
+            }
+        }
+        catch (error) {
+            console.log("Error in fetching user details: ", error);
+        }
     }
 
     const getToken = async () => {

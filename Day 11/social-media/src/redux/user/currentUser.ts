@@ -26,9 +26,13 @@ const logInUserSlice = createSlice({
             }
             return state;
         },
+        addPostsCount: (state, action: PayloadAction<{ totalPosts: number }>) => {
+            state = { ...state, totalPosts: action.payload.totalPosts };
+            return state;
+        },
         logout: (state) => state = initialState
     }
 });
 
 export default logInUserSlice.reducer;
-export const { addCredentials, logout } = logInUserSlice.actions;
+export const { addCredentials, logout, addPostsCount } = logInUserSlice.actions;

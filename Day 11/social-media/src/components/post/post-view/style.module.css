@@ -1,6 +1,8 @@
 .card {
     width: 100%;
     position: relative;
+    margin: 1%;
+    /* background-color: #2f32d3 !important; */
 }
 
 .grid {
@@ -8,7 +10,7 @@
     place-items: center;
     place-content: center;
     grid-template-columns: 1fr;
-    grid-template-rows: 0.5fr auto 0.5fr;
+    /* grid-template-rows: 0.5fr auto 0.5fr; */
 }
 
 .rounded_logo {
@@ -33,6 +35,14 @@
 
 .pX5 {
     padding: 0 5%;
+}
+
+.mY2 {
+    margin: 2% 0;
+}
+
+.mX2 {
+    margin: 0 2%;
 }
 
 .input {

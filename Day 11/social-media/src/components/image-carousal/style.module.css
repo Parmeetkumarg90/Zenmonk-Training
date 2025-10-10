@@ -1,0 +1,45 @@
+.card {
+    width: 100%;
+    height: 600px;
+    margin: auto;
+    margin-top: 2%;
+    /* place-items: center; */
+    position: relative;
+    box-shadow: 0px 0px 5px 1px #fff;
+}
+
+.grid {
+    /* padding: 2% 0 2% 0; */
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+}
+
+@media screen and (max-width:800) {
+    .card {
+        width: 70%;
+    }
+}
+
+.absolute {
+    position: absolute !important;
+    z-index: 100;
+}
+
+.leftArrow {
+    left: 0;
+    top: 50%;
+}
+
+.rightArrow{
+    right: 0;
+    top: 50%;
+}
+
+.arrow{
+    width: fit-content;
+    height: fit-content;
+    transform: translate(0%,-50%);
+    border-radius: 100px !important;
+    opacity: 0.6;
+}

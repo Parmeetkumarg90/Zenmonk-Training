@@ -19,4 +19,13 @@ const signUpUserSchema = zod.object({
     path: ["confirmPassword"],
 });
 
-export { usersSchema, logInUserSchema, signUpUserSchema };
+const updateUserSchema = zod.object({
+    displayName: zod.string().trim().min(3, "Name should have atleast 3 characters").max(20, "Name should have atmost 20 characters").optional(),
+    phoneNumber: zod.number().min(10, "Phone Number should have 10 digits").max(10, "Phone Number should have 10 digits without country code").optional(),
+    photoURL: zod.file().min(1, "Atleast provide profile image").max(1, "Multiple files selected").optional(),
+}).refine((data) => !data.displayName || !data.phoneNumber || !data.photoURL, {
+    message: "Form can't be empty",
+    path: ["displayName", "phoneNumber", "photoURL"]
+});
+
+export { usersSchema, logInUserSchema, signUpUserSchema, updateUserSchema };

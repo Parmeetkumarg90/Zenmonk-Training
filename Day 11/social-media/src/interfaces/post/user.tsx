@@ -20,4 +20,16 @@ interface postCreateDbInterface {
     photoURL: string,
 }
 
-export type { postCreateInterface, postCreateDbInterface, commentDbInterface };
+interface postDbGetInterface {
+    postId: string,
+    email: string,
+    text: string,
+    imageURLs: string[],
+    likes: string[],
+    uid: string,
+    time: number,
+    displayName: string,
+    photoURL: string,
+}
+
+export type { postCreateInterface, postCreateDbInterface, commentDbInterface, postDbGetInterface };

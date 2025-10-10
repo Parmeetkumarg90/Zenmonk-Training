@@ -2,11 +2,61 @@
     width: 100%;
     min-height: 100%;
     position: relative;
+    padding: 2%;
 }
 
 .grid {
     display: grid;
     place-items: center;
     grid-template-columns: 1fr;
-    grid-template-rows: 0.5fr 2fr 0.5fr;
+    grid-template-rows: 0.5fr 1fr;
+}
+
+.textWrap {
+    text-wrap: wrap;
+}
+
+.rounded_logo {
+    border-radius: 100px;
+}
+
+.topElement {
+    width: 100%;
+    display: grid;
+    place-items: center;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    /* background-color: red !important; */
+}
+
+.section1 {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+    text-align: center;
+}
+
+.relative {
+    position: relative;
+}
+
+.textCenter {
+    text-align: center;
+}
+
+.button {
+    width: 80%;
+    border-radius: 5px;
+}
+
+.w_50 {
+    width: 50%;
+}
+
+.popover {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 200;
 }

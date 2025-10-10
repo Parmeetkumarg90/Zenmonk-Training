@@ -12,6 +12,7 @@ interface authorizedInterface {
     phoneNumber: string,
     isSignWithGoogle?: boolean,
     uid: string,
+    totalPosts?: number,
 }
 
 interface signUpUserInterface {
@@ -20,4 +21,10 @@ interface signUpUserInterface {
     confirmPassword: string,
 }
 
-export type { logInUserInterface, signUpUserInterface, authorizedInterface, };
+interface updateUserInterface {
+    displayName?: string,
+    phoneNumber?: number,
+    photoURL?: File
+}
+
+export type { logInUserInterface, signUpUserInterface, authorizedInterface, updateUserInterface, };
