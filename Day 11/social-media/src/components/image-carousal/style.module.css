@@ -37,9 +37,8 @@
 }
 
 .arrow{
-    width: fit-content;
+    width: fit-content !important;
     height: fit-content;
     transform: translate(0%,-50%);
-    border-radius: 100px !important;
     opacity: 0.6;
 }

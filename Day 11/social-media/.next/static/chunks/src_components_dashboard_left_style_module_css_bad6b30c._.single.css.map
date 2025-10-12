@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/src/components/dashboard/left/style.module.css"],"sourcesContent":[".card {\n    width: 100%;\n    min-height: 100%;\n    position: relative;\n    padding: 2%;\n}\n\n.grid {\n    display: grid;\n    place-items: center;\n    grid-template-columns: 1fr;\n    grid-template-rows: 0.5fr 1fr;\n}\n\n.textWrap {\n    text-wrap: wrap;\n}\n\n.rounded_logo {\n    border-radius: 100px;\n}\n\n.topElement {\n    width: 100%;\n    display: grid;\n    place-items: center;\n    grid-template-columns: 1fr;\n    grid-template-rows: 1fr 1fr 1fr;\n    /* background-color: red !important; */\n}\n\n.section1 {\n    width: 100%;\n    display: grid;\n    grid-template-columns: 1fr 1fr;\n    grid-template-rows: 1fr;\n    text-align: center;\n}\n\n.relative {\n    position: relative;\n}\n\n.textCenter {\n    text-align: center;\n}\n\n.button {\n    width: 80%;\n    border-radius: 5px;\n}\n\n.w_50 {\n    width: 50%;\n}\n\n.popover {\n    position: absolute;\n    left: 50%;\n    top: 50%;\n    z-index: 200;\n}"],"names":[],"mappings":"AAAA;;;;;;;AAOA;;;;;;;AAOA;;;;AAIA;;;;AAIA;;;;;;;;AASA;;;;;;;;AAQA;;;;AAIA;;;;AAIA;;;;;AAKA;;;;AAIA"}}]
+}

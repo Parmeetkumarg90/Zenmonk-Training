@@ -52,7 +52,7 @@ const Create = () => {
                     enqueueSnackbar(image.name + " is greater than 10mb.");
                     return;
                 }
-            })
+            });
             const response: any = await Promise.allSettled(data.images.map((image) => cloudinaryUpload(image)));
             const imageURLs: string[] = response.map((image: any) => image.value);
 

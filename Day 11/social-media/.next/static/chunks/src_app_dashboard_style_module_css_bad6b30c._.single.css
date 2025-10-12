@@ -1,0 +1,15 @@
+/* [project]/src/app/dashboard/style.module.css [app-client] (css) */
+.style-module__Agl0NG__card {
+  width: 100vw;
+  min-height: 100vh;
+  position: relative;
+}
+
+.style-module__Agl0NG__grid {
+  grid-template-rows: 1fr;
+  grid-template-columns: .5fr 2fr .5fr;
+  place-items: center;
+  display: grid;
+}
+
+/*# sourceMappingURL=src_app_dashboard_style_module_css_bad6b30c._.single.css.map*/

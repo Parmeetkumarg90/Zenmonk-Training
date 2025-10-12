@@ -1,0 +1,46 @@
+/* [project]/src/components/image-carousal/style.module.css [app-client] (css) */
+.style-module__3ndGNW__card {
+  width: 100%;
+  height: 600px;
+  margin: 2% auto auto;
+  position: relative;
+  box-shadow: 0 0 5px 1px #fff;
+}
+
+.style-module__3ndGNW__grid {
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+  display: grid;
+}
+
+@media screen and (max-width: 800px) {
+  .style-module__3ndGNW__card {
+    width: 70%;
+  }
+}
+
+.style-module__3ndGNW__absolute {
+  z-index: 100;
+  position: absolute !important;
+}
+
+.style-module__3ndGNW__leftArrow {
+  top: 50%;
+  left: 0;
+}
+
+.style-module__3ndGNW__rightArrow {
+  top: 50%;
+  right: 0;
+}
+
+.style-module__3ndGNW__arrow {
+  opacity: .6;
+  height: -moz-fit-content;
+  height: fit-content;
+  transform: translate(0%, -50%);
+  width: -moz-fit-content !important;
+  width: fit-content !important;
+}
+
+/*# sourceMappingURL=src_components_image-carousal_style_module_css_bad6b30c._.single.css.map*/

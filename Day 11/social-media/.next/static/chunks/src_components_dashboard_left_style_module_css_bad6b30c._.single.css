@@ -1,0 +1,64 @@
+/* [project]/src/components/dashboard/left/style.module.css [app-client] (css) */
+.style-module__MSU4Za__card {
+  width: 100%;
+  min-height: 100%;
+  padding: 2%;
+  position: relative;
+}
+
+.style-module__MSU4Za__grid {
+  grid-template-rows: .5fr 1fr;
+  grid-template-columns: 1fr;
+  place-items: center;
+  display: grid;
+}
+
+.style-module__MSU4Za__textWrap {
+  text-wrap: wrap;
+}
+
+.style-module__MSU4Za__rounded_logo {
+  border-radius: 100px;
+}
+
+.style-module__MSU4Za__topElement {
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-columns: 1fr;
+  place-items: center;
+  width: 100%;
+  display: grid;
+}
+
+.style-module__MSU4Za__section1 {
+  text-align: center;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  display: grid;
+}
+
+.style-module__MSU4Za__relative {
+  position: relative;
+}
+
+.style-module__MSU4Za__textCenter {
+  text-align: center;
+}
+
+.style-module__MSU4Za__button {
+  border-radius: 5px;
+  width: 80%;
+}
+
+.style-module__MSU4Za__w_50 {
+  width: 50%;
+}
+
+.style-module__MSU4Za__popover {
+  z-index: 200;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+/*# sourceMappingURL=src_components_dashboard_left_style_module_css_bad6b30c._.single.css.map*/

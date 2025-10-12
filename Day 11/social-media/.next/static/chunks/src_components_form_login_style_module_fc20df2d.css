@@ -1,0 +1,77 @@
+/* [project]/src/components/form/login/style.module.css [app-client] (css) */
+.style-module__QP2lxa__card {
+  place-items: center;
+  width: 585px;
+  height: 690px;
+  margin: 2% auto auto;
+  position: relative;
+  box-shadow: 0 0 5px 1px #fff;
+}
+
+.style-module__QP2lxa__grid {
+  grid-template-rows: 1fr repeat(.5fr, 4);
+  grid-template-columns: 1fr;
+  padding: 2% 0;
+  display: grid;
+}
+
+.style-module__QP2lxa__input {
+  width: 80%;
+}
+
+.style-module__QP2lxa__pY5 {
+  padding: 5% 0;
+}
+
+.style-module__QP2lxa__mY5 {
+  margin: 5% 0;
+}
+
+.style-module__QP2lxa__typography {
+  font-size: 2rem;
+  font-weight: bolder;
+}
+
+.style-module__QP2lxa__leftTypography {
+  top: 8%;
+  left: 4%;
+}
+
+.style-module__QP2lxa__button {
+  border-radius: 5px;
+  width: 80%;
+}
+
+.style-module__QP2lxa__color_w_background_b {
+  color: #fff !important;
+  background-color: #2b2bff !important;
+}
+
+.style-module__QP2lxa__blueColor {
+  color: #1976d2;
+}
+
+.style-module__QP2lxa__underline {
+  text-decoration: underline;
+}
+
+.style-module__QP2lxa__blurText {
+  color: #757575;
+}
+
+.style-module__QP2lxa__mR {
+  margin-right: 5px;
+}
+
+@media screen and (max-width: 800px) {
+  .style-module__QP2lxa__card {
+    width: 70%;
+  }
+}
+
+.style-module__QP2lxa__text_left {
+  text-align: left;
+  width: 80%;
+}
+
+/*# sourceMappingURL=src_components_form_login_style_module_fc20df2d.css.map*/

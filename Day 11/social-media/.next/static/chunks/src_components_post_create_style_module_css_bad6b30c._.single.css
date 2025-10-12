@@ -1,0 +1,66 @@
+/* [project]/src/components/post/create/style.module.css [app-client] (css) */
+.style-module__zblWPa__card {
+  width: 100%;
+  min-height: 100%;
+  position: relative;
+}
+
+.style-module__zblWPa__grid {
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr;
+  place-content: center;
+  place-items: center;
+  display: grid;
+}
+
+.style-module__zblWPa__rounded_logo {
+  border-radius: 100px;
+}
+
+.style-module__zblWPa__form {
+  padding: 3%;
+}
+
+.style-module__zblWPa__placeInRow {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  display: flex;
+}
+
+.style-module__zblWPa__pY5 {
+  padding: 5% 0;
+}
+
+.style-module__zblWPa__input {
+  width: 100%;
+}
+
+.style-module__zblWPa__flex_evenly {
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: 100%;
+  display: flex;
+}
+
+.style-module__zblWPa__hidden {
+  display: none;
+}
+
+.style-module__zblWPa__redText {
+  color: #d32f2f;
+}
+
+.style-module__zblWPa__imageList {
+  text-align: center;
+  flex-direction: column;
+  width: 100%;
+  display: flex;
+}
+
+.style-module__zblWPa__overflow_scroll {
+  overflow-y: auto;
+}
+
+/*# sourceMappingURL=src_components_post_create_style_module_css_bad6b30c._.single.css.map*/

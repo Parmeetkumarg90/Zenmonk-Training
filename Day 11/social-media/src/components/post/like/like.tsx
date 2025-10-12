@@ -6,6 +6,8 @@ import { Button } from "@mui/material";
 import { doc, updateDoc } from "firebase/firestore";
 import { enqueueSnackbar } from "notistack";
 import { useState } from "react";
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 const Like = ({ postId, likes }: { postId: string, likes: string[] }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -37,7 +39,9 @@ const Like = ({ postId, likes }: { postId: string, likes: string[] }) => {
     }
 
     return (
-        <Button onClick={handleLikeChange}>{!isLike ? "like" : "dislike"}</Button>
+        <Button onClick={handleLikeChange}>
+            {!isLike ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+        </Button>
     )
 }
 

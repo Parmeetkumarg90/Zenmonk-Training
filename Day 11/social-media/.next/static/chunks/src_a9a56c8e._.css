@@ -1,0 +1,227 @@
+/* [project]/src/app/dashboard/style.module.css [app-client] (css) */
+.style-module__Agl0NG__card {
+  width: 100vw;
+  min-height: 100vh;
+  position: relative;
+}
+
+.style-module__Agl0NG__grid {
+  grid-template-rows: 1fr;
+  grid-template-columns: .5fr 2fr .5fr;
+  place-items: center;
+  display: grid;
+}
+
+/* [project]/src/components/post/create/style.module.css [app-client] (css) */
+.style-module__zblWPa__card {
+  width: 100%;
+  min-height: 100%;
+  position: relative;
+}
+
+.style-module__zblWPa__grid {
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr;
+  place-content: center;
+  place-items: center;
+  display: grid;
+}
+
+.style-module__zblWPa__rounded_logo {
+  border-radius: 100px;
+}
+
+.style-module__zblWPa__form {
+  padding: 3%;
+}
+
+.style-module__zblWPa__placeInRow {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  display: flex;
+}
+
+.style-module__zblWPa__pY5 {
+  padding: 5% 0;
+}
+
+.style-module__zblWPa__input {
+  width: 100%;
+}
+
+.style-module__zblWPa__flex_evenly {
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: 100%;
+  display: flex;
+}
+
+.style-module__zblWPa__hidden {
+  display: none;
+}
+
+.style-module__zblWPa__redText {
+  color: #d32f2f;
+}
+
+.style-module__zblWPa__imageList {
+  text-align: center;
+  flex-direction: column;
+  width: 100%;
+  display: flex;
+}
+
+.style-module__zblWPa__overflow_scroll {
+  overflow-y: auto;
+}
+
+/* [project]/src/components/dashboard/main/style.module.css [app-client] (css) */
+.style-module__NHilpa__card {
+  width: 100%;
+  min-height: 100%;
+  padding: 1% 0;
+  position: relative;
+}
+
+.style-module__NHilpa__grid {
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr;
+  place-content: center;
+  place-items: center;
+  display: grid;
+}
+
+.style-module__NHilpa__overflow_scroll {
+  height: 10px;
+  overflow-y: auto;
+}
+
+.style-module__NHilpa__marginAuto {
+  margin: auto;
+}
+
+/* [project]/src/components/post/post-view/style.module.css [app-client] (css) */
+.style-module__1LfaXa__card {
+  width: 100%;
+  margin: 1%;
+  position: relative;
+}
+
+.style-module__1LfaXa__grid {
+  grid-template-columns: 1fr;
+  place-content: center;
+  place-items: center;
+  display: grid;
+}
+
+.style-module__1LfaXa__rounded_logo {
+  border-radius: 100px;
+}
+
+.style-module__1LfaXa__form {
+  padding: 3%;
+}
+
+.style-module__1LfaXa__placeInRow {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  display: flex;
+}
+
+.style-module__1LfaXa__pY5 {
+  padding: 5% 0;
+}
+
+.style-module__1LfaXa__pX5 {
+  padding: 0 5%;
+}
+
+.style-module__1LfaXa__mY2 {
+  margin: 2% 0;
+}
+
+.style-module__1LfaXa__mX2 {
+  margin: 0 2%;
+}
+
+.style-module__1LfaXa__input {
+  width: 100%;
+}
+
+.style-module__1LfaXa__flex_evenly {
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: 100%;
+  display: flex;
+}
+
+.style-module__1LfaXa__hidden {
+  display: none;
+}
+
+.style-module__1LfaXa__redText {
+  color: #d32f2f;
+}
+
+.style-module__1LfaXa__imageList {
+  text-align: center;
+  flex-direction: column;
+  width: 100%;
+  display: flex;
+}
+
+.style-module__1LfaXa__overflow_scroll {
+  overflow-y: auto;
+}
+
+/* [project]/src/components/image-carousal/style.module.css [app-client] (css) */
+.style-module__3ndGNW__card {
+  width: 100%;
+  height: 600px;
+  margin: 2% auto auto;
+  position: relative;
+  box-shadow: 0 0 5px 1px #fff;
+}
+
+.style-module__3ndGNW__grid {
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+  display: grid;
+}
+
+@media screen and (max-width: 800px) {
+  .style-module__3ndGNW__card {
+    width: 70%;
+  }
+}
+
+.style-module__3ndGNW__absolute {
+  z-index: 100;
+  position: absolute !important;
+}
+
+.style-module__3ndGNW__leftArrow {
+  top: 50%;
+  left: 0;
+}
+
+.style-module__3ndGNW__rightArrow {
+  top: 50%;
+  right: 0;
+}
+
+.style-module__3ndGNW__arrow {
+  opacity: .6;
+  width: -moz-fit-content;
+  width: fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  transform: translate(0%, -50%);
+  border-radius: 100px !important;
+}
+
+/*# sourceMappingURL=src_a9a56c8e._.css.map*/

@@ -1,0 +1,43 @@
+/* [project]/src/components/misllaneous/edit-form/style.module.css [app-client] (css) */
+.style-module__aS1Taq__grid {
+  grid-template-rows: repeat(5, .5fr);
+  grid-template-columns: 1fr;
+  place-items: center;
+  width: 40vw;
+  height: auto;
+  padding: 3%;
+  display: grid;
+}
+
+.style-module__aS1Taq__input {
+  width: 100%;
+  margin: 5% !important;
+}
+
+.style-module__aS1Taq__pY5 {
+  padding: 5% 0;
+}
+
+.style-module__aS1Taq__button {
+  width: 100%;
+}
+
+.style-module__aS1Taq__no_spinners input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.style-module__aS1Taq__no_spinners input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.style-module__aS1Taq__no_spinners input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.style-module__aS1Taq__redText {
+  color: red;
+}
+
+/*# sourceMappingURL=src_components_misllaneous_edit-form_style_module_css_bad6b30c._.single.css.map*/

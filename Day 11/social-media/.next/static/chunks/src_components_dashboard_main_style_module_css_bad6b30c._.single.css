@@ -1,0 +1,25 @@
+/* [project]/src/components/dashboard/main/style.module.css [app-client] (css) */
+.style-module__NHilpa__card {
+  width: 100%;
+  min-height: 100%;
+  position: relative;
+}
+
+.style-module__NHilpa__grid {
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr;
+  place-content: center;
+  place-items: center;
+  display: grid;
+}
+
+.style-module__NHilpa__overflow_scroll {
+  height: 10px;
+  overflow-y: auto;
+}
+
+.style-module__NHilpa__marginAuto {
+  margin: auto;
+}
+
+/*# sourceMappingURL=src_components_dashboard_main_style_module_css_bad6b30c._.single.css.map*/

@@ -22,9 +22,9 @@ interface signUpUserInterface {
 }
 
 interface updateUserInterface {
-    displayName?: string,
-    phoneNumber?: number,
-    photoURL?: File
+    displayName: string | null,
+    phoneNumber: string | null,
+    photoURL: File | null
 }
 
 export type { logInUserInterface, signUpUserInterface, authorizedInterface, updateUserInterface, };

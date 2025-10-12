@@ -20,12 +20,11 @@ const signUpUserSchema = zod.object({
 });
 
 const updateUserSchema = zod.object({
-    displayName: zod.string().trim().min(3, "Name should have atleast 3 characters").max(20, "Name should have atmost 20 characters").optional(),
-    phoneNumber: zod.number().min(10, "Phone Number should have 10 digits").max(10, "Phone Number should have 10 digits without country code").optional(),
-    photoURL: zod.file().min(1, "Atleast provide profile image").max(1, "Multiple files selected").optional(),
+    displayName: zod.string().trim().min(3, "Name should have atleast 3 characters").max(20, "Name should have atmost 20 characters").nullable(),
+    phoneNumber: zod.string().regex(/^\d{10}$/, "Phone Number should be 10 digits without country code").nullable(),
+    photoURL: zod.instanceof(File).nullable(),
 }).refine((data) => data.displayName || data.phoneNumber || data.photoURL, {
-    message: "Form can't be empty",
-    path:["displayName","phoneNumber","photoURL"]
+    message: "Atleast one fields can't be nullable",
 });
 
 export { usersSchema, logInUserSchema, signUpUserSchema, updateUserSchema };

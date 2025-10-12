@@ -16,15 +16,7 @@ const logInUserSlice = createSlice({
     initialState,
     reducers: {
         addCredentials: (state, action: PayloadAction<authorizedInterface>) => {
-            state = {
-                email: action.payload.email,
-                token: action.payload.token,
-                photoURL: action.payload.photoURL,
-                displayName: action.payload.displayName,
-                phoneNumber: action.payload.phoneNumber,
-                uid: action.payload.uid,
-            }
-            return state;
+            return { ...state, ...action.payload };
         },
         addPostsCount: (state, action: PayloadAction<{ totalPosts: number }>) => {
             state = { ...state, totalPosts: action.payload.totalPosts };

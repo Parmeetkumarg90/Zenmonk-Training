@@ -6,7 +6,13 @@ interface postCreateInterface {
 interface commentDbInterface {
     postId: string,
     text: string,
-    parentId: string,
+    parentId: string | null,
+    time: number | string,
+    displayName: string | null,
+    photoURL: string | null,
+    authorUID: string,
+    thisCommentId?: string,
+    replies?: commentDbInterface[]
 }
 
 interface postCreateDbInterface {

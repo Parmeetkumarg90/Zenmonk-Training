@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { cookies, headers } from 'next/headers';
-import { admin } from './config/firebase-admin';
 
 const publicRoutes = ['/', '/register', '/path:*.svg'];
 
@@ -22,7 +21,7 @@ const middleware = async (request: NextRequest) => {
 }
 
 export const config = {
-  matcher: ['/((?!_next|api|.*\\..*).*)'],
+    matcher: ['/((?!_next|api|.*\\..*).*)'],
 };
 
 export { middleware };
