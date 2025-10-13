@@ -317,7 +317,7 @@ const firebaseConfig = {
     messagingSenderId: ("TURBOPACK compile-time value", "1074565418213"),
     appId: ("TURBOPACK compile-time value", "1:1074565418213:web:7b2adad9bcef3942c7180c"),
     measurementId: ("TURBOPACK compile-time value", "G-1NQJP60WXL"),
-    databaseURL: ("TURBOPACK compile-time value", "https://social-media-app-a991d-default-rtdb.firebaseio.com")
+    databaseURL: ("TURBOPACK compile-time value", "https://social-media-app-a991d-default-rtdb.firebaseio.com/")
 };
 const app = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$app$2f$dist$2f$esm$2f$index$2e$esm$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["initializeApp"])(firebaseConfig);
 const analytics = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$analytics$2f$dist$2f$esm$2f$index$2e$esm$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getAnalytics"])(app);
@@ -1591,7 +1591,7 @@ const CommentView = ({ comments, postId })=>{
                         columnNumber: 49
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
-            }, comment.postId + Date.now(), true, {
+            }, comment.thisCommentId, true, {
                 fileName: "[project]/src/components/post/comment/comment-view.tsx",
                 lineNumber: 26,
                 columnNumber: 21

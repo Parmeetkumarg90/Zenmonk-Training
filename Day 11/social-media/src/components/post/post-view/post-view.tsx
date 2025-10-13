@@ -9,7 +9,7 @@ import Comment from '../comment/comment';
 import Button from "@mui/material/Button";
 import { useState } from 'react';
 
-const PostItem = ({ post, loading }: { post: postDbGetInterface, loading?: boolean }) => {
+const PostItem = ({ post, loading, canDelete }: { post: postDbGetInterface, loading?: boolean, canDelete?: boolean }) => {
     const [isShowComments, setShowComments] = useState<boolean>(false);
     const now = new Date().getTime();
     const postTime = post.time;

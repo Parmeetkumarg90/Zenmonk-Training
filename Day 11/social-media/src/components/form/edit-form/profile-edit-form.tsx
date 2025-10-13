@@ -77,24 +77,29 @@ const ProfileEditForm = () => {
 
             const dbQuery = query(collection(firestoreDb, "users"), where("uid", "==", loggedInUser.uid));
             const docSnapShot = await getDocs(dbQuery);
-            const userDBData = docSnapShot.docs[0].data();
+            if (docSnapShot.docs.length) {
+                const userDBData = docSnapShot.docs[0].data();
 
-            const userDbObj: authorizedInterface = {
-                ...loggedInUser,
-                ...userDBData,
-                displayName: data.displayName || loggedInUser.displayName,
-                phoneNumber: data.phoneNumber || loggedInUser.phoneNumber,
-                photoURL: url || loggedInUser.photoURL,
-            };
+                const userDbObj: authorizedInterface = {
+                    ...loggedInUser,
+                    ...userDBData,
+                    displayName: data.displayName || loggedInUser.displayName,
+                    phoneNumber: data.phoneNumber || loggedInUser.phoneNumber,
+                    photoURL: url || loggedInUser.photoURL,
+                };
 
-            await updateDoc(doc(firestoreDb, "users", docSnapShot.docs[0].id), {
-                displayName: data.displayName || loggedInUser.displayName,
-                phoneNumber: data.phoneNumber || loggedInUser.phoneNumber,
-                photoURL: url || loggedInUser.photoURL,
-            });
+                await updateDoc(doc(firestoreDb, "users", docSnapShot.docs[0].id), {
+                    displayName: data.displayName || loggedInUser.displayName,
+                    phoneNumber: data.phoneNumber || loggedInUser.phoneNumber,
+                    photoURL: url || loggedInUser.photoURL,
+                });
 
-            dispatch(addCredentials(userDbObj));
-            enqueueSnackbar("Profile Updated Successfully");
+                dispatch(addCredentials(userDbObj));
+                enqueueSnackbar("Profile Updated Successfully");
+            }
+            else {
+                enqueueSnackbar("Error in updating profile, Please Login again");
+            }
         }
         catch (e) {
             console.log("Error in profile updation: ", e);

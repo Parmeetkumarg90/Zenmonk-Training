@@ -24,7 +24,7 @@ const CommentView = ({ comments, postId }: { comments: commentDbInterface[], pos
             {
                 comments.map((comment) =>
                     <Card className={`${style.card} ${style.pX5} ${style.pY5}`
-                    } key={comment.postId + Date.now()} >
+                    } key={comment.thisCommentId} >
                         <div className={`${style.rounded_logo} ${style.placeInRow} ${style.card}`}>
                             {
                                 <Image src={comment.photoURL ?? "/blank-profile-picture.svg"} width={50} height={50} alt={comment.photoURL ?? "blank-profile-picture.svg"} className={`${style.rounded_logo}`} />
