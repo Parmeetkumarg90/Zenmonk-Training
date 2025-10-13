@@ -13,7 +13,7 @@ import { firestoreDb } from '@/config/firebase';
 import { commentDbSchema } from '@/schema/post/post';
 import { commentDbInterface } from '@/interfaces/post/user';
 import { useState } from 'react';
-import { CircularProgress } from '@mui/material';
+import { Card, CircularProgress } from '@mui/material';
 
 
 const CommentAddForm = ({ parentId, postId }: { parentId: string | null, postId: string }) => {
@@ -55,26 +55,28 @@ const CommentAddForm = ({ parentId, postId }: { parentId: string | null, postId:
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className={`${style.grid}`}>
-            <Typography>{parentId ? "Add your reply" : "Add Comment"}</Typography>
-            <Controller
-                control={control}
-                name="text"
-                render={({ field, fieldState: { error } }) => {
-                    return (<TextField
-                        {...field}
-                        helperText={error?.message || ""}
-                        className={`${style.input} ${style.pY5}`}
-                        id={`filled-basic-text`}
-                        label="Text"
-                        variant="outlined"
-                        error={!!error}
-                    />);
-                }}
-            />
-            {isCommenting && <CircularProgress size={"3rem"} />}
-            <Button type='submit' className={`${style.button}`} disabled={isCommenting}>Submit</Button>
-        </form>
+        <Card>
+            <form onSubmit={handleSubmit(onSubmit)} className={`${style.grid}`}>
+                <Typography>{parentId ? "Add your reply" : "Add Comment"}</Typography>
+                <Controller
+                    control={control}
+                    name="text"
+                    render={({ field, fieldState: { error } }) => {
+                        return (<TextField
+                            {...field}
+                            helperText={error?.message || ""}
+                            className={`${style.input} ${style.pY5}`}
+                            id={`filled-basic-text`}
+                            label="Text"
+                            variant="outlined"
+                            error={!!error}
+                        />);
+                    }}
+                />
+                {isCommenting && <CircularProgress size={"3rem"} />}
+                <Button type='submit' className={`${style.button}`} disabled={isCommenting}>Submit</Button>
+            </form>
+        </Card>
     )
 }
 

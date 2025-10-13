@@ -1,7 +1,7 @@
 /* [project]/src/components/post/post-view/style.module.css [app-client] (css) */
 .style-module__1LfaXa__card {
   width: 100%;
-  margin: 1%;
+  padding: 1% 2%;
   position: relative;
 }
 
@@ -72,6 +72,14 @@
 
 .style-module__1LfaXa__overflow_scroll {
   overflow-y: auto;
+}
+
+.style-module__1LfaXa__textYellow {
+  color: #ff0;
+}
+
+.style-module__1LfaXa__boldText {
+  font-weight: bolder;
 }
 
 /*# sourceMappingURL=src_components_post_post-view_style_module_css_bad6b30c._.single.css.map*/

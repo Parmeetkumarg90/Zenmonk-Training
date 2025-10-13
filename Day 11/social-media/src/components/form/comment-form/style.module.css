@@ -5,7 +5,6 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto;
     place-items: center;
-    padding: 3%;
 }
 
 .input {

@@ -1,6 +1,6 @@
 "use client";
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import Button from "@mui/material/Button";
@@ -8,12 +8,6 @@ import style from "./style.module.css";
 
 const Carousal = ({ list }: { list: string[] }) => {
     const [index, setIndex] = useState<number>(0);
-
-    useEffect(() => {
-        // const timer = setInterval(() => {
-        //     setIndex(nextCorrectIndex());
-        // }, 100);
-    }, []);
 
     const nextCorrectIndex = () => {
         const isTurn = (index + 1) % list.length;
@@ -33,15 +27,15 @@ const Carousal = ({ list }: { list: string[] }) => {
                 }>
                     {
                         list.length > 1 &&
-                        <Button onClick={() => { setIndex(previousCorrectIndex()); }} className={`${style.arrow} ${style.absolute} ${style.leftArrow}`}>
-                            <KeyboardArrowLeftIcon fontSize='large' titleAccess='Previous' />
+                        <Button onClick={() => { setIndex(previousCorrectIndex()); }} className={`${style.arrow} ${style.absolute} ${style.leftArrow} ${style.blackColor}`}>
+                            <KeyboardArrowLeftIcon fontSize='large' titleAccess='Previous' color="disabled" />
                         </Button>
                     }
                     < Image src={list[index] ?? "/broken-image.png"} fill alt={list[index] ?? "/broken-image.png"} key={index} />
                     {
                         list.length > 1 &&
-                        <Button onClick={() => { setIndex(nextCorrectIndex()); }} className={`${style.arrow} ${style.absolute} ${style.rightArrow}`}>
-                            <KeyboardArrowRightIcon fontSize='large' titleAccess='Next' />
+                        <Button onClick={() => { setIndex(nextCorrectIndex()); }} className={`${style.arrow} ${style.absolute} ${style.rightArrow} ${style.blackColor}`}>
+                            <KeyboardArrowRightIcon fontSize='large' titleAccess='Next' color="disabled" />
                         </Button>
                     }
                 </div >

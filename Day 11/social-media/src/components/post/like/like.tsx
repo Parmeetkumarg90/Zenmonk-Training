@@ -8,6 +8,7 @@ import { enqueueSnackbar } from "notistack";
 import { useState } from "react";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import style from "./style.module.css";
 
 const Like = ({ postId, likes }: { postId: string, likes: string[] }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -39,7 +40,7 @@ const Like = ({ postId, likes }: { postId: string, likes: string[] }) => {
     }
 
     return (
-        <Button onClick={handleLikeChange}>
+        <Button onClick={handleLikeChange} className={`${style.button}`}>
             {isLike ? <FavoriteIcon /> : <FavoriteBorderIcon />}
         </Button>
     )

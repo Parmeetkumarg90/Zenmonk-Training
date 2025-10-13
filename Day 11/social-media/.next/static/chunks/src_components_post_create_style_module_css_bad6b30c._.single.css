@@ -1,12 +1,13 @@
 /* [project]/src/components/post/create/style.module.css [app-client] (css) */
 .style-module__zblWPa__card {
-  width: 100%;
+  width: 98%;
   min-height: 100%;
   position: relative;
+  border: 1px solid #7a7a7a !important;
 }
 
 .style-module__zblWPa__grid {
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto .5fr;
   grid-template-columns: 1fr;
   place-content: center;
   place-items: center;
@@ -61,6 +62,10 @@
 
 .style-module__zblWPa__overflow_scroll {
   overflow-y: auto;
+}
+
+.style-module__zblWPa__button {
+  background: none !important;
 }
 
 /*# sourceMappingURL=src_components_post_create_style_module_css_bad6b30c._.single.css.map*/

@@ -1,7 +1,8 @@
 .card {
-    width: 100%;
+    width: 98%;
     min-height: 100%;
     position: relative;
+    border: 1px solid rgb(122, 122, 122) !important;
 }
 
 .grid {
@@ -9,7 +10,7 @@
     place-items: center;
     place-content: center;
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto 0.5fr;
 }
 
 .rounded_logo {
@@ -60,4 +61,8 @@
 
 .overflow_scroll{
     overflow-y: auto;
+}
+
+.button{
+    background: transparent !important;
 }

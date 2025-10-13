@@ -39,8 +39,13 @@
   height: -moz-fit-content;
   height: fit-content;
   transform: translate(0%, -50%);
-  width: -moz-fit-content !important;
-  width: fit-content !important;
+  background-color: #fff !important;
+  border-radius: 100px !important;
+  width: 5% !important;
+}
+
+.style-module__3ndGNW__blackColor {
+  color: #000 !important;
 }
 
 /*# sourceMappingURL=src_components_image-carousal_style_module_css_bad6b30c._.single.css.map*/

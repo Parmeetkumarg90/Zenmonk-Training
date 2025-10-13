@@ -2,7 +2,6 @@
     width: 100%;
     min-height: 100%;
     position: relative;
-    padding: 2%;
 }
 
 .grid {
@@ -73,12 +72,12 @@
     align-items: center;
 }
 
-.linkModal{
+.linkModal {
     font-size: large;
     color: rgb(59, 116, 238);
 }
 
-.linkModal:hover{
+.linkModal:hover {
     text-decoration: underline;
     cursor: pointer;
 }

@@ -1,35 +1,83 @@
-import { colors, createTheme } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
+    palette: {
+        mode: "dark",
+        background: {
+            default: "#121212",
+            paper: "#282828",
+        },
+        text: {
+            primary: "#ffffff",
+            secondary: "#bdbdbd",
+        },
+    },
     components: {
+        MuiCard: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: "#282828",
+                    margin: "0",
+                    borderRadius: "10px",
+                    overflowY:"auto",
+                },
+            },
+        },
         MuiButton: {
             styleOverrides: {
                 root: {
-                    width: "100%",
+                    width: "fit-content",
                     fontSize: "1rem",
-                    background: "#fff",
                     border: "1px solid #757575",
-                    color: "#1976d2",
-                    // padding: "2% 0 2% 0",
+                    color: "#1A1A1A",
+                    padding: "1% 5%",
+                    backgroundColor: "yellow",
+                    fontWeight: "bolder",
                     margin: "1%",
-                    borderRadius: "100px",
-                    '&:hover': {
-                        backgroundColor: '#1976d2',
-                        color: "white"
+                    borderRadius: "10px",
+                    "&:hover": {
+                        color: "#8E8E8E",
                     },
                 },
-
-            }
+            },
         },
         MuiTypography: {
             styleOverrides: {
                 root: {
                     fontWeight: "bolder",
-                    fontSize: "2rem"
-                }
-            }
-        }
-    }
+                    fontSize: "0.9rem",
+                    color: "#fff",
+                },
+            },
+        },
+        MuiTextField: {
+            defaultProps: {
+                variant: "outlined",
+            },
+            styleOverrides: {
+                root: {
+                    width: "80%",
+                    background: "#282828",
+                    color: "#fff",
+                    "& .MuiInputBase-input": {
+                        color: "#fff",
+                    },
+                    "& .MuiInputLabel-root": {
+                        color: "#bdbdbd",
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#757575",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "white",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "yellow",
+                    },
+                },
+            },
+        },
+    },
 });
 
 export default theme;

@@ -114,59 +114,61 @@ const ProfileEditForm = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className={`${style.grid}`}>
-            <Typography>Welcome, Update Profile</Typography>
-            <Controller
-                control={control}
-                name="displayName"
-                render={({ field, fieldState: { error } }) => {
-                    return (<TextField
-                        {...field}
-                        helperText={error?.message || ""}
-                        className={`${style.input} ${style.pY5}`}
-                        id={`filled-basic-displayName`}
-                        label="Display Name"
-                        variant="outlined"
-                        error={!!error}
-                    />);
-                }}
-            />
-            <Controller
-                control={control}
-                name="phoneNumber"
-                render={({ field, fieldState: { error } }) => {
-                    return (<TextField
-                        {...field}
-                        helperText={error?.message || ""}
-                        className={`${style.input} ${style.pY5} ${style.no_spinners}`}
-                        id={`filled-basic-phoneNumber`}
-                        label="Phone Number"
-                        variant="outlined"
-                        error={!!error}
-                    />);
-                }}
-            />
-            <Controller
-                control={control}
-                name="photoURL"
-                render={({ field, fieldState: { error } }) => {
-                    return (
-                        <>
-                            <input type='file' accept='image/*' name='photoURL' onChange={handleFileChange} />
-                            <p className={`${style.redText}`}>
-                                {errors.photoURL && (errors.photoURL.message === "Invalid input" ? "P" : errors.photoURL.message)}
-                            </p>
-                        </>
-                    );
-                }}
-            />
-            <span>
-                <p className={`${style.redText}`}>
-                    {isSameValues ? "Please update your data" : ""}
-                </p>
-                <Button type='submit' className={`${style.button}`}>Update Profile</Button>
-            </span>
-        </form>
+        <Card>
+            <form onSubmit={handleSubmit(onSubmit)} className={`${style.grid}`}>
+                <Typography>Welcome, Update Profile</Typography>
+                <Controller
+                    control={control}
+                    name="displayName"
+                    render={({ field, fieldState: { error } }) => {
+                        return (<TextField
+                            {...field}
+                            helperText={error?.message || ""}
+                            className={`${style.input} ${style.pY5}`}
+                            id={`filled-basic-displayName`}
+                            label="Display Name"
+                            variant="outlined"
+                            error={!!error}
+                        />);
+                    }}
+                />
+                <Controller
+                    control={control}
+                    name="phoneNumber"
+                    render={({ field, fieldState: { error } }) => {
+                        return (<TextField
+                            {...field}
+                            helperText={error?.message || ""}
+                            className={`${style.input} ${style.pY5} ${style.no_spinners}`}
+                            id={`filled-basic-phoneNumber`}
+                            label="Phone Number"
+                            variant="outlined"
+                            error={!!error}
+                        />);
+                    }}
+                />
+                <Controller
+                    control={control}
+                    name="photoURL"
+                    render={({ field, fieldState: { error } }) => {
+                        return (
+                            <>
+                                <input type='file' accept='image/*' name='photoURL' onChange={handleFileChange} />
+                                <p className={`${style.redText}`}>
+                                    {errors.photoURL && (errors.photoURL.message === "Invalid input" ? "P" : errors.photoURL.message)}
+                                </p>
+                            </>
+                        );
+                    }}
+                />
+                <span>
+                    <p className={`${style.redText}`}>
+                        {isSameValues ? "Please update your data" : ""}
+                    </p>
+                    <Button type='submit' className={`${style.button}`}>Update Profile</Button>
+                </span>
+            </form>
+        </Card>
     )
 }
 

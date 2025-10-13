@@ -71,7 +71,7 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
     return (
         <Card className={`${style.card} ${style.grid}`}>
             {((userUid === undefined) || (userUid === loggedInUser.uid)) ? <Create /> : <span></span>}
-            <div className={`${style.card} ${style.overflow_scroll}`}>
+            <Card className={`${style.card} ${style.overflow_scroll} `}>
                 {
                     isLoading ? <CircularProgress size={"3rem"} title='Loading Post' className={`${style.marginAuto}`} /> :
                         posts.length > 0 ? posts.map((eachDoc, index) =>
@@ -81,7 +81,7 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
                         )
                             : <span>No post</span>
                 }
-            </div>
+            </Card>
         </Card>
     )
 }

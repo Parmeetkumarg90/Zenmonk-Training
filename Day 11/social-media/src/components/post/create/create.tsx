@@ -179,7 +179,7 @@ const Create = () => {
                 </div>
                 <div className={`${style.flex_evenly}`}>
                     <ToolTip title="Upload Images">
-                        <Button onClick={handleFileSelect}>
+                        <Button onClick={handleFileSelect} className={`${style.button}`}>
                             <input
                                 type='file'
                                 multiple
@@ -192,7 +192,7 @@ const Create = () => {
                         </Button>
                     </ToolTip>
                     <ToolTip title="Emoji">
-                        <Button onClick={handleEmojiSelect}>
+                        <Button onClick={handleEmojiSelect} className={`${style.button}`}>
                             <EmojiEmotionsIcon />
                         </Button>
                     </ToolTip>

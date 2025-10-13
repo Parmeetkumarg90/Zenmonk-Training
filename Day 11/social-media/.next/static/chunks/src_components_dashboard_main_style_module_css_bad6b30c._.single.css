@@ -1,8 +1,10 @@
 /* [project]/src/components/dashboard/main/style.module.css [app-client] (css) */
 .style-module__NHilpa__card {
-  width: 100%;
+  width: 98%;
   min-height: 100%;
+  margin: 1%;
   position: relative;
+  border: 1px solid #7a7a7a !important;
 }
 
 .style-module__NHilpa__grid {
@@ -15,7 +17,7 @@
 
 .style-module__NHilpa__overflow_scroll {
   height: 10px;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .style-module__NHilpa__marginAuto {

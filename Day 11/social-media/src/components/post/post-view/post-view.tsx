@@ -74,12 +74,12 @@ const PostItem = ({ post, loading, canDelete }: { post: postDbGetInterface, load
                 isDeleted ? <></> :
                     <>
                         <div className={`${style.rounded_logo} ${style.placeInRow} ${style.card}`}>
-                            <Link href={`/profile/${post.uid}`}  className={`${style.placeInRow}`}>
+                            <Link href={`/profile/${post.uid}`} className={`${style.placeInRow} ${style.rounded_logo} ${style.placeInRow} ${style.card}`}>
                                 {
                                     <Image src={post.photoURL ?? "/blank-profile-picture.svg"} width={50} height={50} alt={post.photoURL ?? "blank-profile-picture.svg"} className={`${style.rounded_logo}`} />
                                 }
-                                <p>{post.displayName ?? "Username"}</p>
-                                <p>{timeAgo}</p>
+                                <p className={`${style.boldText}`}>{post.displayName ?? "Username"}</p>
+                                <p className={`${style.textYellow}`}>{timeAgo}</p>
                             </Link>
                             {canDelete && <Button onClick={() => { deletePost(post.postId); }}>Delete</Button>}
                         </div>

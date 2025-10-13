@@ -1,8 +1,9 @@
 .card {
-    width: 100%;
+    width: 98%;
     min-height: 100%;
     position: relative;
-    /* padding: 1% 0; */
+    border: 1px solid rgb(122, 122, 122) !important;
+    margin: 1%;
 }
 
 .grid {
@@ -15,7 +16,7 @@
 
 .overflow_scroll {
     height: 10px;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 .marginAuto{

@@ -1,7 +1,8 @@
 .card {
     width: 100%;
     position: relative;
-    margin: 1%;
+    padding: 1% 2%;
+    /* margin: 1%; */
     /* background-color: #2f32d3 !important; */
 }
 
@@ -73,4 +74,12 @@
 
 .overflow_scroll {
     overflow-y: auto;
+}
+
+.textYellow {
+    color: yellow;
+}
+
+.boldText{
+    font-weight: bolder;
 }

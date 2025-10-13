@@ -8,6 +8,7 @@ import { persister, store } from "@/redux/store";
 import { SnackbarProvider } from "notistack";
 import { ThemeProvider } from "@mui/material";
 import theme from "@/theme";
+import GlobalStyles from "@mui/material/GlobalStyles";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,19 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const globalStyles = (
+  <GlobalStyles
+    styles={{
+      '*, *::before, *::after': {
+        boxSizing: 'border-box',
+        padding: "0",
+        margin: "0",
+        fontSize: "0.9rem",
+      },
+    }}
+  />
+);
 
 // export const metadata: Metadata = {
 //   title: "Create Next App",
@@ -33,6 +47,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ThemeProvider theme={theme}>
+          {globalStyles}
           <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
             <Provider store={store}>
               <PersistGate loading={null} persistor={persister}>

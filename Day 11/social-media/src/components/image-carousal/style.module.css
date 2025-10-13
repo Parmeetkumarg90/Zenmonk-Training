@@ -3,13 +3,11 @@
     height: 600px;
     margin: auto;
     margin-top: 2%;
-    /* place-items: center; */
     position: relative;
     box-shadow: 0px 0px 5px 1px #fff;
 }
 
 .grid {
-    /* padding: 2% 0 2% 0; */
     display: grid;
     grid-template-rows: 1fr;
     grid-template-columns: 1fr;
@@ -31,14 +29,20 @@
     top: 50%;
 }
 
-.rightArrow{
+.rightArrow {
     right: 0;
     top: 50%;
 }
 
-.arrow{
-    width: fit-content !important;
+.arrow {
+    width: 5% !important;
     height: fit-content;
-    transform: translate(0%,-50%);
+    transform: translate(0%, -50%);
     opacity: 0.6;
+    background-color: #fff !important;
+    border-radius: 100px !important;
+}
+
+.blackColor {
+    color: black !important;
 }
