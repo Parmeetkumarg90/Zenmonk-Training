@@ -5,10 +5,13 @@ import { authorizedInterface } from "@/interfaces/user/user";
 const initialState: authorizedInterface = {
     email: "",
     token: "",
-    photoURL: "",
+    photoURL: "/blank-profile-picture.svg",
     displayName: "",
     phoneNumber: "",
     uid: "",
+    totalPosts: 0,
+    followers: [],
+    following: []
 };
 
 const logInUserSlice = createSlice({
@@ -22,9 +25,17 @@ const logInUserSlice = createSlice({
             state = { ...state, totalPosts: action.payload.totalPosts };
             return state;
         },
-        logout: (state) => state = initialState
+        addFollowing: (state, action: PayloadAction<string>) => {
+            state.following.push(action.payload);
+            return state;
+        },
+        removeFollowing: (state, action: PayloadAction<string>) => {
+            state.following = state.following.filter((each) => each != action.payload);
+            return state;
+        },
+        logout: (state) => state = initialState,
     }
 });
 
 export default logInUserSlice.reducer;
-export const { addCredentials, logout, addPostsCount } = logInUserSlice.actions;
+export const { addCredentials, logout, addPostsCount, addFollowing, removeFollowing } = logInUserSlice.actions;

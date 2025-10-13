@@ -40,7 +40,7 @@ const Like = ({ postId, likes }: { postId: string, likes: string[] }) => {
 
     return (
         <Button onClick={handleLikeChange}>
-            {!isLike ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+            {isLike ? <FavoriteIcon /> : <FavoriteBorderIcon />}
         </Button>
     )
 }

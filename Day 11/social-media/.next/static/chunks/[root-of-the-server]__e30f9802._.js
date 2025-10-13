@@ -61,22 +61,29 @@ const __TURBOPACK__default__export__ = fontData;
 __turbopack_context__.s([
     "addCredentials",
     ()=>addCredentials,
+    "addFollowing",
+    ()=>addFollowing,
     "addPostsCount",
     ()=>addPostsCount,
     "default",
     ()=>__TURBOPACK__default__export__,
     "logout",
-    ()=>logout
+    ()=>logout,
+    "removeFollowing",
+    ()=>removeFollowing
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$reduxjs$2f$toolkit$2f$dist$2f$redux$2d$toolkit$2e$modern$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/@reduxjs/toolkit/dist/redux-toolkit.modern.mjs [app-client] (ecmascript) <locals>");
 ;
 const initialState = {
     email: "",
     token: "",
-    photoURL: "",
+    photoURL: "/blank-profile-picture.svg",
     displayName: "",
     phoneNumber: "",
-    uid: ""
+    uid: "",
+    totalPosts: 0,
+    followers: [],
+    following: []
 };
 const logInUserSlice = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$reduxjs$2f$toolkit$2f$dist$2f$redux$2d$toolkit$2e$modern$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["createSlice"])({
     name: "currentUser",
@@ -95,11 +102,19 @@ const logInUserSlice = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_
             };
             return state;
         },
+        addFollowing: (state, action)=>{
+            state.following.push(action.payload);
+            return state;
+        },
+        removeFollowing: (state, action)=>{
+            state.following = state.following.filter((each)=>each != action.payload);
+            return state;
+        },
         logout: (state)=>state = initialState
     }
 });
 const __TURBOPACK__default__export__ = logInUserSlice.reducer;
-const { addCredentials, logout, addPostsCount } = logInUserSlice.actions;
+const { addCredentials, logout, addPostsCount, addFollowing, removeFollowing } = logInUserSlice.actions;
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
@@ -112,6 +127,8 @@ __turbopack_context__.s([
     ()=>addUserPosts,
     "default",
     ()=>__TURBOPACK__default__export__,
+    "removeAllPosts",
+    ()=>removeAllPosts,
     "removeUserPost",
     ()=>removeUserPost
 ]);
@@ -130,13 +147,14 @@ const postSlice = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modul
             return state;
         },
         removeUserPost: (state, action)=>{
-            state = state.filter((each)=>each.postId != action.payload.postId);
+            state = state.filter((each)=>each.postId != action.payload);
             return state;
-        }
+        },
+        removeAllPosts: (state)=>state = initialState
     }
 });
 const __TURBOPACK__default__export__ = postSlice.reducer;
-const { addUserPosts, removeUserPost } = postSlice.actions;
+const { addUserPosts, removeUserPost, removeAllPosts } = postSlice.actions;
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }

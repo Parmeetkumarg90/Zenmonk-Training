@@ -12,10 +12,13 @@ import { collection, addDoc } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import { commentDbSchema } from '@/schema/post/post';
 import { commentDbInterface } from '@/interfaces/post/user';
+import { useState } from 'react';
+import { CircularProgress } from '@mui/material';
 
 
 const CommentAddForm = ({ parentId, postId }: { parentId: string | null, postId: string }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
+    const [isCommenting, setCommenting] = useState<boolean>(false);
     const { control, handleSubmit, watch, formState: { errors }, setValue, reset } = useForm({
         resolver: zodResolver(commentDbSchema),
         defaultValues: {
@@ -33,6 +36,7 @@ const CommentAddForm = ({ parentId, postId }: { parentId: string | null, postId:
 
     const onSubmit: SubmitHandler<commentDbInterface> = async (data) => {
         try {
+            setCommenting(true);
             const dbRef = collection(firestoreDb, "comments");
             await addDoc(dbRef, data);
             enqueueSnackbar("Comment created Successfully");
@@ -41,6 +45,12 @@ const CommentAddForm = ({ parentId, postId }: { parentId: string | null, postId:
         catch (e) {
             console.log("Error in adding comment: ", e);
             enqueueSnackbar("Error in creating comment");
+        }
+        finally {
+            const timer = setTimeout(() => {
+                clearTimeout(timer);
+                setCommenting(false);
+            }, 800);
         }
     }
 
@@ -62,7 +72,8 @@ const CommentAddForm = ({ parentId, postId }: { parentId: string | null, postId:
                     />);
                 }}
             />
-            <Button type='submit' className={`${style.button}`}>Submit</Button>
+            {isCommenting && <CircularProgress size={"3rem"} />}
+            <Button type='submit' className={`${style.button}`} disabled={isCommenting}>Submit</Button>
         </form>
     )
 }

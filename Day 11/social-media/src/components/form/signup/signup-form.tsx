@@ -77,6 +77,9 @@ function SignupForm() {
                     phoneNumber: isStored.result.user.phoneNumber,
                     displayName: isStored.result.user.displayName,
                     uid: isStored.result.user.uid,
+                    followers: [],
+                    following: [],
+                    totalPosts: 0,
                 };
                 reset();
                 dispatch(addCredentials(userDetail));
@@ -115,22 +118,25 @@ function SignupForm() {
                     photoURL: result.user.photoURL!,
                     phoneNumber: result.user.phoneNumber!,
                     displayName: result.user.displayName!,
+                    totalPosts: 0,
                     isSignWithGoogle: true,
                     uid: result.user.uid,
+                    followers: [],
+                    following: [],
                 };
                 dispatch(addCredentials(userDetail));
                 if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {
                     await addDoc(collection(firestoreDb, "users"), userDetail);
+                    Cookies.set("credentials", JSON.stringify(userDetail), {
+                        path: "/",
+                        expires: 7,
+                        sameSite: "Lax",
+                        secure: process.env.NODE_ENV === "production",
+                    });
                 }
                 else {
                     fetchUserDetailIfLoggedIn(userDetail);
                 }
-                Cookies.set("credentials", JSON.stringify(userDetail), {
-                    path: "/",
-                    expires: 7,
-                    sameSite: "Lax",
-                    secure: process.env.NODE_ENV === "production",
-                });
                 enqueueSnackbar("Login Success");
                 router.push('/dashboard');
             })
@@ -158,7 +164,14 @@ function SignupForm() {
                 const userDoc = docSnapshot.docs[0].data();
                 userDetail = { ...userDetail, ...userDoc };
                 userDetail.photoURL = userDetail.photoURL ?? "/blank-profile-picture.svg";
+                // console.log(userDetail,userDoc)
                 dispatch(addCredentials(userDetail));
+                Cookies.set("credentials", JSON.stringify(userDetail), {
+                    path: "/",
+                    expires: 7,
+                    sameSite: "Lax",
+                    secure: process.env.NODE_ENV === "production",
+                });
             }
         }
         catch (error) {

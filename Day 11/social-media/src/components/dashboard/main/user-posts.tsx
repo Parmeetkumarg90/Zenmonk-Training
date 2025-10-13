@@ -51,7 +51,7 @@ const UserPost = () => {
                     isLoading ? <CircularProgress size={"3rem"} title='Loading Post' className={`${style.marginAuto}`} /> :
                         posts.length > 0 ? posts.map((eachDoc, index) =>
                             <span key={index}>
-                                <PostItem post={eachDoc} />
+                                <PostItem post={eachDoc} canDelete={true} />
                             </span>
                         )
                             : <span>No post</span>

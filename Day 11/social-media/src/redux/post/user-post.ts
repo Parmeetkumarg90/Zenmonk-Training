@@ -15,12 +15,13 @@ const postSlice = createSlice({
             }
             return state;
         },
-        removeUserPost: (state, action: PayloadAction<{ postId: string }>) => {
-            state = state.filter((each) => each.postId != action.payload.postId);
+        removeUserPost: (state, action: PayloadAction<string>) => {
+            state = state.filter((each) => each.postId != action.payload);
             return state;
-        }
+        },
+        removeAllPosts: (state) => state = initialState,
     }
 });
 
 export default postSlice.reducer;
-export const { addUserPosts, removeUserPost } = postSlice.actions;
+export const { addUserPosts, removeUserPost, removeAllPosts } = postSlice.actions;

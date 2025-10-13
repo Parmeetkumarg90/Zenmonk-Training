@@ -16,7 +16,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { addPostsCount } from '@/redux/user/currentUser';
 import { addUserPosts } from '@/redux/post/user-post';
 
-const MainPanel = () => {
+const MainPanel = ({ userUid }: { userUid?: string }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -24,13 +24,14 @@ const MainPanel = () => {
     const [posts, setPosts] = useState<postDbGetInterface[]>([]);
 
     useEffect(() => {
-        getPosts();
+        getAllPosts();
     }, []);
 
-    const getPosts = async () => {
+    const getAllPosts = async () => {
         try {
             let currentUserPosts = 0;
-            const postQuerySnapshot = await getDocs(collection(firestoreDb, "posts"));
+            let docRef = userUid ? query(collection(firestoreDb, "posts"), where("uid", "==", userUid)) : collection(firestoreDb, "posts");
+            const postQuerySnapshot = await getDocs(docRef);
             const postList: postDbGetInterface[] = [];
 
             postQuerySnapshot.forEach(async (doc) => {
@@ -47,11 +48,11 @@ const MainPanel = () => {
                     photoURL: postData.photoURL,
                 };
                 if (loggedInUser.uid === postData.uid) {
+                    post.displayName = postData.displayName;
+                    post.photoURL = postData.photoURL;
                     currentUserPosts++;
                     dispatch(addUserPosts(post));
                 }
-                // const userQuerySnapshot = await getDocs(query(collection(firestoreDb, "users"), where("email", "==", post.email)));
-                // console.log(post, userQuerySnapshot.metadata)
                 postList.push(post);
             });
             dispatch(addPostsCount({ totalPosts: currentUserPosts }));
@@ -69,7 +70,7 @@ const MainPanel = () => {
 
     return (
         <Card className={`${style.card} ${style.grid}`}>
-            <Create />
+            {((userUid === undefined) || (userUid === loggedInUser.uid)) ? <Create /> : <span></span>}
             <div className={`${style.card} ${style.overflow_scroll}`}>
                 {
                     isLoading ? <CircularProgress size={"3rem"} title='Loading Post' className={`${style.marginAuto}`} /> :

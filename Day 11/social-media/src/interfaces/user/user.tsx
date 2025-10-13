@@ -12,7 +12,9 @@ interface authorizedInterface {
     phoneNumber: string,
     isSignWithGoogle?: boolean,
     uid: string,
-    totalPosts?: number,
+    totalPosts: number,
+    followers: string[],
+    following: string[]
 }
 
 interface signUpUserInterface {

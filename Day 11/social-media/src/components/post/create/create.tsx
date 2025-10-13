@@ -23,8 +23,10 @@ import { ChangeEvent, useRef, useState } from 'react';
 import { cloudinaryUpload } from '@/config/cloudinary';
 import CircularProgress from "@mui/material/CircularProgress";
 import { firestoreDb } from '@/config/firebase';
-import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { addUserPosts } from '@/redux/post/user-post';
+import { addCredentials } from '@/redux/user/currentUser';
+import { authorizedInterface } from '@/interfaces/user/user';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -50,11 +52,15 @@ const Create = () => {
             data.images.forEach((image) => {
                 if (image.size > MAX_FILE_SIZE_BYTES) {
                     enqueueSnackbar(image.name + " is greater than 10mb.");
+                    setSubmitAllowed(true);
                     return;
                 }
             });
             const response: any = await Promise.allSettled(data.images.map((image) => cloudinaryUpload(image)));
             const imageURLs: string[] = response.map((image: any) => image.value);
+            const docsRef = query(collection(firestoreDb, "posts"), where("uid", "==", loggedInUser.uid));
+            const snapshot = await getCountFromServer(docsRef);
+            const totalPosts = snapshot.data().count;
 
             const dbPostObject: postCreateDbInterface = {
                 text: data.text,
@@ -68,17 +74,40 @@ const Create = () => {
             };
 
             const isPostCreationValid = postCreateDbSchema.safeParse(dbPostObject);
-            // console.log(isPostCreationValid,dbPostObject)
+            // console.log(isPostCreationValid,dbPostObject);
             if (isPostCreationValid.success) {
                 try {
-                    addDoc(collection(firestoreDb, "posts"), isPostCreationValid.data).then((result) => {
+                    addDoc(collection(firestoreDb, "posts"), isPostCreationValid.data).then(async (result) => {
                         const currentUserPost: postDbGetInterface = {
                             ...dbPostObject,
                             postId: result.id,
                         }
                         dispatch(addUserPosts(currentUserPost));
                         enqueueSnackbar("Post Created Successfully");
+
+                        const docQuery = query(collection(firestoreDb, "users"), where("uid", "==", loggedInUser.uid));
+                        const snapshot = await getDocs(docQuery);
+                        const userDoc = snapshot.docs[0];
+                        const userData = userDoc.data();
+
+                        const userDetail: authorizedInterface = {
+                            email: userData.email,
+                            token: userData.token,
+                            photoURL: userData.photoURL,
+                            phoneNumber: userData.phoneNumber,
+                            displayName: userData.displayName,
+                            uid: userData.uid,
+                            totalPosts: userData.totalPosts + 1,
+                            followers: userData.followers,
+                            following: userData.following,
+                        };
+
+                        await updateDoc(userDoc.ref, { ...userDetail });
+
+                        dispatch(addCredentials(userDetail));
+
                     }).catch((error) => {
+                        console.log("Error in post creation: ", error);
                         enqueueSnackbar("Error in post creation: ", error);
                     });
                 }
@@ -105,7 +134,7 @@ const Create = () => {
     }
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
+        if (e.target.files?.length) {
             const filesArray = Array.from(e.target.files);
             setValue("images", filesArray, { shouldValidate: true });
         }

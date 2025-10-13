@@ -22,7 +22,7 @@ import Cookies from "js-cookie";
 import { ref, get, set, push } from "firebase/database";
 import { activityActionInterface } from '@/interfaces/activity-log/activity';
 import { firestoreDb } from "../../../config/firebase";
-import { addDoc, collection, where, query, getDocs } from 'firebase/firestore';
+import { addDoc, collection, where, query, getDocs, getCountFromServer } from 'firebase/firestore';
 
 function LoginForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -57,6 +57,11 @@ function LoginForm() {
                     enqueueSnackbar("Invalid Credentials");
                     return;
                 }
+
+                const docsRef = query(collection(firestoreDb, "posts"), where("uid", "==", loggedInUser.uid));
+                const snapshot = await getCountFromServer(docsRef);
+                const totalPosts = snapshot.data().count;
+
                 reset();
                 const userDetail: authorizedInterface = {
                     email: isStored.result.user.email!,
@@ -65,6 +70,9 @@ function LoginForm() {
                     phoneNumber: isStored.result.user.phoneNumber,
                     displayName: isStored.result.user.displayName,
                     uid: isStored.result.user.uid,
+                    totalPosts: totalPosts ?? 0,
+                    followers: isStored.result.user.followers,
+                    following: isStored.result.user.following,
                 };
                 fetchUserDetailIfLoggedIn(userDetail);
                 Cookies.set("credentials", JSON.stringify(userDetail), {
@@ -104,7 +112,11 @@ function LoginForm() {
                     enqueueSnackbar("Invalid Credentials");
                     return;
                 }
-                const userDetail: authorizedInterface = {
+                const docsRef = query(collection(firestoreDb, "posts"), where("uid", "==", loggedInUser.uid));
+                const snapshot = await getCountFromServer(docsRef);
+                const totalPosts = snapshot.data().count;
+
+                let userDetail: authorizedInterface = {
                     email: result.user.email!,
                     token: token,
                     photoURL: result.user.photoURL!,
@@ -112,20 +124,24 @@ function LoginForm() {
                     displayName: result.user.displayName!,
                     isSignWithGoogle: true,
                     uid: result.user.uid,
+                    totalPosts: totalPosts ?? 0,
+                    followers: [],
+                    following: [],
                 };
+
                 dispatch(addCredentials(userDetail));
                 if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {
                     await addDoc(collection(firestoreDb, "users"), userDetail);
+                    Cookies.set("credentials", JSON.stringify(userDetail), {
+                        path: "/",
+                        expires: 7,
+                        sameSite: "Lax",
+                        secure: process.env.NODE_ENV === "production",
+                    });
                 }
                 else {
-                    fetchUserDetailIfLoggedIn(userDetail);
+                    await fetchUserDetailIfLoggedIn(userDetail);
                 }
-                Cookies.set("credentials", JSON.stringify(userDetail), {
-                    path: "/",
-                    expires: 7,
-                    sameSite: "Lax",
-                    secure: process.env.NODE_ENV === "production",
-                });
                 enqueueSnackbar("Login Success");
                 router.push('/dashboard');
             })
@@ -145,6 +161,12 @@ function LoginForm() {
                 userDetail.photoURL = userDetail.photoURL ?? "/blank-profile-picture.svg";
                 // console.log(userDetail,userDoc)
                 dispatch(addCredentials(userDetail));
+                Cookies.set("credentials", JSON.stringify(userDetail), {
+                    path: "/",
+                    expires: 7,
+                    sameSite: "Lax",
+                    secure: process.env.NODE_ENV === "production",
+                });
             }
         }
         catch (error) {

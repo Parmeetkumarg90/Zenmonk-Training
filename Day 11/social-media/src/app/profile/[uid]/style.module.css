@@ -1,0 +1,12 @@
+.card {
+    width: 100vw;
+    min-height: 100vh;
+    position: relative;
+}
+
+.grid {
+    display: grid;
+    place-items: center;
+    grid-template-rows: 1fr;
+    grid-template-columns: 0.5fr 2fr 0.5fr;
+}
