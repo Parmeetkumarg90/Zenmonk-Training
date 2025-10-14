@@ -27,10 +27,11 @@ import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, up
 import { addUserPosts } from '@/redux/post/user-post';
 import { addCredentials } from '@/redux/user/currentUser';
 import { authorizedInterface } from '@/interfaces/user/user';
+import { updateCommentSignal, updatePostSignal } from '@/redux/update-signal/update';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
-const Create = () => {
+const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -103,9 +104,8 @@ const Create = () => {
                         };
 
                         await updateDoc(userDoc.ref, { ...userDetail });
-
+                        onPostCreated();
                         dispatch(addCredentials(userDetail));
-
                     }).catch((error) => {
                         console.log("Error in post creation: ", error);
                         enqueueSnackbar("Error in post creation: ", error);
@@ -155,7 +155,7 @@ const Create = () => {
     }
 
     return (
-        <Card className={`${style.card}`}>
+        <Card className={`${style.card} ${style.mT3}`}>
             <form className={`${style.form} ${style.grid}`} onSubmit={handleSubmit(onSubmit)}>
                 <div className={`${style.rounded_logo} ${style.placeInRow}`}>
                     <Image src={loggedInUser.photoURL ?? "/blank-profile-picture.svg"} width={50} height={50} alt={loggedInUser.photoURL ?? "/blank-profile-picture.svg"} className={`${style.rounded_logo}`} />
@@ -168,7 +168,7 @@ const Create = () => {
                                 {...field}
                                 multiline
                                 helperText={error?.message || ""}
-                                className={`${style.input} ${style.pY5}`}
+                                className={`${style.input}`}
                                 id={`filled-basic-email`}
                                 label="Tell me about your friends and thoughts...."
                                 variant="outlined"

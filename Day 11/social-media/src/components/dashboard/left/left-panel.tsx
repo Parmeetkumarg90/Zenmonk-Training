@@ -13,7 +13,7 @@ import Popover from '@mui/material/Popover';
 import ProfileEditForm from '@/components/form/edit-form/profile-edit-form';
 import { addFollowing, logout, removeFollowing } from '@/redux/user/currentUser';
 import { authorizedInterface } from '@/interfaces/user/user';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Typography } from '@mui/material';
 import { collection, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import { removeAllPosts } from '@/redux/post/user-post';
@@ -26,7 +26,11 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
     const [isFollowing, setFollowing] = useState<string>("");
     const [isLoading, setLoading] = useState<boolean>(true);
     const [isModalLoading, setModalLoading] = useState<boolean>(false);
-    const [profileList, setProfileList] = useState<follow_following_view_Interface | null>(null);
+    const [profileList, setProfileList] = useState<follow_following_view_Interface>({
+        list: [],
+        type: "",
+        currentUserUid: userDetail.uid
+    });
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -46,7 +50,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
 
     useEffect(() => {
         setFollowing((loggedInUser?.following?.includes(userDetail.uid) ? "Unfollow" : loggedInUser?.followers?.includes(userDetail.uid) ? "Follow Back" : "Follow"));
-    }, [loggedInUser.following]);
+    }, [loggedInUser.following, loggedInUser.followers]);
 
     const getUserData = async () => {
         try {
@@ -168,22 +172,20 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
         return null;
     }
 
-    const handleModalOpen = (e: React.MouseEvent<HTMLParagraphElement>, type: string) => {
+    const handleModalOpen = async (e: React.MouseEvent<HTMLParagraphElement>, type: string) => {
+        setModalLoading(true);
+        setAnchorEl(e.currentTarget);
         try {
-            setModalLoading(true);
             const uidList: string[] = type === "FOLLOWERS" ? userDetail.followers : type === "FOLLOWING" ? userDetail.following : [];
-            const list: follow_following_Interface[] = [];
-            uidList.forEach((eachUid) => {
-                fetchProfileDetail(eachUid).then((result) => {
-                    if (result) {
-                        list.push(result);
-                    }
-                });
-            });
+            const promises = uidList.map(async (u) => {
+                return await fetchProfileDetail(u);
+            })
+            const result = await Promise.all(promises);
+            const list: follow_following_Interface[] | any = result.filter((each) => each);
             const finalList: follow_following_view_Interface = {
                 list,
                 type,
-                currentUserUid: loggedInUser.uid
+                currentUserUid: userDetail.uid
             };
             setProfileList(finalList);
         }
@@ -192,8 +194,10 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
             enqueueSnackbar("Error in fetching profiles");
         }
         finally {
-            setAnchorEl(e.currentTarget);
-            setModalLoading(false)
+            const timer = setTimeout(() => {
+                clearTimeout(timer);
+                setModalLoading(false)
+            }, 800);
         }
     }
 
@@ -203,7 +207,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
             {!isLoading &&
                 <Card className={`${style.card} ${style.grid} ${style.textWrap} ${style.topElement} ${style.textCenter}`}>
                     <div className={`${style.section1}`}>
-                        <span className={`${style.relative} ${style.w_100}`}>
+                        <span className={`${style.relative} ${style.w_30}`}>
                             <Image src={userDetail.photoURL ?? "/blank-profile-picture.svg"} fill alt={userDetail.photoURL ?? "/blank-profile-picture.svg"} className={`${style.rounded_logo}`} />
                         </span>
                         <div>
@@ -233,13 +237,19 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                 <Popover open={!!anchorEl} onClose={handleModalClose}>
                     <FollowerFollowing data={profileList} loading={isModalLoading} />
                 </Popover>
-                <div className={`${style.placeInRow}`}>
-                    <p className={`${style.linkModal}`} onClick={(e) => { handleModalOpen(e, "FOLLOWERS"); }}>Followers: {userDetail.followers.length}</p>
-                    <p className={`${style.linkModal}`} onClick={(e) => { handleModalOpen(e, "FOLLOWING"); }}>Following: {userDetail.following.length}</p>
-                </div>
-                <Button onClick={() => { redirectToUrl("/dashboard"); }}>Feed</Button>
-                <Button onClick={() => { redirectToUrl("/dashboard/my-posts"); }}>My Posts</Button>
-                <Button onClick={handleLogout}>Logout</Button>
+                <Card>
+                    <p className={`${style.mY2}`} onClick={(e) => { handleModalOpen(e, "FOLLOWERS"); }}>
+                        Followers: <span className={`${style.linkModal}`}>{userDetail.followers.length}</span>
+                    </p>
+                    <p className={`${style.mY2}`} onClick={(e) => { handleModalOpen(e, "FOLLOWING"); }}>
+                        Following: <span className={`${style.linkModal}`}>{userDetail.following.length}</span>
+                    </p>
+                </Card>
+                <Card className={`${style.placeInColumn}`}>
+                    <Button className={`${style.button}`} onClick={() => { redirectToUrl("/dashboard"); }}>Feed</Button>
+                    <Button className={`${style.button}`} onClick={() => { redirectToUrl(`/profile/${loggedInUser.uid}`); }}>My Posts</Button>
+                    <Button className={`${style.button}`} onClick={handleLogout}>Logout</Button>
+                </Card>
             </Card>
         </Card >
     );

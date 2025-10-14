@@ -15,9 +15,11 @@ import { firestoreDb } from '@/config/firebase';
 import CircularProgress from '@mui/material/CircularProgress';
 import { addPostsCount } from '@/redux/user/currentUser';
 import { addUserPosts } from '@/redux/post/user-post';
+import { updateCommentSignal, updatePostSignal } from '@/redux/update-signal/update';
 
 const MainPanel = ({ userUid }: { userUid?: string }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
+    const updateSignals = useAppSelector((state: RootState) => state.updateSignal);
     const dispatch = useAppDispatch();
     const router = useRouter();
     const [isLoading, setLoading] = useState<boolean>(true);
@@ -29,7 +31,6 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
 
     const getAllPosts = async () => {
         try {
-            let currentUserPosts = 0;
             let docRef = userUid ? query(collection(firestoreDb, "posts"), where("uid", "==", userUid)) : collection(firestoreDb, "posts");
             const postQuerySnapshot = await getDocs(docRef);
             const postList: postDbGetInterface[] = [];
@@ -50,12 +51,10 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
                 if (loggedInUser.uid === postData.uid) {
                     post.displayName = postData.displayName;
                     post.photoURL = postData.photoURL;
-                    currentUserPosts++;
                     dispatch(addUserPosts(post));
                 }
                 postList.push(post);
             });
-            dispatch(addPostsCount({ totalPosts: currentUserPosts }));
             setPosts(postList);
         }
         catch (e) {
@@ -70,8 +69,8 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
 
     return (
         <Card className={`${style.card} ${style.grid}`}>
-            {((userUid === undefined) || (userUid === loggedInUser.uid)) ? <Create /> : <span></span>}
-            <Card className={`${style.card} ${style.overflow_scroll} `}>
+            {((userUid === undefined) || (userUid === loggedInUser.uid)) ? <Create onPostCreated={getAllPosts} /> : <span></span>}
+            <Card className={`${style.card} ${style.overflow_scroll} ${style.mT6}`}>
                 {
                     isLoading ? <CircularProgress size={"3rem"} title='Loading Post' className={`${style.marginAuto}`} /> :
                         posts.length > 0 ? posts.map((eachDoc, index) =>

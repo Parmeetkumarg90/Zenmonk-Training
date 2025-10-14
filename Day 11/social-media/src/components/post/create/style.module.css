@@ -59,10 +59,14 @@
     text-align: center;
 }
 
-.overflow_scroll{
+.overflow_scroll {
     overflow-y: auto;
 }
 
-.button{
+.button {
     background: transparent !important;
+}
+
+.mT3 {
+    margin-top: 3% !important;
 }

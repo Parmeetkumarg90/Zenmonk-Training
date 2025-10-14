@@ -1,10 +1,11 @@
 .grid {
-    width: 40vw;
+    width: 100%;
     height: auto;
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: auto;
     place-items: center;
+    place-content: center;
 }
 
 .input {
@@ -13,7 +14,8 @@
 }
 
 .pY5 {
-    padding: 5% 0;
+    padding-top: 5%;
+    padding-bottom: 5%;
 }
 
 .button {
@@ -28,4 +30,14 @@
 
 .redText {
     color: red;
+}
+
+.pX5 {
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+.mX5 {
+    margin-left: 5%;
+    margin-right: 5%;
 }

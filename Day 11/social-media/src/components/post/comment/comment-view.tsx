@@ -8,15 +8,15 @@ import { useState } from "react";
 import Button from "@mui/material/Button";
 import Popover from "@mui/material/Popover";
 
-const CommentView = ({ comments, postId }: { comments: commentDbInterface[], postId: string }) => {
-    const [replyAddPopUp, setReplyAddPopUp] = useState<HTMLElement | null>(null);
+const CommentView = ({ comments, postId, onCommentSubmit }: { comments: commentDbInterface[], postId: string, onCommentSubmit: Function }) => {
+    const [replyAddPopUpAnchorEl, setreplyAddPopUpAnchorEl] = useState<HTMLElement | null>(null);
 
-    const handleCloseReplyAddPopUp = () => {
-        setReplyAddPopUp(null);
+    const handleClosereplyAddPopUpAnchorEl = () => {
+        setreplyAddPopUpAnchorEl(null);
     }
 
     const handleAddReply = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setReplyAddPopUp(event.currentTarget);
+        setreplyAddPopUpAnchorEl(event.currentTarget);
     }
 
     return (
@@ -35,13 +35,18 @@ const CommentView = ({ comments, postId }: { comments: commentDbInterface[], pos
                         <div>{comment.text}</div>
                         <Button onClick={handleAddReply}>Reply</Button>
                         <Popover
-                            open={Boolean(replyAddPopUp)}
-                            onClose={handleCloseReplyAddPopUp}
+                            open={Boolean(replyAddPopUpAnchorEl)}
+                            anchorEl={replyAddPopUpAnchorEl}
+                            onClose={handleClosereplyAddPopUpAnchorEl}
+                            anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "left"
+                            }}
                         >
-                            <CommentAddForm parentId={comment.thisCommentId!} postId={postId} />
+                            <CommentAddForm parentId={comment.thisCommentId!} postId={postId} onCommentSubmit={onCommentSubmit} />
                         </Popover>
                         {
-                            comment?.replies && <CommentView comments={comment?.replies} postId={postId} />
+                            comment?.replies && <CommentView comments={comment?.replies} postId={postId} onCommentSubmit={onCommentSubmit} />
                         }
                     </Card >
                 )

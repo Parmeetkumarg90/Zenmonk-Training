@@ -15,7 +15,7 @@ import CommentView from "./comment-view";
 
 const Comment = ({ postId }: { postId: string }) => {
     const [allComment, setAllComment] = useState<commentDbInterface[]>([]);
-    const [commentAddPopUp, setCommentAddPopUp] = useState<HTMLElement | null>(null);
+    const [commentAddPopUpAnchorEl, setcommentAddPopUpAnchorEl] = useState<HTMLElement | null>(null);
     const [isLoading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -100,12 +100,12 @@ const Comment = ({ postId }: { postId: string }) => {
         return roots;
     }
 
-    const handleCloseCommentAddPopup = () => {
-        setCommentAddPopUp(null);
+    const handleClosecommentAddPopUpAnchorEl = () => {
+        setcommentAddPopUpAnchorEl(null);
     }
 
     const handleAddComment = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setCommentAddPopUp(event.currentTarget);
+        setcommentAddPopUpAnchorEl(event.currentTarget);
     }
 
     return (
@@ -115,13 +115,18 @@ const Comment = ({ postId }: { postId: string }) => {
                     <>
                         <Button onClick={handleAddComment}>Add Comment</Button>
                         <Popover
-                            open={Boolean(commentAddPopUp)}
-                            onClose={handleCloseCommentAddPopup}
+                            open={Boolean(commentAddPopUpAnchorEl)}
+                            onClose={handleClosecommentAddPopUpAnchorEl}
+                            anchorEl={commentAddPopUpAnchorEl}
+                            anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "left"
+                            }}
                         >
-                            <CommentAddForm parentId={null} postId={postId} />
+                            <CommentAddForm parentId={null} postId={postId} onCommentSubmit={getComments} />
                         </Popover>
                         {allComment.length ?
-                            <CommentView comments={allComment} postId={postId} />
+                            <CommentView comments={allComment} postId={postId} onCommentSubmit={getComments} />
                             : "No comments"
                         }
                     </>

@@ -27,15 +27,15 @@ const Carousal = ({ list }: { list: string[] }) => {
                 }>
                     {
                         list.length > 1 &&
-                        <Button onClick={() => { setIndex(previousCorrectIndex()); }} className={`${style.arrow} ${style.absolute} ${style.leftArrow} ${style.blackColor}`}>
-                            <KeyboardArrowLeftIcon fontSize='large' titleAccess='Previous' color="disabled" />
+                        <Button onClick={() => { setIndex(previousCorrectIndex()); }} className={`${style.arrow} ${style.absolute} ${style.leftArrow} ${style.blackColor} ${style.button}`}>
+                            <KeyboardArrowLeftIcon fontSize='large' titleAccess='Previous' />
                         </Button>
                     }
                     < Image src={list[index] ?? "/broken-image.png"} fill alt={list[index] ?? "/broken-image.png"} key={index} />
                     {
                         list.length > 1 &&
-                        <Button onClick={() => { setIndex(nextCorrectIndex()); }} className={`${style.arrow} ${style.absolute} ${style.rightArrow} ${style.blackColor}`}>
-                            <KeyboardArrowRightIcon fontSize='large' titleAccess='Next' color="disabled" />
+                        <Button onClick={() => { setIndex(nextCorrectIndex()); }} className={`${style.arrow} ${style.absolute} ${style.rightArrow} ${style.blackColor} ${style.button}`}>
+                            <KeyboardArrowRightIcon fontSize='large' titleAccess='Next' />
                         </Button>
                     }
                 </div >

@@ -2,8 +2,9 @@
 .style-module__yoafEq__grid {
   grid-template-rows: auto;
   grid-template-columns: 1fr;
+  place-content: center;
   place-items: center;
-  width: 40vw;
+  width: 100%;
   height: auto;
   display: grid;
 }
@@ -14,7 +15,8 @@
 }
 
 .style-module__yoafEq__pY5 {
-  padding: 5% 0;
+  padding-top: 5%;
+  padding-bottom: 5%;
 }
 
 .style-module__yoafEq__button {
@@ -33,6 +35,16 @@
 
 .style-module__yoafEq__redText {
   color: red;
+}
+
+.style-module__yoafEq__pX5 {
+  padding-left: 5%;
+  padding-right: 5%;
+}
+
+.style-module__yoafEq__mX5 {
+  margin-left: 5%;
+  margin-right: 5%;
 }
 
 /*# sourceMappingURL=src_components_form_comment-form_style_module_css_bad6b30c._.single.css.map*/

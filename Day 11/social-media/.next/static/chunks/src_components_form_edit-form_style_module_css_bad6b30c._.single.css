@@ -5,12 +5,13 @@
   place-items: center;
   width: 40vw;
   height: auto;
+  margin: 3% 0;
   display: grid;
 }
 
 .style-module__whx81q__input {
   width: 100%;
-  margin: 5% !important;
+  margin: 2% !important;
 }
 
 .style-module__whx81q__pY5 {
@@ -18,7 +19,8 @@
 }
 
 .style-module__whx81q__button {
-  width: 100%;
+  width: -moz-fit-content;
+  width: fit-content;
 }
 
 .style-module__whx81q__no_spinners input::-webkit-outer-spin-button {

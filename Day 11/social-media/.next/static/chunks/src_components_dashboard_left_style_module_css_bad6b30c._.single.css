@@ -47,14 +47,16 @@
 
 .style-module__MSU4Za__button {
   border-radius: 5px;
-  width: 80%;
+  width: 80% !important;
+  padding: 2% 0 !important;
 }
 
-.style-module__MSU4Za__w_100 {
-  width: 60%;
+.style-module__MSU4Za__w_30 {
+  width: 30%;
   height: -moz-fit-content;
   height: fit-content;
   margin: auto;
+  padding-top: 3%;
 }
 
 .style-module__MSU4Za__popover {
@@ -73,14 +75,28 @@
   display: flex;
 }
 
+.style-module__MSU4Za__placeInColumn {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  display: flex;
+}
+
 .style-module__MSU4Za__linkModal {
-  color: #3b74ee;
+  color: #fff09a;
   font-size: large;
 }
 
 .style-module__MSU4Za__linkModal:hover {
   cursor: pointer;
   text-decoration: underline;
+}
+
+.style-module__MSU4Za__mY2 {
+  margin-top: 2%;
+  margin-bottom: 2%;
 }
 
 /*# sourceMappingURL=src_components_dashboard_left_style_module_css_bad6b30c._.single.css.map*/

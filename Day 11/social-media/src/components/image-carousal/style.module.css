@@ -46,3 +46,7 @@
 .blackColor {
     color: black !important;
 }
+
+.button{
+    background: transparent !important;
+}

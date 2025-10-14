@@ -5,11 +5,12 @@
     grid-template-columns: 1fr;
     grid-template-rows: repeat(5, 0.5fr);
     place-items: center;
+    margin: 3% 0;
 }
 
 .input {
     width: 100%;
-    margin: 5% !important;
+    margin: 2% !important;
 }
 
 .pY5 {
@@ -17,7 +18,7 @@
 }
 
 .button {
-    width: 100%;
+    width: fit-content;
 }
 
 .no_spinners input::-webkit-outer-spin-button,

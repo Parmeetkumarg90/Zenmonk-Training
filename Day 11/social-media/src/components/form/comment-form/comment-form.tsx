@@ -16,8 +16,9 @@ import { useState } from 'react';
 import { Card, CircularProgress } from '@mui/material';
 
 
-const CommentAddForm = ({ parentId, postId }: { parentId: string | null, postId: string }) => {
+const CommentAddForm = ({ parentId, postId, onCommentSubmit }: { parentId: string | null, postId: string, onCommentSubmit: Function }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
+    const dispatch = useAppDispatch();
     const [isCommenting, setCommenting] = useState<boolean>(false);
     const { control, handleSubmit, watch, formState: { errors }, setValue, reset } = useForm({
         resolver: zodResolver(commentDbSchema),
@@ -41,6 +42,7 @@ const CommentAddForm = ({ parentId, postId }: { parentId: string | null, postId:
             await addDoc(dbRef, data);
             enqueueSnackbar("Comment created Successfully");
             reset();
+            onCommentSubmit();
         }
         catch (e) {
             console.log("Error in adding comment: ", e);
@@ -56,16 +58,16 @@ const CommentAddForm = ({ parentId, postId }: { parentId: string | null, postId:
 
     return (
         <Card>
-            <form onSubmit={handleSubmit(onSubmit)} className={`${style.grid}`}>
+            <form onSubmit={handleSubmit(onSubmit)} className={`${style.grid} ${style.pX5} ${style.pY5}`}>
                 <Typography>{parentId ? "Add your reply" : "Add Comment"}</Typography>
                 <Controller
                     control={control}
                     name="text"
                     render={({ field, fieldState: { error } }) => {
                         return (<TextField
+                            className={`${style.input} `}
                             {...field}
                             helperText={error?.message || ""}
-                            className={`${style.input} ${style.pY5}`}
                             id={`filled-basic-text`}
                             label="Text"
                             variant="outlined"

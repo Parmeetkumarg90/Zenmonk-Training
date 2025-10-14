@@ -74,15 +74,10 @@ function LoginForm() {
                     followers: isStored.result.user.followers,
                     following: isStored.result.user.following,
                 };
-                fetchUserDetailIfLoggedIn(userDetail);
-                Cookies.set("credentials", JSON.stringify(userDetail), {
-                    path: "/",
-                    expires: 7,
-                    sameSite: "Lax",
-                    secure: process.env.NODE_ENV === "production",
+                fetchUserDetailIfLoggedIn(userDetail).then((result) => {
+                    enqueueSnackbar("Login Success");
+                    router.push('/dashboard');
                 });
-                enqueueSnackbar("Login Success");
-                router.push('/dashboard');
             }
             else {
                 enqueueSnackbar("Error occured during creating of account");
@@ -131,19 +126,22 @@ function LoginForm() {
 
                 dispatch(addCredentials(userDetail));
                 if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {
-                    await addDoc(collection(firestoreDb, "users"), userDetail);
+                    addDoc(collection(firestoreDb, "users"), userDetail);
                     Cookies.set("credentials", JSON.stringify(userDetail), {
                         path: "/",
                         expires: 7,
                         sameSite: "Lax",
                         secure: process.env.NODE_ENV === "production",
                     });
+                    enqueueSnackbar("Login Success");
+                    router.push('/dashboard');
                 }
                 else {
-                    await fetchUserDetailIfLoggedIn(userDetail);
+                    fetchUserDetailIfLoggedIn(userDetail).then((result) => {
+                        enqueueSnackbar("Login Success");
+                        router.push('/dashboard');
+                    });
                 }
-                enqueueSnackbar("Login Success");
-                router.push('/dashboard');
             })
             .catch((error) => {
                 console.log(error);

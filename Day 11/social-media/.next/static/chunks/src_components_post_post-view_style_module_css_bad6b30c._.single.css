@@ -1,7 +1,7 @@
 /* [project]/src/components/post/post-view/style.module.css [app-client] (css) */
 .style-module__1LfaXa__card {
   width: 100%;
-  padding: 1% 2%;
+  padding: .5% 2%;
   position: relative;
 }
 
@@ -17,7 +17,7 @@
 }
 
 .style-module__1LfaXa__form {
-  padding: 3%;
+  padding: 1% 3%;
 }
 
 .style-module__1LfaXa__placeInRow {
@@ -28,12 +28,14 @@
   display: flex;
 }
 
-.style-module__1LfaXa__pY5 {
-  padding: 5% 0;
+.style-module__1LfaXa__pY2 {
+  padding-top: 2%;
+  padding-bottom: 2%;
 }
 
-.style-module__1LfaXa__pX5 {
-  padding: 0 5%;
+.style-module__1LfaXa__pX2 {
+  padding-left: 2%;
+  padding-right: 2%;
 }
 
 .style-module__1LfaXa__mY2 {

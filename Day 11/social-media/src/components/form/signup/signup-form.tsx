@@ -84,22 +84,22 @@ function SignupForm() {
                 reset();
                 dispatch(addCredentials(userDetail));
                 if (isStored.result.user.metadata.creationTime === isStored.result.user.metadata.lastSignInTime) {
-                    await addDoc(collection(firestoreDb, "users"), userDetail);
+                    addDoc(collection(firestoreDb, "users"), userDetail);
+                    Cookies.set("credentials", JSON.stringify(userDetail), {
+                        path: "/",
+                        expires: 7,
+                        sameSite: "Lax",
+                        secure: process.env.NODE_ENV === "production",
+                    });
+                    enqueueSnackbar("Account Register Success");
+                    router.push('/dashboard');
                 }
                 else {
-                    fetchUserDetailIfLoggedIn(userDetail);
+                    fetchUserDetailIfLoggedIn(userDetail).then((result) => {
+                        enqueueSnackbar("Login Success");
+                        router.push('/dashboard');
+                    });
                 }
-                Cookies.set("credentials", JSON.stringify(userDetail), {
-                    path: "/",
-                    expires: 7,
-                    sameSite: "Lax",
-                    secure: process.env.NODE_ENV === "production",
-                });
-                enqueueSnackbar("Account Register Success");
-                router.push('/dashboard');
-            }
-            else {
-                enqueueSnackbar("Error occured during creating of account: ");
             }
         }
     };
@@ -126,19 +126,22 @@ function SignupForm() {
                 };
                 dispatch(addCredentials(userDetail));
                 if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {
-                    await addDoc(collection(firestoreDb, "users"), userDetail);
+                    addDoc(collection(firestoreDb, "users"), userDetail);
                     Cookies.set("credentials", JSON.stringify(userDetail), {
                         path: "/",
                         expires: 7,
                         sameSite: "Lax",
                         secure: process.env.NODE_ENV === "production",
                     });
+                    enqueueSnackbar("Login Success");
+                    router.push('/dashboard');
                 }
                 else {
-                    fetchUserDetailIfLoggedIn(userDetail);
+                    fetchUserDetailIfLoggedIn(userDetail).then((result) => {
+                        enqueueSnackbar("Login Success");
+                        router.push('/dashboard');
+                    });
                 }
-                enqueueSnackbar("Login Success");
-                router.push('/dashboard');
             })
             .catch((error) => {
                 console.log(error);
