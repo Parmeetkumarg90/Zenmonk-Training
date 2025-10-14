@@ -179,12 +179,6 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$redux$2d$per
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$redux$2d$persist$2f$es$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/redux-persist/es/constants.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$user$2f$currentUser$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/redux/user/currentUser.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$post$2f$user$2d$post$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/redux/post/user-post.ts [app-client] (ecmascript)");
-(()=>{
-    const e = new Error("Cannot find module '@/redux/'");
-    e.code = 'MODULE_NOT_FOUND';
-    throw e;
-})();
-;
 ;
 ;
 ;
@@ -194,8 +188,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$post$2f$user
 ;
 const rootReducer = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$redux$2f$dist$2f$redux$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["combineReducers"])({
     currentUser: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$user$2f$currentUser$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"],
-    posts: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$post$2f$user$2d$post$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"],
-    updateSignal: updateSignalReducer
+    posts: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$post$2f$user$2d$post$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
 });
 const persistConfig = {
     key: "root",

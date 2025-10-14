@@ -27,7 +27,6 @@ import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, up
 import { addUserPosts } from '@/redux/post/user-post';
 import { addCredentials } from '@/redux/user/currentUser';
 import { authorizedInterface } from '@/interfaces/user/user';
-import { updateCommentSignal, updatePostSignal } from '@/redux/update-signal/update';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -59,9 +58,6 @@ const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
             });
             const response: any = await Promise.allSettled(data.images.map((image) => cloudinaryUpload(image)));
             const imageURLs: string[] = response.map((image: any) => image.value);
-            const docsRef = query(collection(firestoreDb, "posts"), where("uid", "==", loggedInUser.uid));
-            const snapshot = await getCountFromServer(docsRef);
-            const totalPosts = snapshot.data().count;
 
             const dbPostObject: postCreateDbInterface = {
                 text: data.text,

@@ -1,8 +1,8 @@
 /* [project]/src/app/dashboard/style.module.css [app-client] (css) */
 .style-module__Agl0NG__card {
-  width: 100vw;
-  min-height: 100vh;
   position: relative;
+  width: 100vw !important;
+  min-height: 100vh !important;
 }
 
 .style-module__Agl0NG__grid {

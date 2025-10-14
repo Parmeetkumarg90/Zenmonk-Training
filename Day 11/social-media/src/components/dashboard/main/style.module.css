@@ -2,8 +2,6 @@
     width: 98%;
     min-height: 100%;
     position: relative;
-    border: 1px solid rgb(122, 122, 122) !important;
-    margin: 1%;
 }
 
 .grid {
@@ -23,6 +21,6 @@
     margin: auto;
 }
 
-.mT6{
-    margin-top: 6% !important;
+.mT3{
+    margin-top: 3% !important;
 }

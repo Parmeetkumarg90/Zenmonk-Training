@@ -10,28 +10,26 @@ import Card from "@mui/material/Card";
 import PostItem from '@/components/post/post-view/post-view';
 import { useEffect, useState } from 'react';
 import { postDbGetInterface } from '@/interfaces/post/user';
-import { collection, getDocs, where, query } from 'firebase/firestore';
+import { collection, getDocs, where, query, limit, startAfter } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import CircularProgress from '@mui/material/CircularProgress';
 import { addPostsCount } from '@/redux/user/currentUser';
 import { addUserPosts } from '@/redux/post/user-post';
-import { updateCommentSignal, updatePostSignal } from '@/redux/update-signal/update';
 
 const MainPanel = ({ userUid }: { userUid?: string }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
-    const updateSignals = useAppSelector((state: RootState) => state.updateSignal);
     const dispatch = useAppDispatch();
     const router = useRouter();
     const [isLoading, setLoading] = useState<boolean>(true);
     const [posts, setPosts] = useState<postDbGetInterface[]>([]);
 
     useEffect(() => {
-        getAllPosts();
+        getAllPosts(0);
     }, []);
 
-    const getAllPosts = async () => {
+    const getAllPosts = async (skip: number) => {
         try {
-            let docRef = userUid ? query(collection(firestoreDb, "posts"), where("uid", "==", userUid)) : collection(firestoreDb, "posts");
+            let docRef = userUid ? query(collection(firestoreDb, "posts"), where("uid", "==", userUid)) : query(collection(firestoreDb, "posts"));
             const postQuerySnapshot = await getDocs(docRef);
             const postList: postDbGetInterface[] = [];
 
@@ -55,6 +53,7 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
                 }
                 postList.push(post);
             });
+            // setPosts([...posts, ...postList]);
             setPosts(postList);
         }
         catch (e) {
@@ -70,7 +69,7 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
     return (
         <Card className={`${style.card} ${style.grid}`}>
             {((userUid === undefined) || (userUid === loggedInUser.uid)) ? <Create onPostCreated={getAllPosts} /> : <span></span>}
-            <Card className={`${style.card} ${style.overflow_scroll} ${style.mT6}`}>
+            <Card className={`${style.card} ${style.overflow_scroll} ${style.mT3}`}>
                 {
                     isLoading ? <CircularProgress size={"3rem"} title='Loading Post' className={`${style.marginAuto}`} /> :
                         posts.length > 0 ? posts.map((eachDoc, index) =>

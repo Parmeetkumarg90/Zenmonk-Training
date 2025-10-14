@@ -20,7 +20,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Cookies from "js-cookie";
 import { ref, get, set, push } from "firebase/database";
-import { activityActionInterface } from '@/interfaces/activity-log/activity';
 import { firestoreDb } from "../../../config/firebase";
 import { addDoc, collection, where, query, getDocs, getCountFromServer } from 'firebase/firestore';
 

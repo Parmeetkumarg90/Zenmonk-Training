@@ -14,7 +14,16 @@ interface authorizedInterface {
     uid: string,
     totalPosts: number,
     followers: string[],
-    following: string[]
+    following: string[],
+    id?: string
+}
+
+interface userInterface {
+    email: string,
+    photoURL: string,
+    displayName: string,
+    uid: string,
+    id: string,
 }
 
 interface signUpUserInterface {
@@ -29,4 +38,4 @@ interface updateUserInterface {
     photoURL: File | null
 }
 
-export type { logInUserInterface, signUpUserInterface, authorizedInterface, updateUserInterface, };
+export type { logInUserInterface, signUpUserInterface, authorizedInterface, updateUserInterface, userInterface };

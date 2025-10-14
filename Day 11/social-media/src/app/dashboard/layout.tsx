@@ -7,7 +7,7 @@ import RightPanel from '@/components/dashboard/right/right-panel';
 const Dashboard = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
     return (
         <Card className={`${style.card} ${style.grid}`}>
-            <LeftPanel isloggedInUser={true} />
+            <LeftPanel />
             {children}
             <RightPanel />
         </Card>

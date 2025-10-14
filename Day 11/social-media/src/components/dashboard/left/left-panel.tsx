@@ -226,7 +226,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                                 onClose={handleCloseEdit}
                                 className={`${style.popover}`}
                             >
-                                <ProfileEditForm />
+                                <ProfileEditForm onClose={handleCloseEdit}/>
                             </Popover>
                         </> :
                         (loggedInUser.uid !== userDetail.uid) && < Button className={`${style.button}`} onClick={handleFollowButtonClick}>{isFollowing}</Button>

@@ -20,7 +20,6 @@ import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import Image from 'next/image';
 import Typography from "@mui/material/Typography";
 import Cookies from 'js-cookie';
-import { activityActionInterface } from '@/interfaces/activity-log/activity';
 import { ref, push, get, set } from "firebase/database";
 import { firestoreDb } from "../../../config/firebase";
 import { addDoc, collection, query, getDocs, where } from 'firebase/firestore';

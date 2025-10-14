@@ -2,11 +2,36 @@
     width: 100%;
     min-height: 100%;
     position: relative;
+    margin-top: 5% !important;
+    padding-top: 3% !important;
 }
 
 .grid {
     display: grid;
-    place-items: center;
     grid-template-columns: 1fr;
-    grid-template-rows: 0.5fr 2fr 0.5fr;
+    grid-template-rows: 0fr 1fr 0fr;
+}
+
+.textYelow {
+    color: yellow !important;
+}
+
+.textCenter {
+    text-align: center;
+}
+
+.fontSize1-2 {
+    font-size: 1.2rem !important;
+}
+
+.placeCenter {
+    place-items: center;
+}
+
+.listLinkItem {
+    cursor: pointer;
+}
+
+.listLinkItem:hover {
+    opacity: 0.8;
 }

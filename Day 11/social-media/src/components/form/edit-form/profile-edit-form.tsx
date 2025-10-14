@@ -19,7 +19,7 @@ import { firestoreDb } from '@/config/firebase';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
-const ProfileEditForm = () => {
+const ProfileEditForm = ({ onClose }: { onClose: Function }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const [isSameValues, setSameValues] = useState<boolean>(false);
     const dispatch = useAppDispatch();
@@ -104,6 +104,9 @@ const ProfileEditForm = () => {
         catch (e) {
             console.log("Error in profile updation: ", e);
             enqueueSnackbar("Error in profile updation");
+        }
+        finally {
+            onClose();
         }
     }
 

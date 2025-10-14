@@ -76,6 +76,7 @@ const Comment = ({ postId }: { postId: string }) => {
                 clearTimeout(timer);
                 setLoading(false);
             }, 500);
+            handleClosecommentAddPopUpAnchorEl();
         }
     }
 

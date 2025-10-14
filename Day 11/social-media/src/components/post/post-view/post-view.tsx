@@ -68,13 +68,13 @@ const PostItem = ({ post, loading, canDelete }: { post: postDbGetInterface, load
     }
 
     return (
-        <Card className={`${style.card} ${style.grid} ${style.pX5} ${style.pY5}`} key={post.postId}>
+        <Card className={`${style.card} ${style.grid} ${style.pX5} ${style.mY2} ${style.border}`} key={post.postId}>
             {isLoading ?
                 <CircularProgress size={"3rem"} /> :
                 isDeleted ? <></> :
                     <>
-                        <div className={`${style.rounded_logo} ${style.placeInRow} ${style.card}`}>
-                            <Link href={`/profile/${post.uid}`} className={`${style.placeInRow} ${style.rounded_logo} ${style.placeInRow} ${style.card}`}>
+                        <div className={`${style.rounded_logo} ${style.placeInRow}`}>
+                            <Link href={`/profile/${post.uid}`} className={`${style.placeInRow} ${style.rounded_logo} ${style.card}`}>
                                 {
                                     <Image src={post.photoURL ?? "/blank-profile-picture.svg"} width={50} height={50} alt={post.photoURL ?? "blank-profile-picture.svg"} className={`${style.rounded_logo}`} />
                                 }

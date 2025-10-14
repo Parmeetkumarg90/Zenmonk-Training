@@ -5,6 +5,10 @@
   position: relative;
 }
 
+.style-module__1LfaXa__border {
+  border: 1px solid #757575 !important;
+}
+
 .style-module__1LfaXa__grid {
   grid-template-columns: 1fr;
   place-content: center;
@@ -39,7 +43,7 @@
 }
 
 .style-module__1LfaXa__mY2 {
-  margin: 2% 0;
+  margin: 2% 0 !important;
 }
 
 .style-module__1LfaXa__mX2 {

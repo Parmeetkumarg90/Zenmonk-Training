@@ -41,7 +41,6 @@ const CommentAddForm = ({ parentId, postId, onCommentSubmit }: { parentId: strin
             const dbRef = collection(firestoreDb, "comments");
             await addDoc(dbRef, data);
             enqueueSnackbar("Comment created Successfully");
-            reset();
             onCommentSubmit();
         }
         catch (e) {
@@ -53,6 +52,7 @@ const CommentAddForm = ({ parentId, postId, onCommentSubmit }: { parentId: strin
                 clearTimeout(timer);
                 setCommenting(false);
             }, 800);
+            reset();
         }
     }
 
