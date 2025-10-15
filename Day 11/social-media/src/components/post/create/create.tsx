@@ -97,6 +97,8 @@ const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
                             totalPosts: userData.totalPosts + 1,
                             followers: userData.followers,
                             following: userData.following,
+                            isOnline: userData.isOnline,
+                            id: userData.id,
                         };
 
                         await updateDoc(userDoc.ref, { ...userDetail });

@@ -21,7 +21,7 @@ import Image from 'next/image';
 import Cookies from "js-cookie";
 import { ref, get, set, push } from "firebase/database";
 import { firestoreDb } from "../../../config/firebase";
-import { addDoc, collection, where, query, getDocs, getCountFromServer } from 'firebase/firestore';
+import { addDoc, collection, where, query, getDocs, getCountFromServer, setDoc, doc } from 'firebase/firestore';
 
 function LoginForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -72,6 +72,8 @@ function LoginForm() {
                     totalPosts: totalPosts ?? 0,
                     followers: isStored.result.user.followers,
                     following: isStored.result.user.following,
+                    id: isStored.result.user.id,
+                    isOnline: true,
                 };
                 fetchUserDetailIfLoggedIn(userDetail).then((result) => {
                     enqueueSnackbar("Login Success");
@@ -121,11 +123,15 @@ function LoginForm() {
                     totalPosts: totalPosts ?? 0,
                     followers: [],
                     following: [],
+                    id: "",
+                    isOnline: true,
                 };
 
                 dispatch(addCredentials(userDetail));
                 if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {
-                    addDoc(collection(firestoreDb, "users"), userDetail);
+                    const result = await addDoc(collection(firestoreDb, "users"), userDetail);
+                    userDetail.id = result.id;
+                    await setDoc(doc(firestoreDb, "users", result.id), userDetail);
                     Cookies.set("credentials", JSON.stringify(userDetail), {
                         path: "/",
                         expires: 7,
@@ -154,7 +160,8 @@ function LoginForm() {
             const docSnapshot = await getDocs(docRef);
             if (docSnapshot.docs.length) {
                 const userDoc = docSnapshot.docs[0].data();
-                userDetail = { ...userDetail, ...userDoc };
+                userDetail = { ...userDetail, ...userDoc, id: docSnapshot.docs[0].id, isOnline: true };
+                await setDoc(doc(firestoreDb, "users", docSnapshot.docs[0].id), userDetail);
                 userDetail.photoURL = userDetail.photoURL ?? "/blank-profile-picture.svg";
                 // console.log(userDetail,userDoc)
                 dispatch(addCredentials(userDetail));

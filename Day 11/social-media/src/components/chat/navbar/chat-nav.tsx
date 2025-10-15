@@ -9,14 +9,18 @@ const ChatNav = ({ receiverDetail, senderId }: { receiverDetail: userInterface, 
     const router = useRouter();
 
     return (
-        <Card className={`${style.rounded_logo} ${style.card} ${style.grid}`}>
-            <KeyboardArrowLeftIcon fontSize='large' onClick={() => { router.push("/chat"); }} />
-            <div className={` ${style.relative}`}>
-                <Image src={receiverDetail.photoURL ?? "/blank-profile-picture.svg"} fill alt={receiverDetail.photoURL ?? "blank-profile-picture.svg"} className={`${style.rounded_logo}`} />
+        <Card className={`${style.card} ${style.grid} ${style.border}`}>
+            <KeyboardArrowLeftIcon fontSize='large' onClick={() => { router.push("/chat"); }} className={`${style.pointer}`} />
+            <div className={` ${style.relative} ${style.pointer}`} onClick={() => { router.push(`/profile/${receiverDetail.uid}`) }}>
+                <Image src={receiverDetail.photoURL ?? "/blank-profile-picture.svg"} fill alt={receiverDetail.photoURL ?? "blank-profile-picture.svg"} className={`${style.rounded_logo} ${style.relative}`} />
             </div>
             <div>
                 <p className={`${style.boldText}`}>{receiverDetail.displayName ?? "Username"}</p>
-                <p>Status: <span className={`${style.textYellow}`}>{receiverDetail.photoURL}</span></p>
+                <p>
+                    Status: <span className={`${receiverDetail.isOnline ? style.textGreen : style.textRed}`}>
+                        {receiverDetail.isOnline ? "Online" : "Offline"}
+                    </span>
+                </p>
             </div>
         </Card>
     )

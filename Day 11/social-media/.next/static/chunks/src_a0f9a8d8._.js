@@ -236,7 +236,9 @@ function LoginForm() {
                     uid: isStored.result.user.uid,
                     totalPosts: totalPosts !== null && totalPosts !== void 0 ? totalPosts : 0,
                     followers: isStored.result.user.followers,
-                    following: isStored.result.user.following
+                    following: isStored.result.user.following,
+                    id: isStored.result.user.id,
+                    isOnline: true
                 };
                 fetchUserDetailIfLoggedIn(userDetail).then((result)=>{
                     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$notistack$2f$notistack$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["enqueueSnackbar"])("Login Success");
@@ -285,11 +287,15 @@ function LoginForm() {
                 uid: result.user.uid,
                 totalPosts: totalPosts !== null && totalPosts !== void 0 ? totalPosts : 0,
                 followers: [],
-                following: []
+                following: [],
+                id: "",
+                isOnline: true
             };
             dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$user$2f$currentUser$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addCredentials"])(userDetail));
             if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {
-                (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDoc"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["collection"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$config$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["firestoreDb"], "users"), userDetail);
+                const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDoc"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["collection"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$config$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["firestoreDb"], "users"), userDetail);
+                userDetail.id = result.id;
+                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["setDoc"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["doc"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$config$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["firestoreDb"], "users", result.id), userDetail);
                 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$js$2d$cookie$2f$dist$2f$js$2e$cookie$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].set("credentials", JSON.stringify(userDetail), {
                     path: "/",
                     expires: 7,
@@ -317,8 +323,11 @@ function LoginForm() {
                 const userDoc = docSnapshot.docs[0].data();
                 userDetail = {
                     ...userDetail,
-                    ...userDoc
+                    ...userDoc,
+                    id: docSnapshot.docs[0].id,
+                    isOnline: true
                 };
+                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["setDoc"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["doc"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$config$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["firestoreDb"], "users", docSnapshot.docs[0].id), userDetail);
                 var _userDetail_photoURL;
                 userDetail.photoURL = (_userDetail_photoURL = userDetail.photoURL) !== null && _userDetail_photoURL !== void 0 ? _userDetail_photoURL : "/blank-profile-picture.svg";
                 // console.log(userDetail,userDoc)
@@ -360,20 +369,20 @@ function LoginForm() {
                             children: "Please Enter your details"
                         }, void 0, false, {
                             fileName: "[project]/src/components/form/login/login-form.tsx",
-                            lineNumber: 192,
+                            lineNumber: 199,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$mui$2f$material$2f$esm$2f$Typography$2f$Typography$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                             children: "Welcome Back"
                         }, void 0, false, {
                             fileName: "[project]/src/components/form/login/login-form.tsx",
-                            lineNumber: 195,
+                            lineNumber: 202,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/form/login/login-form.tsx",
-                    lineNumber: 191,
+                    lineNumber: 198,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
@@ -391,13 +400,13 @@ function LoginForm() {
                             error: !!error
                         }, void 0, false, {
                             fileName: "[project]/src/components/form/login/login-form.tsx",
-                            lineNumber: 203,
+                            lineNumber: 210,
                             columnNumber: 33
                         }, void 0);
                     }
                 }, void 0, false, {
                     fileName: "[project]/src/components/form/login/login-form.tsx",
-                    lineNumber: 199,
+                    lineNumber: 206,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Controller"], {
@@ -416,13 +425,13 @@ function LoginForm() {
                             error: !!error
                         }, void 0, false, {
                             fileName: "[project]/src/components/form/login/login-form.tsx",
-                            lineNumber: 218,
+                            lineNumber: 225,
                             columnNumber: 33
                         }, void 0);
                     }
                 }, void 0, false, {
                     fileName: "[project]/src/components/form/login/login-form.tsx",
-                    lineNumber: 214,
+                    lineNumber: 221,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$mui$2f$material$2f$esm$2f$Button$2f$Button$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -431,7 +440,7 @@ function LoginForm() {
                     children: "Login"
                 }, void 0, false, {
                     fileName: "[project]/src/components/form/login/login-form.tsx",
-                    lineNumber: 230,
+                    lineNumber: 237,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$mui$2f$material$2f$esm$2f$Button$2f$Button$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -446,14 +455,14 @@ function LoginForm() {
                             className: "".concat(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$form$2f$login$2f$style$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].mR)
                         }, void 0, false, {
                             fileName: "[project]/src/components/form/login/login-form.tsx",
-                            lineNumber: 232,
+                            lineNumber: 239,
                             columnNumber: 21
                         }, this),
                         "Login with Google"
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/form/login/login-form.tsx",
-                    lineNumber: 231,
+                    lineNumber: 238,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -466,24 +475,24 @@ function LoginForm() {
                             children: "Sign up"
                         }, void 0, false, {
                             fileName: "[project]/src/components/form/login/login-form.tsx",
-                            lineNumber: 236,
+                            lineNumber: 243,
                             columnNumber: 43
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/form/login/login-form.tsx",
-                    lineNumber: 235,
+                    lineNumber: 242,
                     columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/form/login/login-form.tsx",
-            lineNumber: 190,
+            lineNumber: 197,
             columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/form/login/login-form.tsx",
-        lineNumber: 189,
+        lineNumber: 196,
         columnNumber: 9
     }, this);
 }

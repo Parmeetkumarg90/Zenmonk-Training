@@ -42,6 +42,7 @@ const FollowerFollowing = ({ data, loading }: { data: follow_following_view_Inte
                 }
                 else {
                     followingData.following = followingData.following.filter((each: string) => each !== profileUid);
+                    data.list = data.list.filter((each) => each.uid != profileUid);
                     dispatch(removeFollowing(profileUid));
                 }
                 await updateDoc(followingDocRef.ref, { ...followingData });

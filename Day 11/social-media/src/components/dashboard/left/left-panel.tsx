@@ -14,7 +14,7 @@ import ProfileEditForm from '@/components/form/edit-form/profile-edit-form';
 import { addFollowing, logout, removeFollowing } from '@/redux/user/currentUser';
 import { authorizedInterface } from '@/interfaces/user/user';
 import { CircularProgress, Typography } from '@mui/material';
-import { collection, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import { removeAllPosts } from '@/redux/post/user-post';
 import FollowerFollowing from '@/components/list/followers-following/follower-following';
@@ -37,7 +37,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
     const [profileEditPopUp, setProfileEditPopUp] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
-        if (userUid) {
+        if (userUid && userUid?.trim() !== "") {
             getUserData();
         }
         else {
@@ -69,7 +69,9 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                     uid: userData.uid,
                     totalPosts: userData.totalPosts,
                     followers: userData.followers,
-                    following: userData.following
+                    following: userData.following,
+                    id: snapshot.docs[0].id,
+                    isOnline: userData.isOnline,
                 };
 
                 setUserDetail(userDetails);
@@ -101,7 +103,8 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
         router.push(url);
     }
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        await setDoc(doc(firestoreDb, "users", loggedInUser.id), { ...loggedInUser, isOnline: false });
         redirectToUrl("/");
         Cookies.remove("credentials");
         dispatch(removeAllPosts());
@@ -136,9 +139,11 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                 const followerData = followerDocRef.data();
                 if (!followerData.followers.includes(logInUserUid)) {
                     followerData.followers.push(logInUserUid);
+                    setUserDetail({ ...userDetail, followers: [...userDetail.followers, logInUserUid] });
                 }
                 else {
                     followerData.followers = followerData.followers.filter((each: string) => each !== logInUserUid);
+                    setUserDetail({ ...userDetail, followers: followerData.followers });
                 }
                 await updateDoc(followerDocRef.ref, { ...followerData });
             }
@@ -226,7 +231,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                                 onClose={handleCloseEdit}
                                 className={`${style.popover}`}
                             >
-                                <ProfileEditForm onClose={handleCloseEdit}/>
+                                <ProfileEditForm onClose={handleCloseEdit} />
                             </Popover>
                         </> :
                         (loggedInUser.uid !== userDetail.uid) && < Button className={`${style.button}`} onClick={handleFollowButtonClick}>{isFollowing}</Button>

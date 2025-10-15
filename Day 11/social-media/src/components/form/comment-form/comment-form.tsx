@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { Card, CircularProgress } from '@mui/material';
 
 
-const CommentAddForm = ({ parentId, postId, onCommentSubmit }: { parentId: string | null, postId: string, onCommentSubmit: Function }) => {
+const CommentAddForm = ({ parentId, postId, onCommentSubmit }: { parentId: string | null, postId: string, onCommentSubmit: () => void }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const dispatch = useAppDispatch();
     const [isCommenting, setCommenting] = useState<boolean>(false);

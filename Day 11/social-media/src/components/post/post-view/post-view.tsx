@@ -90,7 +90,8 @@ const PostItem = ({ post, loading, canDelete }: { post: postDbGetInterface, load
                             <Button onClick={() => { setShowComments(!isShowComments); }}>Comments</Button>
                         </div>
                         {isShowComments && <Comment postId={post.postId} />}
-                    </>}
+                    </>
+            }
         </Card >
     );
 }

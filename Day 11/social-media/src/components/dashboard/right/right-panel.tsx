@@ -5,8 +5,8 @@ import { useAppDispatch, useAppSelector } from '@/redux/hook';
 import { useRouter } from 'next/navigation';
 import { enqueueSnackbar } from 'notistack';
 import Cookies from 'js-cookie';
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { useEffect, useState } from 'react';
+import { collection, DocumentData, getDocs, limit, query, QueryDocumentSnapshot, startAfter, where } from "firebase/firestore";
+import { useEffect, useRef, useState } from 'react';
 import { firestoreDb } from '@/config/firebase';
 import { userInterface } from '@/interfaces/user/user';
 import Card from "@mui/material/Card";
@@ -28,14 +28,41 @@ const RightPanel = () => {
     const router = useRouter();
     const [isLoading, setLoading] = useState<boolean>(true);
     const [users, setUsers] = useState<userInterface[]>([]);
+    const targetRef = useRef<HTMLSpanElement>(null);
+    const [lastDocRef, setLastDocRef] = useState<QueryDocumentSnapshot<DocumentData, DocumentData> | null>(null);
+    const [hasMore, setHasMore] = useState<boolean>(true);
 
     useEffect(() => {
-        getAllPosts(0);
+        getAllUsers();
     }, []);
 
-    const getAllPosts = async (skip: number) => {
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && hasMore) {
+                    getAllUsers();
+                }
+            },
+            {
+                root: null,
+                rootMargin: "0px",
+                threshold: 0
+            }
+        );
+
+        if (targetRef.current) {
+            observer.observe(targetRef.current);
+        }
+        return () => {
+            if (targetRef.current) {
+                observer.unobserve(targetRef.current);
+            }
+        }
+    }, [lastDocRef]);
+
+    const getAllUsers = async () => {
         try {
-            let docRef = query(collection(firestoreDb, "users"));
+            let docRef = lastDocRef ? query(collection(firestoreDb, "users"), startAfter(lastDocRef), limit(1)) : query(collection(firestoreDb, "users"), limit(1));
             const userQuerySnapshot = await getDocs(docRef);
             const userList: userInterface[] = [];
 
@@ -47,16 +74,24 @@ const RightPanel = () => {
                         photoURL: userData.photoURL,
                         displayName: userData.displayName,
                         uid: userData.uid,
-                        id: doc.id
+                        id: doc.id,
+                        isOnline: userData.isOnline
                     };
                     userList.push(user);
                 }
-                else{
-                    dispatch(addCredentials({...loggedInUser,id:doc.id}));
+                else {
+                    dispatch(addCredentials({ ...loggedInUser, id: doc.id }));
                 }
             });
-            // setPosts([...posts, ...postList]);
-            setUsers(userList);
+            if (userQuerySnapshot.empty) {
+                setHasMore(false);
+                setLastDocRef(null);
+            }
+            else {
+                setHasMore(true);
+                setLastDocRef(userQuerySnapshot.docs[userQuerySnapshot.docs.length - 1]);
+            }
+            setUsers([...users, ...userList]);
         }
         catch (e) {
             console.log("Error in fetching posts: ", e);
@@ -76,14 +111,16 @@ const RightPanel = () => {
                     <Typography className={`${style.textYelow} ${style.textCenter} ${style["fontSize1-2"]}`}>Recent Chats</Typography>
                     <List className={`${style.placeCenter}`}>
                         {users.map((user) =>
-                            <ListItem key={user.uid} onClick={() => { router.push(`/chat/${user.id}`); }} className={`${style.listLinkItem}`}>
-                                <ListItemAvatar>
-                                    <Avatar>
-                                        <Image src={user.photoURL ?? "/blank-profile-picture.svg"} fill alt={user.photoURL ?? "/blank-profile-picture.svg"} />
-                                    </Avatar>
-                                </ListItemAvatar>
-                                <ListItemText primary={user.displayName ?? user.email ?? "User"} />
-                            </ListItem>
+                            <span key={user.uid} ref={targetRef}>
+                                <ListItem onClick={() => { router.push(`/chat/${user.id}`); }} className={`${style.listLinkItem}`}>
+                                    <ListItemAvatar>
+                                        <Avatar>
+                                            <Image src={user.photoURL ?? "/blank-profile-picture.svg"} fill alt={user.photoURL ?? "/blank-profile-picture.svg"} />
+                                        </Avatar>
+                                    </ListItemAvatar>
+                                    <ListItemText primary={user.displayName ?? user.email ?? "User"} secondary={user.isOnline ? "Online" : "Offline"} />
+                                </ListItem>
+                            </span>
                         )}
                         <Button onClick={() => { router.push(`/chat`); }}>Browser All</Button>
                     </List>

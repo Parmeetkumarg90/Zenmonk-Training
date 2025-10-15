@@ -37,6 +37,7 @@ const SpecificChat = ({ params }: { params: { id: string } }) => {
           displayName: docDetail.displayName,
           uid: docDetail.uid,
           id: docSnapshot.id,
+          isOnline: docDetail.isOnline,
         };
         setReceiverDetail(receiverDetail);
       }

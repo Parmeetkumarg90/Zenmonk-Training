@@ -43,11 +43,23 @@
     color: yellow;
 }
 
+.textRed {
+    color: red;
+}
+
+.textGreen {
+    color: greenyellow;
+}
+
 .boldText {
     font-weight: bolder;
 }
 
 .relative {
-    padding: 1%;
+    padding: 10% !important;
     position: relative !important;
+}
+
+.pointer {
+    cursor: pointer;
 }

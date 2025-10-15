@@ -15,7 +15,8 @@ interface authorizedInterface {
     totalPosts: number,
     followers: string[],
     following: string[],
-    id?: string
+    id: string,
+    isOnline: boolean,
 }
 
 interface userInterface {
@@ -24,6 +25,7 @@ interface userInterface {
     displayName: string,
     uid: string,
     id: string,
+    isOnline: boolean,
 }
 
 interface signUpUserInterface {

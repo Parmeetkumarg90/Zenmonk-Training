@@ -8,10 +8,11 @@ import { useState } from "react";
 import Button from "@mui/material/Button";
 import Popover from "@mui/material/Popover";
 
-const CommentView = ({ comments, postId, onCommentSubmit }: { comments: commentDbInterface[], postId: string, onCommentSubmit: Function }) => {
+const CommentView = ({ comments, postId, onCommentSubmit }: { comments: commentDbInterface[], postId: string, onCommentSubmit: () => void }) => {
     const [replyAddPopUpAnchorEl, setreplyAddPopUpAnchorEl] = useState<HTMLElement | null>(null);
 
     const handleClosereplyAddPopUpAnchorEl = () => {
+        onCommentSubmit();
         setreplyAddPopUpAnchorEl(null);
     }
 
@@ -43,10 +44,10 @@ const CommentView = ({ comments, postId, onCommentSubmit }: { comments: commentD
                                 horizontal: "left"
                             }}
                         >
-                            <CommentAddForm parentId={comment.thisCommentId!} postId={postId} onCommentSubmit={onCommentSubmit} />
+                            <CommentAddForm parentId={comment.thisCommentId!} postId={postId} onCommentSubmit={handleClosereplyAddPopUpAnchorEl} />
                         </Popover>
                         {
-                            comment?.replies && <CommentView comments={comment?.replies} postId={postId} onCommentSubmit={onCommentSubmit} />
+                            comment?.replies && <CommentView comments={comment?.replies} postId={postId} onCommentSubmit={handleClosereplyAddPopUpAnchorEl} />
                         }
                     </Card >
                 )

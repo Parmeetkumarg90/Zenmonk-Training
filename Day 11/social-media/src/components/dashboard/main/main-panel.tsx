@@ -8,9 +8,9 @@ import Create from '../../post//create/create';
 import style from "./style.module.css";
 import Card from "@mui/material/Card";
 import PostItem from '@/components/post/post-view/post-view';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { postDbGetInterface } from '@/interfaces/post/user';
-import { collection, getDocs, where, query, limit, startAfter } from 'firebase/firestore';
+import { collection, getDocs, where, query, limit, startAfter, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import CircularProgress from '@mui/material/CircularProgress';
 import { addPostsCount } from '@/redux/user/currentUser';
@@ -19,17 +19,49 @@ import { addUserPosts } from '@/redux/post/user-post';
 const MainPanel = ({ userUid }: { userUid?: string }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const dispatch = useAppDispatch();
-    const router = useRouter();
     const [isLoading, setLoading] = useState<boolean>(true);
     const [posts, setPosts] = useState<postDbGetInterface[]>([]);
+    const targetRef = useRef<HTMLSpanElement>(null);
+    const [lastDocRef, setLastDocRef] = useState<QueryDocumentSnapshot<DocumentData, DocumentData> | null>(null);
+    const [hasMore, setHasMore] = useState<boolean>(true);
 
     useEffect(() => {
-        getAllPosts(0);
+        getAllPosts();
     }, []);
 
-    const getAllPosts = async (skip: number) => {
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && hasMore) {
+                    getAllPosts();
+                }
+            },
+            {
+                root: null,
+                rootMargin: "0px",
+                threshold: 1,
+            }
+        );
+        if (targetRef.current) {
+            observer.observe(targetRef.current);
+        }
+        return () => {
+            if (targetRef.current) {
+                observer.unobserve(targetRef.current);
+            }
+        };
+    }, [lastDocRef]);
+
+    const getAllPosts = async () => {
         try {
-            let docRef = userUid ? query(collection(firestoreDb, "posts"), where("uid", "==", userUid)) : query(collection(firestoreDb, "posts"));
+            let docRef = userUid && userUid.trim() != "" ?
+                query(collection(firestoreDb, "posts"), where("uid", "==", userUid), limit(5)) :
+                query(collection(firestoreDb, "posts"), limit(5));
+            if (lastDocRef) {
+                docRef = userUid && userUid.trim() != "" ?
+                    query(collection(firestoreDb, "posts"), where("uid", "==", userUid), limit(5), startAfter(lastDocRef)) :
+                    query(collection(firestoreDb, "posts"), limit(5), startAfter(lastDocRef));
+            }
             const postQuerySnapshot = await getDocs(docRef);
             const postList: postDbGetInterface[] = [];
 
@@ -53,8 +85,15 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
                 }
                 postList.push(post);
             });
-            // setPosts([...posts, ...postList]);
-            setPosts(postList);
+            if (postQuerySnapshot.empty) {
+                setHasMore(false);
+                setLastDocRef(null);
+            }
+            else {
+                setHasMore(true);
+                setLastDocRef(postQuerySnapshot.docs[postQuerySnapshot.docs.length - 1]);
+            }
+            setPosts([...posts, ...postList]);
         }
         catch (e) {
             console.log("Error in fetching posts: ", e);
@@ -73,12 +112,13 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
                 {
                     isLoading ? <CircularProgress size={"3rem"} title='Loading Post' className={`${style.marginAuto}`} /> :
                         posts.length > 0 ? posts.map((eachDoc, index) =>
-                            <span key={index}>
+                            <span key={index} ref={posts.length - 1 === index ? targetRef : null}>
                                 <PostItem post={eachDoc} />
                             </span>
                         )
                             : <span>No post</span>
                 }
+                {!hasMore && "No more post to load....."}
             </Card>
         </Card>
     )
