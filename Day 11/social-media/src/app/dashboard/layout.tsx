@@ -1,3 +1,4 @@
+"use client";
 import style from "./style.module.css";
 import Card from "@mui/material/Card";
 import LeftPanel from '@/components/dashboard/left/left-panel';

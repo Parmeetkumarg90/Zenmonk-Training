@@ -118,7 +118,7 @@ const RightPanel = () => {
                                             <Image src={user.photoURL ?? "/blank-profile-picture.svg"} fill alt={user.photoURL ?? "/blank-profile-picture.svg"} />
                                         </Avatar>
                                     </ListItemAvatar>
-                                    <ListItemText primary={user.displayName ?? user.email ?? "User"} secondary={user.isOnline ? "Online" : "Offline"} />
+                                    <ListItemText primary={user.displayName ?? user.email ?? "User"} secondary={<span className={`${user.isOnline ? style.textGreen : style.textRed}`}>{user.isOnline ? "Online" : "Offline"}</span>} />
                                 </ListItem>
                             </span>
                         )}

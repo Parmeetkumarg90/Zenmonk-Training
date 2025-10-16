@@ -5,4 +5,11 @@ interface chatInputInterface {
     time: number,
 }
 
-export type { chatInputInterface };
+interface chatStatusInterface {
+    senderId: string,
+    receiverId: string,
+    isSenderTyping: boolean,
+    isReceiverTyping: boolean,
+}
+
+export type { chatInputInterface, chatStatusInterface };

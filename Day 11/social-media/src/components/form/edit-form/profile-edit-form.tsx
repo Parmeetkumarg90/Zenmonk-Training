@@ -1,7 +1,7 @@
 "use client";
 import { updateUserSchema } from '@/schema/user/user';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { authorizedInterface, logInUserInterface, updateUserInterface } from '@/interfaces/user/user';
+import { authorizedInterface, logInUserInterface, typeStatus, updateUserInterface } from '@/interfaces/user/user';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
@@ -16,6 +16,8 @@ import { cloudinaryUpload } from '@/config/cloudinary';
 import { addCredentials } from '@/redux/user/currentUser';
 import { collection, where, query, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -30,6 +32,7 @@ const ProfileEditForm = ({ onClose }: { onClose: () => void }) => {
             displayName: loggedInUser.displayName || "",
             phoneNumber: loggedInUser.phoneNumber || "",
             photoURL: null,
+            type: loggedInUser.type
         }
     });
 
@@ -39,7 +42,7 @@ const ProfileEditForm = ({ onClose }: { onClose: () => void }) => {
         if (
             watchedValues.displayName !== loggedInUser.displayName ||
             watchedValues.phoneNumber !== loggedInUser.phoneNumber ||
-            watchedValues.photoURL
+            watchedValues.type !== loggedInUser.type
         ) {
             setSameValues(false);
         }
@@ -86,12 +89,14 @@ const ProfileEditForm = ({ onClose }: { onClose: () => void }) => {
                     displayName: data.displayName || loggedInUser.displayName,
                     phoneNumber: data.phoneNumber || loggedInUser.phoneNumber,
                     photoURL: url || loggedInUser.photoURL,
+                    type: data.type
                 };
 
                 await updateDoc(doc(firestoreDb, "users", docSnapShot.docs[0].id), {
                     displayName: data.displayName || loggedInUser.displayName,
                     phoneNumber: data.phoneNumber || loggedInUser.phoneNumber,
                     photoURL: url || loggedInUser.photoURL,
+                    type: data.type
                 });
 
                 dispatch(addCredentials(userDbObj));
@@ -152,6 +157,26 @@ const ProfileEditForm = ({ onClose }: { onClose: () => void }) => {
                 />
                 <Controller
                     control={control}
+                    name="type"
+                    render={({ field, fieldState: { error } }) => {
+                        return (<Select
+                            labelId="filled-basic-type"
+                            id="filled-basic-type"
+                            className={`${style.select}`}
+                            {...field}
+                            label="Account Type"
+                            error={!!error}
+                            onChange={(e) => {
+                                setValue("type", e.target.value);
+                            }}
+                        >
+                            <MenuItem value={typeStatus.PRIVATE}>Private</MenuItem>
+                            <MenuItem value={typeStatus.PUBLIC}>Public</MenuItem>
+                        </Select>);
+                    }}
+                />
+                <Controller
+                    control={control}
                     name="photoURL"
                     render={({ field, fieldState: { error } }) => {
                         return (
@@ -168,7 +193,7 @@ const ProfileEditForm = ({ onClose }: { onClose: () => void }) => {
                     <p className={`${style.redText}`}>
                         {isSameValues ? "Please update your data" : ""}
                     </p>
-                    <Button type='submit' className={`${style.button}`}>Update Profile</Button>
+                    <Button type='submit' className={`${style.button} ${isSameValues && style.disabledButton}`} disabled={isSameValues}>Update Profile</Button>
                 </span>
             </form>
         </Card>

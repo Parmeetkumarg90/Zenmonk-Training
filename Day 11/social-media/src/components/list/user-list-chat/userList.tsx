@@ -40,28 +40,34 @@ const UserList = ({ params }: { params: { id: string } }) => {
     }, []);
 
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting && hasMore) {
-                    getAllUsers();
-                }
-            },
-            {
-                root: null,
-                rootMargin: "0px",
-                threshold: 0
-            }
-        );
-
         if (targetRef.current) {
+            const observer = new IntersectionObserver(
+                ([entry]) => {
+                    if (entry.isIntersecting && hasMore) {
+                        getAllUsers();
+                    }
+                },
+                {
+                    root: null,
+                    rootMargin: "0px",
+                    threshold: 0
+                }
+            );
+
             observer.observe(targetRef.current);
-        }
-        return () => {
-            if (targetRef.current) {
-                observer.unobserve(targetRef.current);
+
+            const rect = targetRef.current.getBoundingClientRect();
+            if (rect.top <= window.innerHeight && rect.bottom >= 0 && hasMore) {
+                getAllUsers();
+            }
+
+            return () => {
+                if (targetRef.current) {
+                    observer.unobserve(targetRef.current);
+                }
             }
         }
-    }, [lastDocRef]);
+    }, [lastDocRef, hasMore,targetRef]);
 
     const getReceiverDetail = async () => {
         try {
@@ -76,7 +82,7 @@ const UserList = ({ params }: { params: { id: string } }) => {
 
     const getAllUsers = async () => {
         try {
-            let docRef = lastDocRef ? query(collection(firestoreDb, "users"), startAfter(lastDocRef), limit(1)) : query(collection(firestoreDb, "users"), limit(1));
+            let docRef = lastDocRef ? query(collection(firestoreDb, "users"), startAfter(lastDocRef), limit(10)) : query(collection(firestoreDb, "users"), limit(10));
             const userQuerySnapshot = await getDocs(docRef);
             const userList: userInterface[] = [];
 
@@ -137,7 +143,7 @@ const UserList = ({ params }: { params: { id: string } }) => {
                                             <Image src={user.photoURL ?? "/blank-profile-picture.svg"} fill alt={user.photoURL ?? "/blank-profile-picture.svg"} />
                                         </Avatar>
                                     </ListItemAvatar>
-                                    <ListItemText primary={user.displayName ?? user.email ?? "User"} />
+                                    <ListItemText primary={user.displayName ?? user.email ?? "User"} secondary={<span className={`${user.isOnline ? style.textGreen : style.textRed}`}>{user.isOnline ? "Online" : "Offline"}</span>} />
                                 </ListItem>
                             </span>
                         )}
@@ -148,4 +154,4 @@ const UserList = ({ params }: { params: { id: string } }) => {
     )
 }
 
-export default UserList
+export default UserList;

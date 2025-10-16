@@ -14,6 +14,13 @@
   margin: 2% !important;
 }
 
+.style-module__whx81q__select {
+  width: 70%;
+  min-width: -moz-fit-content;
+  min-width: fit-content;
+  margin: 2% !important;
+}
+
 .style-module__whx81q__pY5 {
   padding: 5% 0;
 }
@@ -39,6 +46,11 @@
 
 .style-module__whx81q__redText {
   color: red;
+}
+
+.style-module__whx81q__disabledButton {
+  color: #000;
+  background-color: gray !important;
 }
 
 /*# sourceMappingURL=src_components_form_edit-form_style_module_css_bad6b30c._.single.css.map*/

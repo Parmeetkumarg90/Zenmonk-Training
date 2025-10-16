@@ -19,32 +19,48 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import EmojiPicker from "emoji-picker-react";
 import Popover from '@mui/material/Popover';
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { cloudinaryUpload } from '@/config/cloudinary';
 import CircularProgress from "@mui/material/CircularProgress";
 import { firestoreDb } from '@/config/firebase';
 import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { addUserPosts } from '@/redux/post/user-post';
 import { addCredentials } from '@/redux/user/currentUser';
-import { authorizedInterface } from '@/interfaces/user/user';
+import { authorizedInterface, typeStatus } from '@/interfaces/user/user';
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
-const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
+const Create = ({ onPostCreated }: { onPostCreated: (data: postDbGetInterface) => void }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const dispatch = useAppDispatch();
     const router = useRouter();
     const [isSubmitAllowed, setSubmitAllowed] = useState<boolean>(true);
     const [emojiAnchorEl, setEmojiAnchorEl] = useState<HTMLElement | null>(null);
+    const [imagePreviewAnchorEl, setImagePreviewAnchorEl] = useState<HTMLElement | null>(null);
     const uploadInputRef = useRef<HTMLInputElement>(null);
+    const [previewURL, setPreviewURL] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const { handleSubmit, reset, control, getValues, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(postCreateSchema),
         defaultValues: {
             text: "",
             images: [],
+            type: typeStatus.PUBLIC,
         }
     });
+
+    useEffect(() => {
+        if (!selectedFile) {
+            return;
+        }
+        const newURL = URL.createObjectURL(selectedFile);
+        setPreviewURL(newURL);
+
+        return () => URL.revokeObjectURL(newURL);
+    }, [selectedFile]);
 
     const onSubmit: SubmitHandler<postCreateInterface> = async (data) => {
         try {
@@ -68,6 +84,7 @@ const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
                 time: Date.now(),
                 displayName: loggedInUser.displayName,
                 photoURL: loggedInUser.photoURL,
+                type: data.type
             };
 
             const isPostCreationValid = postCreateDbSchema.safeParse(dbPostObject);
@@ -78,7 +95,9 @@ const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
                         const currentUserPost: postDbGetInterface = {
                             ...dbPostObject,
                             postId: result.id,
+                            isDeleted: false,
                         }
+                        onPostCreated(currentUserPost);
                         dispatch(addUserPosts(currentUserPost));
                         enqueueSnackbar("Post Created Successfully");
 
@@ -99,10 +118,10 @@ const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
                             following: userData.following,
                             isOnline: userData.isOnline,
                             id: userData.id,
+                            type: userData.type,
                         };
 
                         await updateDoc(userDoc.ref, { ...userDetail });
-                        onPostCreated();
                         dispatch(addCredentials(userDetail));
                     }).catch((error) => {
                         console.log("Error in post creation: ", error);
@@ -142,6 +161,11 @@ const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
         setEmojiAnchorEl(event.currentTarget);
     }
 
+    const handleImagePreviewPopup = (event: React.MouseEvent<HTMLParagraphElement>, image: File) => {
+        setImagePreviewAnchorEl(event.currentTarget);
+        setSelectedFile(image);
+    }
+
     const handleEmojiSelected = (emojiObject: any) => {
         const currentText = getValues("text");
         setValue("text", currentText + emojiObject.emoji);
@@ -150,6 +174,11 @@ const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
 
     const handleCloseEmojiPicker = () => {
         setEmojiAnchorEl(null);
+    }
+
+    const handleCloseImagePreviewPopUp = () => {
+        setImagePreviewAnchorEl(null);
+        setSelectedFile(null);
     }
 
     return (
@@ -172,6 +201,26 @@ const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
                                 variant="outlined"
                                 error={!!error}
                             />);
+                        }}
+                    />
+                    <Controller
+                        control={control}
+                        name="type"
+                        render={({ field, fieldState: { error } }) => {
+                            return (<Select
+                                labelId="filled-basic-type"
+                                id="filled-basic-type"
+                                className={`${style.select}`}
+                                {...field}
+                                label="Post Type"
+                                error={!!error}
+                                onChange={(e) => {
+                                    setValue("type", e.target.value);
+                                }}
+                            >
+                                <MenuItem value={typeStatus.PRIVATE}>Private</MenuItem>
+                                <MenuItem value={typeStatus.PUBLIC}>Public</MenuItem>
+                            </Select>);
                         }}
                     />
                 </div>
@@ -206,7 +255,7 @@ const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
                         <EmojiPicker onEmojiClick={handleEmojiSelected} />
                     </Popover>
                     <ToolTip title="Post">
-                        <Button type='submit' disabled={!isSubmitAllowed}>
+                        <Button type='submit' className={`${!isSubmitAllowed && style.disabledButton}`} disabled={!isSubmitAllowed}>
                             Post
                         </Button>
                     </ToolTip>
@@ -219,9 +268,22 @@ const Create = ({ onPostCreated }: { onPostCreated: Function }) => {
                 <span className={`${style.imageList}`}>
                     {getValues("images").length > 0 &&
                         getValues("images").map((image) => {
-                            return (<p key={image.name}>{image.name}</p>);
+                            return (<p key={image.name} className={`${style.linkModal}`} onClick={(e: React.MouseEvent<HTMLParagraphElement>) => { handleImagePreviewPopup(e, image); }}>
+                                {image.name}
+                            </p>);
                         })
                     }
+                    <Popover
+                        open={Boolean(imagePreviewAnchorEl)}
+                        anchorEl={imagePreviewAnchorEl}
+                        onClose={handleCloseImagePreviewPopUp}
+                        anchorOrigin={{
+                            vertical: "bottom",
+                            horizontal: "center"
+                        }}
+                    >
+                        {previewURL && <Image src={previewURL} alt={previewURL} width={600} height={400} />}
+                    </Popover>
                 </span>
             </form>
         </Card>

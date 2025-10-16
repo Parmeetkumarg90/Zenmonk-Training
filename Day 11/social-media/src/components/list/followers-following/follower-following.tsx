@@ -1,3 +1,4 @@
+"use client";
 import { follow_following_view_Interface } from '@/interfaces/follower-following-list';
 import Grid from "@mui/material/Grid";
 import CircularProgress from '@mui/material/CircularProgress';
@@ -85,7 +86,7 @@ const FollowerFollowing = ({ data, loading }: { data: follow_following_view_Inte
                                     aria-label={data.type === "FOLLOWERS" ?
                                         loggedInUser?.following.includes(profile.uid) ? "Unfollow" : "" :
                                         loggedInUser?.followers.includes(profile.uid) ?
-                                            loggedInUser?.following.includes(profile.uid) ? "Unfollow" : "Follow Back" : ""
+                                            loggedInUser?.following.includes(profile.uid) ? "Unfollow" : "Follow Back" : "Unfollow"
                                     }>
                                     {data.type !== "FOLLOWERS" ?
                                         loggedInUser?.following.includes(profile.uid) ? <PersonRemoveAlt1Icon /> : "" :

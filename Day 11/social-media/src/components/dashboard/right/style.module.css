@@ -35,3 +35,10 @@
 .listLinkItem:hover {
     opacity: 0.8;
 }
+.textRed {
+    color: red;
+}
+
+.textGreen {
+    color: greenyellow;
+}

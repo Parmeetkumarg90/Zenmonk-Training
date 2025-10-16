@@ -13,6 +13,12 @@
     margin: 2% !important;
 }
 
+.select{
+    width: 70%;
+    min-width: fit-content;
+    margin: 2% !important;
+}
+
 .pY5 {
     padding: 5% 0;
 }
@@ -33,4 +39,9 @@
 
 .redText {
     color: red;
+}
+
+.disabledButton{
+    color: black;
+    background-color: grey !important;
 }

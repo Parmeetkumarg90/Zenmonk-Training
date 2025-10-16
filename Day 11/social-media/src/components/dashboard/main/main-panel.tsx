@@ -10,14 +10,16 @@ import Card from "@mui/material/Card";
 import PostItem from '@/components/post/post-view/post-view';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { postDbGetInterface } from '@/interfaces/post/user';
-import { collection, getDocs, where, query, limit, startAfter, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, where, query, limit, startAfter, QueryDocumentSnapshot, DocumentData, setDoc, doc, and, or, getDoc } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import CircularProgress from '@mui/material/CircularProgress';
 import { addPostsCount } from '@/redux/user/currentUser';
 import { addUserPosts } from '@/redux/post/user-post';
+import { authorizedInterface, typeStatus } from '@/interfaces/user/user';
 
 const MainPanel = ({ userUid }: { userUid?: string }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
+    const [currentProfileDetail, setcurrentProfileDetail] = useState<authorizedInterface | null>(null);
     const dispatch = useAppDispatch();
     const [isLoading, setLoading] = useState<boolean>(true);
     const [posts, setPosts] = useState<postDbGetInterface[]>([]);
@@ -25,9 +27,39 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
     const [lastDocRef, setLastDocRef] = useState<QueryDocumentSnapshot<DocumentData, DocumentData> | null>(null);
     const [hasMore, setHasMore] = useState<boolean>(true);
 
+
+    useEffect(() => {
+        initialFetch();
+    }, []);
+
     useEffect(() => {
         getAllPosts();
-    }, []);
+    }, [currentProfileDetail]);
+
+    const initialFetch = async () => {
+        if (userUid && userUid.trim() != loggedInUser.uid) {
+            const docQuery = query(collection(firestoreDb, "users"), where("uid", "==", userUid));
+            const profileSnapshot = await getDocs(docQuery);
+            const profileDocRef = profileSnapshot.docs[0];
+            if (profileDocRef.exists()) {
+                const profileData = profileDocRef.data();
+                setcurrentProfileDetail({
+                    email: profileData.email!,
+                    token: profileData.token,
+                    photoURL: profileData.photoURL!,
+                    phoneNumber: profileData.phoneNumber!,
+                    displayName: profileData.displayName!,
+                    uid: profileData.uid,
+                    totalPosts: profileData.totalPosts,
+                    followers: profileData.followers,
+                    following: profileData.following,
+                    id: profileData.id,
+                    isOnline: profileData.isOnline,
+                    type: profileData.type
+                });
+            }
+        }
+    }
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -50,17 +82,27 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
                 observer.unobserve(targetRef.current);
             }
         };
-    }, [lastDocRef]);
+    }, [lastDocRef, hasMore, targetRef]);
 
     const getAllPosts = async () => {
         try {
-            let docRef = userUid && userUid.trim() != "" ?
-                query(collection(firestoreDb, "posts"), where("uid", "==", userUid), limit(5)) :
-                query(collection(firestoreDb, "posts"), limit(5));
-            if (lastDocRef) {
-                docRef = userUid && userUid.trim() != "" ?
-                    query(collection(firestoreDb, "posts"), where("uid", "==", userUid), limit(5), startAfter(lastDocRef)) :
-                    query(collection(firestoreDb, "posts"), limit(5), startAfter(lastDocRef));
+            let docRef;
+            if (currentProfileDetail && currentProfileDetail.uid != loggedInUser.uid) {
+                if (currentProfileDetail.type === typeStatus.PUBLIC) {
+                    docRef = !lastDocRef ?
+                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC)), limit(5)) :
+                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC)), startAfter(lastDocRef), limit(5));
+                }
+                else {
+                    docRef = !lastDocRef ?
+                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("followers", "array-contains", loggedInUser.uid)), limit(5)) :
+                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("followers", "array-contains", loggedInUser.uid)), startAfter(lastDocRef), limit(5));
+                }
+            }
+            else {
+                docRef = !lastDocRef ?
+                    query(collection(firestoreDb, "posts"), limit(5)) :
+                    query(collection(firestoreDb, "posts"), startAfter(lastDocRef), limit(5));
             }
             const postQuerySnapshot = await getDocs(docRef);
             const postList: postDbGetInterface[] = [];
@@ -77,6 +119,8 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
                     time: postData.time,
                     displayName: postData.displayName,
                     photoURL: postData.photoURL,
+                    type: postData.type,
+                    isDeleted: postData.isDeleted
                 };
                 if (loggedInUser.uid === postData.uid) {
                     post.displayName = postData.displayName;
@@ -105,18 +149,38 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
         }
     }
 
+    const addNewPost = (newPost: postDbGetInterface) => {
+        setPosts([newPost, ...posts]);
+    }
+
+    const removePost = (postId: string) => {
+        setPosts(posts.filter(each => each.postId !== postId));
+    }
+
+    const editPost = (postId: string, type: typeStatus) => {
+        const newPosts = posts.map(each => {
+            if (each.postId === postId) {
+                each.type = type;
+            }
+            return each;
+        });
+        setPosts(newPosts);
+    }
+
     return (
         <Card className={`${style.card} ${style.grid}`}>
-            {((userUid === undefined) || (userUid === loggedInUser.uid)) ? <Create onPostCreated={getAllPosts} /> : <span></span>}
+            {((userUid === undefined) || (userUid === loggedInUser.uid)) ? <Create onPostCreated={addNewPost} /> : <span></span>}
             <Card className={`${style.card} ${style.overflow_scroll} ${style.mT3}`}>
                 {
                     isLoading ? <CircularProgress size={"3rem"} title='Loading Post' className={`${style.marginAuto}`} /> :
                         posts.length > 0 ? posts.map((eachDoc, index) =>
                             <span key={index} ref={posts.length - 1 === index ? targetRef : null}>
-                                <PostItem post={eachDoc} />
+                                <PostItem post={eachDoc} loading={isLoading} removePost={removePost} modifyPost={editPost}
+                                    canDelete={userUid === loggedInUser.uid} canEdit={userUid === loggedInUser.uid}
+                                />
                             </span>
                         )
-                            : <span>No post</span>
+                            : <></>
                 }
                 {!hasMore && "No more post to load....."}
             </Card>

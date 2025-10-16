@@ -58,6 +58,7 @@
   flex-direction: column;
   width: 100%;
   display: flex;
+  position: relative;
 }
 
 .style-module__zblWPa__overflow_scroll {
@@ -70,6 +71,21 @@
 
 .style-module__zblWPa__mT3 {
   margin-top: 3% !important;
+}
+
+.style-module__zblWPa__linkModal {
+  color: #eeeb4d;
+  font-size: 1rem;
+}
+
+.style-module__zblWPa__linkModal:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.style-module__zblWPa__disabledButton {
+  color: #000;
+  background-color: gray !important;
 }
 
 /*# sourceMappingURL=src_components_post_create_style_module_css_bad6b30c._.single.css.map*/

@@ -1,6 +1,9 @@
+import { typeStatus } from "../user/user";
+
 interface postCreateInterface {
     text: string,
     images: File[],
+    type: typeStatus,
 }
 
 interface commentDbInterface {
@@ -24,6 +27,7 @@ interface postCreateDbInterface {
     time: number,
     displayName: string,
     photoURL: string,
+    type: typeStatus,
 }
 
 interface postDbGetInterface {
@@ -36,6 +40,8 @@ interface postDbGetInterface {
     time: number,
     displayName: string,
     photoURL: string,
+    type: typeStatus,
+    isDeleted: boolean
 }
 
 export type { postCreateInterface, postCreateDbInterface, commentDbInterface, postDbGetInterface };

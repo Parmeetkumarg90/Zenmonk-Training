@@ -1,3 +1,4 @@
+"use client";
 import { userInterface } from '@/interfaces/user/user';
 import style from "./style.module.css";
 import Image from 'next/image';
@@ -8,22 +9,31 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { chatInputSchema } from '@/schema/chat/chat';
 import { commentDbInterface } from '@/interfaces/post/user';
-import { chatInputInterface } from '@/interfaces/chat/chat';
+import { chatInputInterface, chatStatusInterface } from '@/interfaces/chat/chat';
 import TextField from "@mui/material/TextField";
 import { useState } from 'react';
 import { enqueueSnackbar } from 'notistack';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, and, collection, doc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 
 const ChatInput = ({ receiverDetail, senderId }: { receiverDetail: userInterface, senderId: string }) => {
+    const [isTyping, setTyping] = useState<boolean>(false);
     const [isSubmitDisabled, setSubmitDisabled] = useState<boolean>(false);
+
+    const typingStatusObj: chatStatusInterface = {
+        senderId,
+        receiverId: receiverDetail.id,
+        isSenderTyping: false,
+        isReceiverTyping: false
+    }
+
     const { control, formState: { errors }, handleSubmit, reset } = useForm({
         resolver: zodResolver(chatInputSchema),
         defaultValues: {
             senderId,
             receiverId: receiverDetail.id,
             text: "",
-            time: 0
+            time: 0,
         }
     });
 
@@ -48,7 +58,63 @@ const ChatInput = ({ receiverDetail, senderId }: { receiverDetail: userInterface
         }
         finally {
             setSubmitDisabled(false);
+            handleStopTyping();
         }
+    }
+
+    const handleStopTyping = async () => {
+        try {
+            console.log("stop")
+            typingStatusObj.isSenderTyping = false;
+            const docQuery = query(collection(firestoreDb, "typingStatus"), where("senderId", "==", senderId));
+            const docSnapshot = await getDocs(docQuery);
+            if (docSnapshot.empty) {
+                await addDoc(collection(firestoreDb, "typingStatus"), typingStatusObj);
+            }
+            else {
+                await updateDoc(doc(firestoreDb, "typingStatus", docSnapshot.docs[0].id), { ...typingStatusObj });
+            }
+            setTyping(false);
+        }
+        catch (e) {
+            console.log("Error in stop typing: ", e);
+        }
+    }
+
+    const handleStartTyping = async () => {
+        try {
+            console.log("start")
+            typingStatusObj.isSenderTyping = true;
+            const docQuery = query(collection(firestoreDb, "typingStatus"), where("senderId", "==", senderId));
+            const docSnapshot = await getDocs(docQuery);
+            if (docSnapshot.empty) {
+                await addDoc(collection(firestoreDb, "typingStatus"), typingStatusObj);
+            }
+            else {
+                await updateDoc(doc(firestoreDb, "typingStatus", docSnapshot.docs[0].id), { ...typingStatusObj });
+            }
+            setTyping(true);
+        }
+        catch (e) {
+            console.log("Error in start typing: ", e);
+        }
+    };
+
+    const debounce = (delay = 3000) => {
+        if (!isTyping) {
+            handleStartTyping();
+        }
+        let timer;
+        return () => {
+            clearTimeout(timer!);
+            timer = setTimeout(() => {
+                handleStopTyping();
+            }, delay);
+        }
+    }
+
+    const handleKeyDown = () => {
+        debounce()();
     }
 
     const router = useRouter();
@@ -67,6 +133,7 @@ const ChatInput = ({ receiverDetail, senderId }: { receiverDetail: userInterface
                         label="Enter your message here"
                         variant="outlined"
                         error={!!error}
+                        onKeyUp={handleKeyDown}
                     />)
                     }
                 />

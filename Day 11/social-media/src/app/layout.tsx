@@ -9,6 +9,10 @@ import { SnackbarProvider } from "notistack";
 import { ThemeProvider } from "@mui/material";
 import theme from "@/theme";
 import GlobalStyles from "@mui/material/GlobalStyles";
+import { useEffect, useRef } from "react";
+import { doc, setDoc } from "firebase/firestore";
+import { firestoreDb } from "@/config/firebase";
+import { useAppSelector } from "@/redux/hook";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,11 +43,30 @@ const globalStyles = (
 // };
 
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
+  const elemRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const loggedInUser = JSON.parse(JSON.parse(localStorage.getItem("currentUser")!));
+    const handleOfflineStatus = async (event: BeforeUnloadEvent) => {
+      await setDoc(doc(firestoreDb, "users", loggedInUser.id), { ...loggedInUser, isOnline: false });
+    }
+
+    const handleOnlineStatus = async (event: BeforeUnloadEvent) => {
+      await setDoc(doc(firestoreDb, "users", loggedInUser.id), { ...loggedInUser, isOnline: true });
+    }
+    if (elemRef.current) {
+      elemRef.current.addEventListener("load", handleOnlineStatus);
+      elemRef.current.addEventListener("beforeunload", handleOfflineStatus);
+    }
+
+    return () => {
+      if (elemRef.current) {
+        elemRef.current.removeEventListener("load", handleOnlineStatus);
+        elemRef.current.removeEventListener("beforeunload", handleOfflineStatus);
+      }
+    }
+  }, []);
 
   return (
     <html lang="en">
@@ -53,7 +76,9 @@ export default function RootLayout({
           <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
             <Provider store={store}>
               <PersistGate loading={null} persistor={persister}>
-                {children}
+                <span ref={elemRef}>
+                  {children}
+                </span>
               </PersistGate>
             </Provider>
           </SnackbarProvider>

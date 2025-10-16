@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import Card from '@mui/material/Card';
 import style from './style.module.css';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
-import { authorizedInterface, logInUserInterface } from '@/interfaces/user/user';
+import { authorizedInterface, logInUserInterface, typeStatus } from '@/interfaces/user/user';
 import { enqueueSnackbar } from 'notistack';
 import { logInUserSchema } from '@/schema/user/user';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +22,16 @@ import Cookies from "js-cookie";
 import { ref, get, set, push } from "firebase/database";
 import { firestoreDb } from "../../../config/firebase";
 import { addDoc, collection, where, query, getDocs, getCountFromServer, setDoc, doc } from 'firebase/firestore';
+
+const dummyName = (nameSize = 5) => {
+    const character = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789";
+    let dummyString = "";
+    const totalCharacter = character.length;
+    for (let index = 0; index < nameSize; index++) {
+        dummyString += character.charAt(Math.floor(Math.random() * totalCharacter) + 0);
+    }
+    return dummyString;
+}
 
 function LoginForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -57,10 +67,6 @@ function LoginForm() {
                     return;
                 }
 
-                const docsRef = query(collection(firestoreDb, "posts"), where("uid", "==", loggedInUser.uid));
-                const snapshot = await getCountFromServer(docsRef);
-                const totalPosts = snapshot.data().count;
-
                 reset();
                 const userDetail: authorizedInterface = {
                     email: isStored.result.user.email!,
@@ -69,11 +75,12 @@ function LoginForm() {
                     phoneNumber: isStored.result.user.phoneNumber,
                     displayName: isStored.result.user.displayName,
                     uid: isStored.result.user.uid,
-                    totalPosts: totalPosts ?? 0,
+                    totalPosts: isStored.result.user.totalPosts ?? 0,
                     followers: isStored.result.user.followers,
                     following: isStored.result.user.following,
                     id: isStored.result.user.id,
                     isOnline: true,
+                    type: isStored.result.user.type ?? "public",
                 };
                 fetchUserDetailIfLoggedIn(userDetail).then((result) => {
                     enqueueSnackbar("Login Success");
@@ -108,23 +115,21 @@ function LoginForm() {
                     enqueueSnackbar("Invalid Credentials");
                     return;
                 }
-                const docsRef = query(collection(firestoreDb, "posts"), where("uid", "==", loggedInUser.uid));
-                const snapshot = await getCountFromServer(docsRef);
-                const totalPosts = snapshot.data().count;
 
                 let userDetail: authorizedInterface = {
                     email: result.user.email!,
                     token: token,
                     photoURL: result.user.photoURL!,
                     phoneNumber: result.user.phoneNumber!,
-                    displayName: result.user.displayName!,
+                    displayName: result.user.displayName! ?? dummyName(),
                     isSignWithGoogle: true,
                     uid: result.user.uid,
-                    totalPosts: totalPosts ?? 0,
+                    totalPosts: 0,
                     followers: [],
                     following: [],
                     id: "",
                     isOnline: true,
+                    type: typeStatus.PUBLIC,
                 };
 
                 dispatch(addCredentials(userDetail));

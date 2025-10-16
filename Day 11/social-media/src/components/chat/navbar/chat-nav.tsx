@@ -1,3 +1,4 @@
+"use client";
 import { userInterface } from '@/interfaces/user/user';
 import style from "./style.module.css";
 import Image from 'next/image';

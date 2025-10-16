@@ -17,6 +17,7 @@ interface authorizedInterface {
     following: string[],
     id: string,
     isOnline: boolean,
+    type: typeStatus,
 }
 
 interface userInterface {
@@ -34,10 +35,17 @@ interface signUpUserInterface {
     confirmPassword: string,
 }
 
+enum typeStatus {
+    PUBLIC = "public",
+    PRIVATE = "private"
+}
+
 interface updateUserInterface {
     displayName: string | null,
     phoneNumber: string | null,
-    photoURL: File | null
+    photoURL: File | null,
+    type: typeStatus,
 }
 
 export type { logInUserInterface, signUpUserInterface, authorizedInterface, updateUserInterface, userInterface };
+export { typeStatus };

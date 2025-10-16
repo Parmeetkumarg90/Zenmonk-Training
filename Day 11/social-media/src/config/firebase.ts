@@ -17,11 +17,11 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// const analytics = getAnalytics(app);
 const firbaseRealDb = getDatabase(app);
 const firestoreDb = getFirestore(app);
 const auth = getAuth(app);
 
 const provider = new GoogleAuthProvider();
 
-export { app, analytics, firbaseRealDb, firestoreDb, auth, provider };
+export { app, firbaseRealDb, firestoreDb, auth, provider };

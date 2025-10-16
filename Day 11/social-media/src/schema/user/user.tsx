@@ -1,3 +1,4 @@
+import { typeStatus } from '@/interfaces/user/user';
 import * as zod from 'zod';
 
 const usersSchema = zod.object({
@@ -23,7 +24,8 @@ const updateUserSchema = zod.object({
     displayName: zod.string().trim().min(3, "Name should have atleast 3 characters").max(20, "Name should have atmost 20 characters").nullable(),
     phoneNumber: zod.string().regex(/^\d{10}$/, "Phone Number should be 10 digits without country code").nullable(),
     photoURL: zod.instanceof(File).nullable(),
-}).refine((data) => data.displayName || data.phoneNumber || data.photoURL, {
+    type: zod.enum(typeStatus).default(typeStatus.PUBLIC),
+}).refine((data) => data.displayName || data.phoneNumber || data.photoURL || data.type, {
     message: "Atleast one fields can't be nullable",
 });
 

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { authorizedInterface } from "@/interfaces/user/user";
+import { authorizedInterface, typeStatus } from "@/interfaces/user/user";
 
 const initialState: authorizedInterface = {
     email: "",
@@ -11,9 +11,11 @@ const initialState: authorizedInterface = {
     uid: "",
     totalPosts: 0,
     followers: [],
-    following: []
+    following: [],
+    type: typeStatus.PUBLIC,
+    id: "",
+    isOnline: false,
 };
-
 const logInUserSlice = createSlice({
     name: "currentUser",
     initialState,

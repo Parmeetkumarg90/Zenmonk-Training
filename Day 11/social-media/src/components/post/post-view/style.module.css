@@ -6,7 +6,7 @@
     /* background-color: #2f32d3 !important; */
 }
 
-.border{
+.border {
     border: 1px solid #757575 !important;
 }
 
@@ -88,4 +88,9 @@
 
 .boldText {
     font-weight: bolder;
+}
+
+.disabledButton {
+    color: black;
+    background-color: grey !important;
 }

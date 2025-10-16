@@ -26,14 +26,15 @@ const theme = createTheme({
         MuiButton: {
             styleOverrides: {
                 root: {
-                    width: "fit-content",
+                    width:"60%",
+                    minWidth: "fit-content",
                     fontSize: "1rem",
                     border: "1px solid #757575",
                     color: "#1A1A1A",
-                    padding: "1% 5%",
+                    padding: "1%",
                     backgroundColor: "yellow",
                     fontWeight: "bolder",
-                    margin: "1%",
+                    margin: "1% 5%",
                     borderRadius: "10px",
                     "&:hover": {
                         color: "#8E8E8E",

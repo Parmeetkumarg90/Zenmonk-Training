@@ -29,7 +29,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
     const [profileList, setProfileList] = useState<follow_following_view_Interface>({
         list: [],
         type: "",
-        currentUserUid: userDetail.uid
+        currentUserUid: userDetail.uid,
     });
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const dispatch = useAppDispatch();
@@ -72,6 +72,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                     following: userData.following,
                     id: snapshot.docs[0].id,
                     isOnline: userData.isOnline,
+                    type: userData.type
                 };
 
                 setUserDetail(userDetails);
@@ -253,6 +254,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                 <Card className={`${style.placeInColumn}`}>
                     <Button className={`${style.button}`} onClick={() => { redirectToUrl("/dashboard"); }}>Feed</Button>
                     <Button className={`${style.button}`} onClick={() => { redirectToUrl(`/profile/${loggedInUser.uid}`); }}>My Posts</Button>
+                    <Button className={`${style.button}`} onClick={() => { redirectToUrl(`/profile/${loggedInUser.uid}`); }}>Visited Posts</Button>
                     <Button className={`${style.button}`} onClick={handleLogout}>Logout</Button>
                 </Card>
             </Card>

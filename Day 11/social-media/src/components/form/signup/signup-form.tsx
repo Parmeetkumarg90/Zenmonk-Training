@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import Card from '@mui/material/Card';
 import style from './style.module.css';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
-import { logInUserInterface, signUpUserInterface } from '@/interfaces/user/user';
+import { logInUserInterface, signUpUserInterface, typeStatus } from '@/interfaces/user/user';
 import { enqueueSnackbar } from 'notistack';
 import { useRouter } from 'next/navigation';
 import { logInUserSchema, signUpUserSchema } from '@/schema/user/user';
@@ -23,6 +23,16 @@ import Cookies from 'js-cookie';
 import { ref, push, get, set } from "firebase/database";
 import { firestoreDb } from "../../../config/firebase";
 import { addDoc, collection, query, getDocs, where, setDoc, doc } from 'firebase/firestore';
+
+const dummyName = (nameSize = 5) => {
+    const character = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789";
+    let dummyString = "";
+    const totalCharacter = character.length;
+    for (let index = 0; index < nameSize; index++) {
+        dummyString += character.charAt(Math.floor(Math.random() * totalCharacter) + 0);
+    }
+    return dummyString;
+}
 
 function SignupForm() {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -74,13 +84,14 @@ function SignupForm() {
                     token: token,
                     photoURL: isStored.result.user.photoURL,
                     phoneNumber: isStored.result.user.phoneNumber,
-                    displayName: isStored.result.user.displayName,
+                    displayName: isStored.result.user.displayName ?? dummyName(),
                     uid: isStored.result.user.uid,
                     followers: [],
                     following: [],
                     totalPosts: 0,
                     id: "",
                     isOnline: true,
+                    type: isStored.result.user.type ?? "public",
                 };
                 reset();
                 dispatch(addCredentials(userDetail));
@@ -118,7 +129,7 @@ function SignupForm() {
                     token: token,
                     photoURL: result.user.photoURL!,
                     phoneNumber: result.user.phoneNumber!,
-                    displayName: result.user.displayName!,
+                    displayName: result.user.displayName! ?? dummyName(),
                     totalPosts: 0,
                     isSignWithGoogle: true,
                     uid: result.user.uid,
@@ -126,6 +137,7 @@ function SignupForm() {
                     following: [],
                     id: "",
                     isOnline: true,
+                    type: typeStatus.PUBLIC,
                 };
                 dispatch(addCredentials(userDetail));
                 if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {

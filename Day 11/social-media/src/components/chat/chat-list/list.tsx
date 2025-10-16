@@ -1,5 +1,6 @@
+"use client";
 import { firestoreDb } from '@/config/firebase';
-import { chatInputInterface } from '@/interfaces/chat/chat';
+import { chatInputInterface, chatStatusInterface } from '@/interfaces/chat/chat';
 import { userInterface } from '@/interfaces/user/user';
 import Card from '@mui/material/Card';
 import ListItem from "@mui/material/ListItem"
@@ -17,6 +18,7 @@ import { RootState } from '@/redux/store';
 const ChatList = ({ receiverDetail, senderId }: { receiverDetail: userInterface, senderId: string }) => {
     const [isLoading, setLoading] = useState<boolean>(false);
     const [allMessage, setMessages] = useState<chatInputInterface[]>([]);
+    const [isTyping, setTyping] = useState<boolean>(false);
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
 
     useEffect(() => {
@@ -32,10 +34,26 @@ const ChatList = ({ receiverDetail, senderId }: { receiverDetail: userInterface,
             setMessages(allResult);
         });
 
+        const unsubscribeTyping = onSnapshot(query(collection(firestoreDb, "typingStatus"), and(where("receiverId", "==", senderId), where("senderId", "==", receiverDetail.id))), result => {
+            if (!result.empty) {
+                const allDoc = result.docs[0].data();
+                const typingStatusObj: chatStatusInterface = {
+                    senderId: allDoc.senderId,
+                    receiverId: allDoc.receiverId,
+                    isSenderTyping: allDoc.isSenderTyping,
+                    isReceiverTyping: allDoc.isReceiverTyping
+                }
+                if (typingStatusObj.senderId === receiverDetail.id) {
+                    setTyping(typingStatusObj.isSenderTyping);
+                }
+            }
+        });
+
         getMessages();
         return () => {
             unsubscribeReceived();
             unsubscribeSent();
+            unsubscribeTyping();
         }
     }, []);
 
@@ -143,17 +161,17 @@ const ChatList = ({ receiverDetail, senderId }: { receiverDetail: userInterface,
                         }
                     </>
             }
-            {/* { 
+            {isTyping &&
                 <span className={`${style.flex} ${style.flexRow}`}
                 >
                     <ListItemAvatar>
                         <Avatar>
-                            <Image src={(senderId === message[0].senderId ? loggedInUser.photoURL : receiverDetail.photoURL) ?? "/blank-profile-picture.svg"} fill alt={receiverDetail.photoURL ?? "blank-profile-picture.svg"} className={`${style.rounded_logo} ${style.relative}`} />
+                            <Image src={(receiverDetail.photoURL) ?? "/blank-profile-picture.svg"} fill alt={receiverDetail.photoURL ?? "blank-profile-picture.svg"} className={`${style.rounded_logo} ${style.relative}`} />
                         </Avatar>
                     </ListItemAvatar>
-                    <ListItemText primary={message.text} secondary={new Date(message.time).toLocaleString()} className={`${style.flexRow}  ${message.senderId === senderId ? style.textRight : ""} ${style.mX2}`} />
+                    <ListItemText primary={`${receiverDetail.displayName ?? receiverDetail.email ?? "User"} is typing`} secondary={new Date(Date.now()).toLocaleString()} className={`${style.flexRow} ${style.mX2}`} />
                 </span>
-            } */}
+            }
         </Card>
     )
 }
