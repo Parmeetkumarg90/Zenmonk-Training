@@ -84,11 +84,12 @@ const Create = ({ onPostCreated }: { onPostCreated: (data: postDbGetInterface) =
                 time: Date.now(),
                 displayName: loggedInUser.displayName,
                 photoURL: loggedInUser.photoURL,
-                type: data.type
+                type: data.type,
+                isDeleted: false,
             };
 
             const isPostCreationValid = postCreateDbSchema.safeParse(dbPostObject);
-            // console.log(isPostCreationValid,dbPostObject);
+            console.log(isPostCreationValid, dbPostObject);
             if (isPostCreationValid.success) {
                 try {
                     addDoc(collection(firestoreDb, "posts"), isPostCreationValid.data).then(async (result) => {

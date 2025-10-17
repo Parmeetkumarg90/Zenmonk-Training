@@ -166,6 +166,7 @@ function LoginForm() {
             if (docSnapshot.docs.length) {
                 const userDoc = docSnapshot.docs[0].data();
                 userDetail = { ...userDetail, ...userDoc, id: docSnapshot.docs[0].id, isOnline: true };
+                // console.log(userDetail,userDoc)
                 await setDoc(doc(firestoreDb, "users", docSnapshot.docs[0].id), userDetail);
                 userDetail.photoURL = userDetail.photoURL ?? "/blank-profile-picture.svg";
                 // console.log(userDetail,userDoc)

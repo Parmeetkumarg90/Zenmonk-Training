@@ -1,5 +1,5 @@
 "use client";
-import { follow_following_view_Interface } from '@/interfaces/follower-following-list';
+import { follow_following_Interface, follow_following_view_Interface, follower_following_action_type, follower_following_type } from '@/interfaces/follower-following-list';
 import Grid from "@mui/material/Grid";
 import CircularProgress from '@mui/material/CircularProgress';
 import Card from "@mui/material/Card";
@@ -22,93 +22,71 @@ import { addFollowing, removeFollowing } from '@/redux/user/currentUser';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import PersonRemoveAlt1Icon from '@mui/icons-material/PersonRemoveAlt1';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import { useEffect, useState } from 'react';
 
-const FollowerFollowing = ({ data, loading }: { data: follow_following_view_Interface, loading: boolean }) => {
-    const dispatch = useAppDispatch();
-    const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
-
-    const handleFollowButtonClick = async (userId: string) => {
-        if (userId) {
-            const profileUid = userId;
-            const logInUserUid = loggedInUser.uid;
-            try {
-                // add uid of profileUid in our following
-                const followingQuery = query(collection(firestoreDb, "users"), where("uid", "==", logInUserUid));
-                const followingSnapshot = await getDocs(followingQuery);
-                const followingDocRef = followingSnapshot.docs[0];
-                const followingData = followingDocRef.data();
-                if (!followingData.following.includes(profileUid)) {
-                    followingData.following.push(profileUid);
-                    dispatch(addFollowing(profileUid));
-                }
-                else {
-                    followingData.following = followingData.following.filter((each: string) => each !== profileUid);
-                    data.list = data.list.filter((each) => each.uid != profileUid);
-                    dispatch(removeFollowing(profileUid));
-                }
-                await updateDoc(followingDocRef.ref, { ...followingData });
-
-                // add uid of loggedin user in his followers
-                const followerQuery = query(collection(firestoreDb, "users"), where("uid", "==", profileUid));
-                const followerSnapshot = await getDocs(followerQuery);
-                const followerDocRef = followerSnapshot.docs[0];
-                const followerData = followerDocRef.data();
-                if (!followerData.followers.includes(logInUserUid)) {
-                    followerData.followers.push(logInUserUid);
-                }
-                else {
-                    followerData.followers = followerData.followers.filter((each: string) => each !== logInUserUid);
-                }
-                await updateDoc(followerDocRef.ref, { ...followerData });
-            }
-            catch (e) {
-                console.log("Error in follow/unfollow operation: ", e);
-                enqueueSnackbar(`Error in ${loggedInUser?.following.includes(data.currentUserUid) ? "Unfollowing" : "Following"} operation`);
-            }
-        }
-        else {
-            enqueueSnackbar("Invalid Profile to follow/unfollow");
-        }
-    }
-
+const FollowerFollowing = ({ data, loading, handleFollowButtonClick }:
+    {
+        data: follow_following_view_Interface, loading: boolean,
+        handleFollowButtonClick: (userId: string, task: follower_following_action_type | null) => void
+    }) => {
     return (
         <Card className={`${style.card} ${style.textCenter}`}>
             <Typography className={`${style.textYelow}`}>{data?.type}</Typography>
-            {loading ?
-                <CircularProgress size={"3rem"} title='Loadig profiles' /> :
+            {loading ? <CircularProgress size={"3rem"} title='Loadig profiles' /> :
                 <List>
                     {data?.list.length ? data?.list.map((profile) =>
-                        <ListItem
-                            key={profile.uid}
-                            secondaryAction={
-                                < IconButton edge="end"
-                                    onClick={() => { handleFollowButtonClick(profile.uid); }}
-                                    aria-label={data.type === "FOLLOWERS" ?
-                                        loggedInUser?.following.includes(profile.uid) ? "Unfollow" : "" :
-                                        loggedInUser?.followers.includes(profile.uid) ?
-                                            loggedInUser?.following.includes(profile.uid) ? "Unfollow" : "Follow Back" : "Unfollow"
-                                    }>
-                                    {data.type !== "FOLLOWERS" ?
-                                        loggedInUser?.following.includes(profile.uid) ? <PersonRemoveAlt1Icon /> : "" :
-                                        loggedInUser?.followers.includes(profile.uid) ?
-                                            loggedInUser?.following.includes(profile.uid) ? <PersonRemoveAlt1Icon /> : <CompareArrowsIcon /> : ""}
-                                </IconButton>
-                            }
-                        >
-                            <ListItemAvatar>
-                                <Avatar>
-                                    <AccountBoxIcon />
-                                </Avatar>
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary={profile.displayName ?? profile.email ?? "User"}
-                            />
-                        </ListItem>
-                    ) : <>No profiles yet..</>}
-                </List>
+                        <span key={profile.uid}>
+                            <ListItemComponent profile={profile} currentUserUid={data.currentUserUid} type={data.type} handleFollowButtonClick={handleFollowButtonClick} />
+                        </span>
+                    ) : <>No profiles yet..</>
+                    }
+                </List >
             }
         </Card >
     )
+}
+
+const ListItemComponent = ({ profile, currentUserUid, type, handleFollowButtonClick }: { profile: follow_following_Interface, currentUserUid: string, type: follower_following_type, handleFollowButtonClick: (userId: string, task: follower_following_action_type | null) => void }) => {
+    const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
+    const [action, setAction] = useState<follower_following_action_type | null>();
+
+    useEffect(() => {
+        setAction(findAction(currentUserUid));
+    }, []);
+
+    useEffect(() => {
+        setAction(findAction(currentUserUid));
+    }, [loggedInUser.followers, loggedInUser.following, action]);
+
+    const findAction = (uid: string) => {
+        return type === follower_following_type.FOLLOWER ?
+            (loggedInUser.following.includes(uid) ? follower_following_action_type.UNFOLLOW : null) :
+            (loggedInUser.followers.includes(uid) ?
+                (loggedInUser.following.includes(uid) ? follower_following_action_type.UNFOLLOW : follower_following_action_type.FOLLOW_BACK) : null);
+    };
+    return <ListItem
+        key={profile.uid}
+        secondaryAction={
+            loggedInUser.uid !== currentUserUid && action &&
+            < IconButton edge="end"
+                onClick={() => { handleFollowButtonClick(profile.uid, action!); setAction(findAction(profile.uid)); }}
+                aria-label={action?.toUpperCase()}
+            >
+                {action === follower_following_action_type.FOLLOW && <PersonAddAlt1Icon />}
+                {action === follower_following_action_type.UNFOLLOW && <PersonRemoveAlt1Icon />}
+                {action === follower_following_action_type.FOLLOW_BACK && <CompareArrowsIcon />}
+            </IconButton>
+        }
+    >
+        <ListItemAvatar>
+            <Avatar>
+                <AccountBoxIcon />
+            </Avatar>
+        </ListItemAvatar>
+        <ListItemText
+            primary={profile.displayName ?? profile.email ?? "User"}
+        />
+    </ListItem>
 }
 
 export default FollowerFollowing;

@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { enqueueSnackbar } from "notistack";
 import { CircularProgress } from "@mui/material";
+import Navbar from "@/components/dashboard/nav-bar/navbar";
 
 const Dashboard = ({ children, params }: Readonly<{ children: React.ReactNode, params: { uid: string } }>) => {
     const [isLoading, setLoading] = useState<boolean>(true);
@@ -32,10 +33,13 @@ const Dashboard = ({ children, params }: Readonly<{ children: React.ReactNode, p
     }, []);
 
     return (
-        isLoading ? <CircularProgress size={"3rem"} /> : <Card className={`${style.card} ${style.grid}`}>
-            <LeftPanel userUid={userUid} />
-            {children}
-            <RightPanel />
+        <Card className={`${style.main_grid} ${style.card}`}>
+            <Navbar />
+            {isLoading ? <CircularProgress size={"3rem"} /> : <Card className={`${style.card} ${style.grid}`}>
+                <LeftPanel userUid={userUid} />
+                {children}
+                <RightPanel />
+            </Card>}
         </Card>
     );
 }

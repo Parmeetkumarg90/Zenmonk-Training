@@ -28,6 +28,7 @@ interface postCreateDbInterface {
     displayName: string,
     photoURL: string,
     type: typeStatus,
+    isDeleted: boolean
 }
 
 interface postDbGetInterface {

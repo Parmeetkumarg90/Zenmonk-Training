@@ -90,22 +90,47 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
             if (currentProfileDetail && currentProfileDetail.uid != loggedInUser.uid) {
                 if (currentProfileDetail.type === typeStatus.PUBLIC) {
                     docRef = !lastDocRef ?
-                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC)), limit(5)) :
-                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC)), startAfter(lastDocRef), limit(5));
+                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), limit(5)) :
+                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), startAfter(lastDocRef), limit(5));
                 }
                 else {
-                    docRef = !lastDocRef ?
-                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("followers", "array-contains", loggedInUser.uid)), limit(5)) :
-                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("followers", "array-contains", loggedInUser.uid)), startAfter(lastDocRef), limit(5));
+                    if (currentProfileDetail.followers.includes(loggedInUser.uid)) {
+                        docRef = !lastDocRef ?
+                            query(collection(firestoreDb, "posts"), where("uid", "==", currentProfileDetail.uid), limit(5)) :
+                            query(collection(firestoreDb, "posts"), where("uid", "==", currentProfileDetail.uid), startAfter(lastDocRef), limit(5));
+                    }
+                    else {
+                        docRef = null;
+                    }
                 }
             }
             else {
                 docRef = !lastDocRef ?
-                    query(collection(firestoreDb, "posts"), limit(5)) :
-                    query(collection(firestoreDb, "posts"), startAfter(lastDocRef), limit(5));
+                    query(collection(firestoreDb, "posts"), and(
+                        or(
+                            where("uid", "in", loggedInUser.following),
+                            where("type", "==", typeStatus.PUBLIC),
+                            where("uid", "==", loggedInUser.uid),
+                        ),
+                        where("isDeleted", "==", false)
+                    ), limit(5)) :
+                    query(collection(firestoreDb, "posts"), and(
+                        or(
+                            where("uid", "in", loggedInUser.following),
+                            where("type", "==", typeStatus.PUBLIC),
+                            where("uid", "==", loggedInUser.uid),
+                        ),
+                        where("isDeleted", "==", false)
+                    ), startAfter(lastDocRef), limit(5));
+            }
+            if (!docRef) {
+                setHasMore(false);
+                setLastDocRef(null);
+                return;
             }
             const postQuerySnapshot = await getDocs(docRef);
             const postList: postDbGetInterface[] = [];
+
 
             postQuerySnapshot.forEach(async (doc) => {
                 const postData = doc.data();
@@ -137,7 +162,7 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
                 setHasMore(true);
                 setLastDocRef(postQuerySnapshot.docs[postQuerySnapshot.docs.length - 1]);
             }
-            setPosts([...posts, ...postList]);
+            setPosts([...posts, ...postList].sort((a, b) => a.likes.length - b.likes.length));
         }
         catch (e) {
             console.log("Error in fetching posts: ", e);
