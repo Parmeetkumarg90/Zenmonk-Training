@@ -48,39 +48,49 @@ const FollowerFollowing = ({ data, loading, handleFollowButtonClick }:
 
 const ListItemComponent = ({ profile, currentUserUid, type, handleFollowButtonClick }: { profile: follow_following_Interface, currentUserUid: string, type: follower_following_type, handleFollowButtonClick: (userId: string, task: follower_following_action_type | null) => void }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
-    const [action, setAction] = useState<follower_following_action_type | null>();
+    const [action, setAction] = useState<follower_following_action_type | null>(null);
 
     useEffect(() => {
-        setAction(findAction(currentUserUid));
+        setAction(findAction());
     }, []);
 
     useEffect(() => {
-        setAction(findAction(currentUserUid));
-    }, [loggedInUser.followers, loggedInUser.following, action]);
+        setAction(findAction());
+    }, [loggedInUser.followers, loggedInUser.following, profile.uid, currentUserUid]);
 
-    const findAction = (uid: string) => {
-        return type === follower_following_type.FOLLOWER ?
-            (loggedInUser.following.includes(uid) ? follower_following_action_type.UNFOLLOW : null) :
-            (loggedInUser.followers.includes(uid) ?
-                (loggedInUser.following.includes(uid) ? follower_following_action_type.UNFOLLOW : follower_following_action_type.FOLLOW_BACK) : null);
+    const findAction = () => {
+        if (loggedInUser.uid === profile.uid) {
+            return null;
+        }
+        const isFollowing = loggedInUser.following.includes(profile.uid);
+        const isFollower = loggedInUser.followers.includes(profile.uid);
+        if (currentUserUid === loggedInUser.uid) {
+            if (isFollowing) return follower_following_action_type.UNFOLLOW;
+            if (isFollower) return follower_following_action_type.FOLLOW_BACK;
+            return follower_following_action_type.FOLLOW;
+        }
+        if (isFollowing) return follower_following_action_type.UNFOLLOW;
+        return follower_following_action_type.FOLLOW;
     };
+
     return <ListItem
         key={profile.uid}
         secondaryAction={
-            loggedInUser.uid !== currentUserUid && action &&
-            < IconButton edge="end"
-                onClick={() => { handleFollowButtonClick(profile.uid, action!); setAction(findAction(profile.uid)); }}
-                aria-label={action?.toUpperCase()}
-            >
-                {action === follower_following_action_type.FOLLOW && <PersonAddAlt1Icon />}
-                {action === follower_following_action_type.UNFOLLOW && <PersonRemoveAlt1Icon />}
-                {action === follower_following_action_type.FOLLOW_BACK && <CompareArrowsIcon />}
-            </IconButton>
+            loggedInUser.uid !== profile.uid && action ?
+                < IconButton edge="end"
+                    onClick={() => { handleFollowButtonClick(profile.uid, action); setAction(findAction()); }}
+                    aria-label={action?.toUpperCase()}
+                >
+                    {action === follower_following_action_type.FOLLOW && <PersonAddAlt1Icon />}
+                    {action === follower_following_action_type.UNFOLLOW && <PersonRemoveAlt1Icon />}
+                    {action === follower_following_action_type.FOLLOW_BACK && <CompareArrowsIcon />}
+                </IconButton>
+                : null
         }
     >
         <ListItemAvatar>
-            <Avatar>
-                <AccountBoxIcon />
+            <Avatar src={profile.photoURL ?? "/blank-profile-picture.svg"}>
+                {!profile.photoURL && <AccountBoxIcon />}
             </Avatar>
         </ListItemAvatar>
         <ListItemText

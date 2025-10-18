@@ -108,7 +108,7 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
                 docRef = !lastDocRef ?
                     query(collection(firestoreDb, "posts"), and(
                         or(
-                            where("uid", "in", loggedInUser.following),
+                            where("uid", "in", [...loggedInUser.following]),
                             where("type", "==", typeStatus.PUBLIC),
                             where("uid", "==", loggedInUser.uid),
                         ),
@@ -116,7 +116,7 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
                     ), limit(5)) :
                     query(collection(firestoreDb, "posts"), and(
                         or(
-                            where("uid", "in", loggedInUser.following),
+                            where("uid", "in", [...loggedInUser.following]),
                             where("type", "==", typeStatus.PUBLIC),
                             where("uid", "==", loggedInUser.uid),
                         ),

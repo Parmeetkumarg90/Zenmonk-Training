@@ -36,27 +36,38 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
     const router = useRouter();
     const [profileEditPopUp, setProfileEditPopUp] = useState<HTMLElement | null>(null);
 
+
     const findAction = () => {
-        return userDetail ? loggedInUser.following.includes(userDetail.uid) ? follower_following_action_type.UNFOLLOW :
-            (loggedInUser.followers.includes(userDetail.uid) ? follower_following_action_type.FOLLOW_BACK : follower_following_action_type.FOLLOW)
-            : null;
-    }
+        if (!userDetail?.uid || loggedInUser.uid === userDetail?.uid) {
+            return null;
+        }
+        if (loggedInUser.following.includes(userDetail?.uid)) {
+            return follower_following_action_type.UNFOLLOW;
+        }
+        if (loggedInUser.followers.includes(userDetail?.uid)) {
+            return follower_following_action_type.FOLLOW_BACK;
+        }
+        return follower_following_action_type.FOLLOW;
+    };
 
     useEffect(() => {
+        setUserDetail(null);
+        setFollowing(null);
+        setProfileList({ list: [], type: follower_following_type.FOLLOWING, currentUserUid: "" });
+
         if (userUid && userUid?.trim() !== "" && userUid != loggedInUser.uid) {
             getUserData();
         }
         else {
             setUserDetail(loggedInUser);
-            const timer = setTimeout(() => {
-                clearTimeout(timer);
-                setLoading(false);
-            }, 800);
+            setLoading(false);
         }
-    }, []);
+    }, [userUid, loggedInUser]);
 
     useEffect(() => {
-        setFollowing(findAction());
+        if (userDetail) {
+            setFollowing(findAction());
+        }
     }, [loggedInUser.following, loggedInUser.followers, userDetail]);
 
     const getUserData = async () => {
@@ -91,10 +102,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
             router.push("/dashboard");
         }
         finally {
-            const timer = setTimeout(() => {
-                clearTimeout(timer);
-                setLoading(false);
-            }, 800);
+            setLoading(false);
         }
     }
 
@@ -119,50 +127,46 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
         enqueueSnackbar("Logout Successfully");
     }
 
-    const handleFollowButtonClick = async (userUid: string, task: follower_following_action_type | null) => {
-        if (!userDetail || userDetail.uid === loggedInUser.uid || !task) {
+    const handleFollowButtonClick = async (clickedUid: string, task: follower_following_action_type | null) => {
+        if (!clickedUid || clickedUid === loggedInUser.uid || !task) {
             enqueueSnackbar("Invalid Profile or operation");
             return;
         }
-        const profileUid = userUid;
-        const logInUserUid = loggedInUser.uid;
         try {
-            console.log(profileUid,logInUserUid)
-            // add uid of profileUid in our following
+            const logInUserUid = loggedInUser.uid;
             const followingQuery = query(collection(firestoreDb, "users"), where("uid", "==", logInUserUid));
             const followingSnapshot = await getDocs(followingQuery);
             const followingDocRef = followingSnapshot.docs[0];
             const followingData = followingDocRef.data();
-            if (task != follower_following_action_type.UNFOLLOW) {
-                followingData.following.push(profileUid);
-                dispatch(addFollowing(profileUid));
-            }
-            else {
-                followingData.following = followingData.following.filter((each: string) => each !== profileUid);
-                dispatch(removeFollowing(profileUid));
+            if (task !== follower_following_action_type.UNFOLLOW) {
+                if (!followingData.following.includes(clickedUid)) followingData.following.push(clickedUid);
+                dispatch(addFollowing(clickedUid));
+            } else {
+                followingData.following = followingData.following.filter((uid: string) => uid !== clickedUid);
+                dispatch(removeFollowing(clickedUid));
             }
             await updateDoc(followingDocRef.ref, { ...followingData });
-
-            // add uid of loggedin user in his followers
-            const followerQuery = query(collection(firestoreDb, "users"), where("uid", "==", profileUid));
+            const followerQuery = query(collection(firestoreDb, "users"), where("uid", "==", clickedUid));
             const followerSnapshot = await getDocs(followerQuery);
             const followerDocRef = followerSnapshot.docs[0];
             const followerData = followerDocRef.data();
-            if (task != follower_following_action_type.UNFOLLOW) {
-                followerData.followers.push(logInUserUid);
-                setUserDetail({ ...userDetail, followers: [...userDetail.followers, logInUserUid] });
-            }
-            else {
-                followerData.followers = followerData.followers.filter((each: string) => each !== logInUserUid);
-                setUserDetail({ ...userDetail, followers: followerData.followers });
+            if (task !== follower_following_action_type.UNFOLLOW) {
+                if (!followerData.followers.includes(logInUserUid)) followerData.followers.push(logInUserUid);
+            } else {
+                followerData.followers = followerData.followers.filter((uid: string) => uid !== logInUserUid);
             }
             await updateDoc(followerDocRef.ref, { ...followerData });
-        }
-        catch (e) {
+            if (userDetail && userDetail.uid === clickedUid) {
+                setUserDetail({
+                    ...userDetail,
+                    followers: followerData.followers
+                });
+            }
+        } catch (e) {
             console.log("Error in follow/unfollow operation: ", e);
-            enqueueSnackbar(`Error in ${loggedInUser?.following.includes(userUid) ? "Unfollowing" : "Following"} operation`);
+            enqueueSnackbar(`Error in follow/unfollow operation`);
         }
-    }
+    };
 
     const handleModalClose = () => {
         setAnchorEl(null);
@@ -192,7 +196,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
         setAnchorEl(e.currentTarget);
         try {
             const uidList: string[] = type === follower_following_type.FOLLOWER ? userDetail.followers :
-            type === follower_following_type.FOLLOWING ? userDetail.following : [];
+                type === follower_following_type.FOLLOWING ? userDetail.following : [];
             const promises = uidList.map(async (uid) => {
                 return await fetchProfileDetail(uid);
             })
@@ -220,8 +224,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
     return (
         userDetail &&
         <Card className={`${style.card} ${style.grid} ${style.textWrap}`}>
-            {isLoading && !isFollowing && <CircularProgress size={"3rem"} title='Loading Profile' />}
-            {!isLoading && isFollowing &&
+            {isLoading ? < CircularProgress size={"3rem"} title='Loading Profile' /> :
                 <Card className={`${style.card} ${style.grid} ${style.textWrap} ${style.topElement} ${style.textCenter}`}>
                     <div className={`${style.section1}`}>
                         <span className={`${style.relative} ${style.w_30}`}>
