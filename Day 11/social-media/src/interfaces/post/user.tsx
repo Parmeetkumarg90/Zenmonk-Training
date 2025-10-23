@@ -28,7 +28,8 @@ interface postCreateDbInterface {
     displayName: string,
     photoURL: string,
     type: typeStatus,
-    isDeleted: boolean
+    isDeleted: boolean,
+    userId: string
 }
 
 interface postDbGetInterface {
@@ -42,7 +43,11 @@ interface postDbGetInterface {
     displayName: string,
     photoURL: string,
     type: typeStatus,
-    isDeleted: boolean
+    isDeleted: boolean,
+    status?: string,
+    isVisible?: boolean,
+    userId: string,
+    profileStatus: typeStatus
 }
 
 export type { postCreateInterface, postCreateDbInterface, commentDbInterface, postDbGetInterface };

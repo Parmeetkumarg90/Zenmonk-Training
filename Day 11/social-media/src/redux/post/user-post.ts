@@ -12,8 +12,8 @@ const postSlice = createSlice({
             const isPresent = state.find((each) => each.postId === action.payload.postId);
             if (!isPresent) {
                 state.push(action.payload);
+                return state;
             }
-            return state;
         },
         removeUserPost: (state, action: PayloadAction<string>) => {
             state = state.filter((each) => each.postId != action.payload);

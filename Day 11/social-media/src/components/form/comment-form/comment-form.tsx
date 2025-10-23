@@ -16,7 +16,9 @@ import { useState } from 'react';
 import { Card, CircularProgress } from '@mui/material';
 
 
-const CommentAddForm = ({ parentId, postId, onCommentSubmit }: { parentId: string | null, postId: string, onCommentSubmit: () => void }) => {
+const CommentAddForm = ({ parentId, postId, onCommentSubmit, postCreatorId }:
+    { parentId: string | null, postId: string, onCommentSubmit: () => void, postCreatorId: string }
+) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const dispatch = useAppDispatch();
     const [isCommenting, setCommenting] = useState<boolean>(false);
@@ -40,6 +42,14 @@ const CommentAddForm = ({ parentId, postId, onCommentSubmit }: { parentId: strin
             setCommenting(true);
             const dbRef = collection(firestoreDb, "comments");
             await addDoc(dbRef, data);
+            if (loggedInUser.id !== postCreatorId) {
+                addDoc(collection(firestoreDb, "notification"), {
+                    senderId: loggedInUser.id,
+                    receiverId: postCreatorId,
+                    postId: postId,
+                    notificationText: `${loggedInUser.displayName} commented on your post`,
+                });
+            }
             enqueueSnackbar("Comment created Successfully");
             onCommentSubmit();
         }

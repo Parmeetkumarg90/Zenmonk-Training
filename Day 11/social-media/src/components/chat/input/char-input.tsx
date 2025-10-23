@@ -15,8 +15,11 @@ import { useState } from 'react';
 import { enqueueSnackbar } from 'notistack';
 import { addDoc, and, collection, doc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
+import { useAppSelector } from '@/redux/hook';
+import { RootState } from '@/redux/store';
 
 const ChatInput = ({ receiverDetail, senderId }: { receiverDetail: userInterface, senderId: string }) => {
+    const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const [isTyping, setTyping] = useState<boolean>(false);
     const [isSubmitDisabled, setSubmitDisabled] = useState<boolean>(false);
 
@@ -47,6 +50,12 @@ const ChatInput = ({ receiverDetail, senderId }: { receiverDetail: userInterface
             data.time = Date.now();
             const docRef = collection(firestoreDb, "chats");
             addDoc(docRef, data).then((result) => {
+                addDoc(collection(firestoreDb, "notification"), {
+                    senderId: data.senderId,
+                    receiverId: data.receiverId,
+                    postId: null,
+                    notificationText: `${loggedInUser.displayName} sent you a message: ${data.text}`,
+                });
                 reset();
             }).catch((error) => {
                 enqueueSnackbar("Error in sending message", error);

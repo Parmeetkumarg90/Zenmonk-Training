@@ -5,6 +5,7 @@ const postCreateSchema = zod.object({
     text: zod.string().trim().min(1, "Text cannot be empty or spaces").max(500, "Textsize should be smaller than 500 characters"),
     images: zod.array(zod.instanceof(File)).min(1, "Provide atleast 1 image").max(4, "Provide images between 1-4"),
     type: zod.enum(typeStatus).default(typeStatus.PUBLIC),
+    userId: zod.string().trim().min(3),
 });
 
 const commentDbSchema = zod.object({

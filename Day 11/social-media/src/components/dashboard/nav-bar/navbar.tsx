@@ -5,8 +5,8 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Badge from '@mui/material/Badge';
-import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import Link from "next/link";
 
 export default function PrimarySearchAppBar() {
     return (
@@ -19,15 +19,12 @@ export default function PrimarySearchAppBar() {
                         component="div"
                         sx={{ display: { xs: 'none', sm: 'block' } }}
                     >
-                        Connector
+                        <Link href={"/"}>
+                            Hive Connector
+                        </Link>
                     </Typography>
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-                            <Badge badgeContent={4} color="error">
-                                <MailIcon />
-                            </Badge>
-                        </IconButton>
                         <IconButton
                             size="large"
                             aria-label="show 17 new notifications"
@@ -36,8 +33,8 @@ export default function PrimarySearchAppBar() {
                             <Badge badgeContent={17} color="error">
                                 <NotificationsIcon />
                             </Badge>
-                        </IconButton>                    
-                    </Box>                   
+                        </IconButton>
+                    </Box>
                 </Toolbar>
             </AppBar>
         </Box>

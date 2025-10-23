@@ -1,3 +1,5 @@
+import { typeStatus } from "../user/user";
+
 enum follower_following_type {
     FOLLOWER = "follower",
     FOLLOWING = "following"
@@ -7,6 +9,7 @@ enum follower_following_action_type {
     FOLLOW = "follow",
     UNFOLLOW = "unfollow",
     FOLLOW_BACK = "follow_back",
+    SEND_REQUEST = "send_request_to_follow",
 }
 
 interface follow_following_Interface {
@@ -14,6 +17,8 @@ interface follow_following_Interface {
     displayName: string,
     photoURL: string,
     email: string,
+    id: string,
+    type: typeStatus
 }
 
 interface follow_following_view_Interface {

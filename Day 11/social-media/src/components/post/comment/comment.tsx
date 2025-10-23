@@ -13,7 +13,7 @@ import { collection, where, query, getDocs, orderBy } from "firebase/firestore";
 import { firestoreDb } from "@/config/firebase";
 import CommentView from "./comment-view";
 
-const Comment = ({ postId }: { postId: string }) => {
+const Comment = ({ postId, postCreatorId }: { postId: string, postCreatorId: string }) => {
     const [allComment, setAllComment] = useState<commentDbInterface[]>([]);
     const [commentAddPopUpAnchorEl, setcommentAddPopUpAnchorEl] = useState<HTMLElement | null>(null);
     const [isLoading, setLoading] = useState<boolean>(true);
@@ -124,10 +124,10 @@ const Comment = ({ postId }: { postId: string }) => {
                                 horizontal: "left"
                             }}
                         >
-                            <CommentAddForm parentId={null} postId={postId} onCommentSubmit={getComments} />
+                            <CommentAddForm parentId={null} postId={postId} onCommentSubmit={getComments} postCreatorId={postCreatorId} />
                         </Popover>
                         {allComment.length ?
-                            <CommentView comments={allComment} postId={postId} onCommentSubmit={getComments} />
+                            <CommentView comments={allComment} postId={postId} onCommentSubmit={getComments} postCreatorId={postCreatorId} />
                             : "No comments"
                         }
                     </>

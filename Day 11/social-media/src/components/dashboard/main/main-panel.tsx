@@ -9,13 +9,14 @@ import style from "./style.module.css";
 import Card from "@mui/material/Card";
 import PostItem from '@/components/post/post-view/post-view';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { postDbGetInterface } from '@/interfaces/post/user';
-import { collection, getDocs, where, query, limit, startAfter, QueryDocumentSnapshot, DocumentData, setDoc, doc, and, or, getDoc } from 'firebase/firestore';
+import { commentDbInterface, postDbGetInterface } from '@/interfaces/post/user';
+import { collection, getDocs, where, query, limit, startAfter, QueryDocumentSnapshot, DocumentData, setDoc, doc, and, or, getDoc, QuerySnapshot, DocumentSnapshot } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import CircularProgress from '@mui/material/CircularProgress';
 import { addPostsCount } from '@/redux/user/currentUser';
 import { addUserPosts } from '@/redux/post/user-post';
 import { authorizedInterface, typeStatus } from '@/interfaces/user/user';
+import { postCreateDbSchema } from '@/schema/post/post';
 
 const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage?: boolean }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -25,8 +26,11 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
     const [posts, setPosts] = useState<postDbGetInterface[]>([]);
     const targetRef = useRef<HTMLSpanElement>(null);
     const [lastDocRef, setLastDocRef] = useState<QueryDocumentSnapshot<DocumentData, DocumentData> | null>(null);
+    const [likedLastDocRef, setLikedLastDocRef] = useState<QueryDocumentSnapshot<DocumentData, DocumentData> | null>(null);
+    const [commentLastDocRef, setCommentLastDocRef] = useState<QueryDocumentSnapshot<DocumentData, DocumentData> | null>(null);
     const [hasMore, setHasMore] = useState<boolean>(true);
-
+    const [likedHasMore, setLikedHasMore] = useState<boolean>(true);
+    const [commentHasMore, setCommentHasMore] = useState<boolean>(true);
 
     useEffect(() => {
         if (isVisitedPage) {
@@ -38,8 +42,41 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
     }, []);
 
     useEffect(() => {
-        getAllPosts();
+        if (isVisitedPage) {
+            getVisitedPosts();
+        }
+        else {
+            getAllPosts();
+        }
     }, [currentProfileDetail]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && (hasMore || likedHasMore || commentHasMore)) {
+                    if (isVisitedPage) {
+                        getVisitedPosts();
+                    }
+                    else {
+                        getAllPosts();
+                    }
+                }
+            },
+            {
+                root: null,
+                rootMargin: "0px",
+                threshold: 1,
+            }
+        );
+        if (targetRef.current) {
+            observer.observe(targetRef.current);
+        }
+        return () => {
+            if (targetRef.current) {
+                observer.unobserve(targetRef.current);
+            }
+        };
+    }, [lastDocRef, targetRef, likedLastDocRef, commentLastDocRef]);
 
     const initialFetch = async () => {
         if (userUid && userUid.trim() != loggedInUser.uid) {
@@ -66,123 +103,175 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
         }
     }
 
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting && hasMore) {
-                    getAllPosts();
-                }
-            },
-            {
-                root: null,
-                rootMargin: "0px",
-                threshold: 1,
-            }
-        );
-        if (targetRef.current) {
-            observer.observe(targetRef.current);
-        }
-        return () => {
-            if (targetRef.current) {
-                observer.unobserve(targetRef.current);
-            }
-        };
-    }, [lastDocRef, hasMore, targetRef]);
-
     const getVisitedPosts = async () => {
         try {
-            const docRef = !lastDocRef ?
-                query(collection(firestoreDb, "posts"), and(where("uid", "==", loggedInUser.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), limit(5)) :
-                query(collection(firestoreDb, "posts"), and(where("uid", "==", loggedInUser.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), startAfter(lastDocRef), limit(5));
+            const [likePosts, commentPosts] = await Promise.all([getLikedPosts(), getCommentedPost()]);
+            const uniqueList: postDbGetInterface[] = getUniqueList([...likePosts, ...commentPosts]);
 
-            if (!docRef) {
-                setHasMore(false);
-                setLastDocRef(null);
-                return;
-            }
-            const postQuerySnapshot = await getDocs(docRef);
-            const postList: postDbGetInterface[] = [];
-
-            postQuerySnapshot.forEach(async (doc) => {
-                const postData = doc.data();
-                const post: postDbGetInterface = {
-                    postId: doc.id,
-                    email: postData.email,
-                    text: postData.text,
-                    imageURLs: postData.imageURLs,
-                    likes: postData.likes,
-                    uid: postData.uid,
-                    time: postData.time,
-                    displayName: postData.displayName,
-                    photoURL: postData.photoURL,
-                    type: postData.type,
-                    isDeleted: postData.isDeleted
-                };
-                if (loggedInUser.uid === postData.uid) {
-                    post.displayName = postData.displayName;
-                    post.photoURL = postData.photoURL;
-                    dispatch(addUserPosts(post));
+            setPosts(uniqueList.map(each => {
+                if (each.profileStatus === typeStatus.PRIVATE) {
+                    each.status = "Profile privated";
                 }
-                postList.push(post);
-            });
-            if (postQuerySnapshot.empty) {
-                setHasMore(false);
-                setLastDocRef(null);
-            }
-            else {
-                setHasMore(true);
-                setLastDocRef(postQuerySnapshot.docs[postQuerySnapshot.docs.length - 1]);
-            }
-            setPosts([...posts, ...postList].sort((a, b) => a.likes.length - b.likes.length));
+                else if (each.type === typeStatus.PRIVATE) {
+                    each.status = "Post privated";
+                }
+                else if (each.isDeleted) {
+                    each.status = "Deleted";
+                }
+                return each;
+            }));
         }
         catch (e) {
             console.log("Error in fetching posts: ", e);
         }
         finally {
             const timer = setTimeout(() => {
+                clearTimeout(timer);
                 setLoading(false);
             }, 100);
+        }
+    }
+
+    const getUniqueList = (list: postDbGetInterface[]) => {
+        return list.filter((each, index, self) => index === self.findIndex(val => val.postId === each.postId && val.uid === each.uid));
+    }
+
+    const getCommentedPost = async () => {
+        try {
+            const commentDocRef = !commentLastDocRef ?
+                query(collection(firestoreDb, "comments"), where("authorUID", "==", loggedInUser.uid), limit(5)) :
+                query(collection(firestoreDb, "comments"), where("authorUID", "==", loggedInUser.uid), startAfter(commentLastDocRef), limit(5));
+
+            if (!commentDocRef) {
+                setCommentHasMore(false);
+                setCommentLastDocRef(null);
+                return [];
+            }
+            const commentQuerySnapshot = await getDocs(commentDocRef);
+            const comments: commentDbInterface[] = processCommentQueryData(commentQuerySnapshot);
+            const newPosts = await Promise.all(
+                comments.map(async (eachComment) => {
+                    const docQuery = doc(firestoreDb, "posts", eachComment.postId);
+                    const docRef = await getDoc(docQuery);
+                    if (docRef.exists()) {
+                        return processPostDocData(docRef);
+                    }
+                    return null;
+                })
+            );
+            const finalList = newPosts.filter((each) => each !== null);
+            if (commentQuerySnapshot.empty) {
+                setCommentHasMore(false);
+                setCommentLastDocRef(null);
+            }
+            else {
+                setCommentHasMore(true);
+                setCommentLastDocRef(commentQuerySnapshot.docs[commentQuerySnapshot.docs.length - 1]);
+            }
+            return finalList;
+        }
+        catch (e) {
+            console.log("Error in fetching commented posts: ", e);
+            return [];
+        }
+    }
+
+    const getLikedPosts = async () => {
+        try {
+            const likeDocRef = !likedLastDocRef ?
+                query(collection(firestoreDb, "posts"), where("likes", "array-contains", loggedInUser.uid), limit(5)) :
+                query(collection(firestoreDb, "posts"), where("likes", "array-contains", loggedInUser.uid), startAfter(likedLastDocRef), limit(5));
+
+            if (!likeDocRef) {
+                setLikedHasMore(false);
+                setLikedLastDocRef(null);
+                return [];
+            }
+            const postQuerySnapshot = await getDocs(likeDocRef);
+            if (postQuerySnapshot.empty) {
+                setLikedHasMore(false);
+                setLikedLastDocRef(null);
+            }
+            else {
+                setLikedHasMore(true);
+                setLikedLastDocRef(postQuerySnapshot.docs[postQuerySnapshot.docs.length - 1]);
+            }
+            return processPostQueryData(postQuerySnapshot);
+        }
+        catch (e) {
+            console.log("Error in fetching liked posts: ", e);
+            return [];
         }
     }
 
     const getAllPosts = async () => {
         try {
             let docRef;
-            if (currentProfileDetail && currentProfileDetail.uid != loggedInUser.uid) {
-                if (currentProfileDetail.type === typeStatus.PUBLIC) {
+            // my posts/profile
+            if (userUid === loggedInUser.uid) {
+                docRef = !lastDocRef ?
+                    query(collection(firestoreDb, "posts"), and(where("isDeleted", "==", false), where("uid", "==", loggedInUser.uid)), limit(5)) :
+                    query(collection(firestoreDb, "posts"),
+                        and(where("isDeleted", "==", false), where("uid", "==", loggedInUser.uid)),
+                        startAfter(lastDocRef), limit(5)
+                    );
+            }
+            // another user profile
+            // else if (currentProfileDetail && currentProfileDetail.uid != loggedInUser.uid) {
+            //     if (currentProfileDetail.type === typeStatus.PUBLIC) {
+            //         docRef = !lastDocRef ?
+            //             query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), limit(5)) :
+            //             query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), startAfter(lastDocRef), limit(5));
+            //     }
+            //     else {
+            //         if (currentProfileDetail.followers.includes(loggedInUser.uid)) {
+            //             docRef = !lastDocRef ?
+            //                 query(collection(firestoreDb, "posts"), where("uid", "==", currentProfileDetail.uid), limit(5)) :
+            //                 query(collection(firestoreDb, "posts"), where("uid", "==", currentProfileDetail.uid), startAfter(lastDocRef), limit(5));
+            //         }
+            //         else {
+            //             docRef = null;
+            //         }
+            //     }
+            // }
+            // homepage
+            else {
+                if (loggedInUser.following.length) {
                     docRef = !lastDocRef ?
-                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), limit(5)) :
-                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), startAfter(lastDocRef), limit(5));
+                        query(collection(firestoreDb, "posts"), and(
+                            or(
+                                where("uid", "in", [...loggedInUser.following]),
+                                where("type", "==", typeStatus.PUBLIC),
+                                where("uid", "==", loggedInUser.uid),
+                            ),
+                            where("isDeleted", "==", false)
+                        ), limit(5)) :
+                        query(collection(firestoreDb, "posts"), and(
+                            or(
+                                where("uid", "in", [...loggedInUser.following]),
+                                where("type", "==", typeStatus.PUBLIC),
+                                where("uid", "==", loggedInUser.uid),
+                            ),
+                            where("isDeleted", "==", false)
+                        ), startAfter(lastDocRef), limit(5));
                 }
                 else {
-                    if (currentProfileDetail.followers.includes(loggedInUser.uid)) {
-                        docRef = !lastDocRef ?
-                            query(collection(firestoreDb, "posts"), where("uid", "==", currentProfileDetail.uid), limit(5)) :
-                            query(collection(firestoreDb, "posts"), where("uid", "==", currentProfileDetail.uid), startAfter(lastDocRef), limit(5));
-                    }
-                    else {
-                        docRef = null;
-                    }
+                    docRef = !lastDocRef ?
+                        query(collection(firestoreDb, "posts"), and(
+                            or(
+                                where("type", "==", typeStatus.PUBLIC),
+                                where("uid", "==", loggedInUser.uid),
+                            ),
+                            where("isDeleted", "==", false)
+                        ), limit(5)) :
+                        query(collection(firestoreDb, "posts"), and(
+                            or(
+                                where("type", "==", typeStatus.PUBLIC),
+                                where("uid", "==", loggedInUser.uid),
+                            ),
+                            where("isDeleted", "==", false)
+                        ), startAfter(lastDocRef), limit(5));
                 }
-            }
-            else {
-                docRef = !lastDocRef ?
-                    query(collection(firestoreDb, "posts"), and(
-                        or(
-                            where("uid", "in", [...loggedInUser.following]),
-                            where("type", "==", typeStatus.PUBLIC),
-                            where("uid", "==", loggedInUser.uid),
-                        ),
-                        where("isDeleted", "==", false)
-                    ), limit(5)) :
-                    query(collection(firestoreDb, "posts"), and(
-                        or(
-                            where("uid", "in", [...loggedInUser.following]),
-                            where("type", "==", typeStatus.PUBLIC),
-                            where("uid", "==", loggedInUser.uid),
-                        ),
-                        where("isDeleted", "==", false)
-                    ), startAfter(lastDocRef), limit(5));
             }
             if (!docRef) {
                 setHasMore(false);
@@ -190,31 +279,19 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
                 return;
             }
             const postQuerySnapshot = await getDocs(docRef);
-            const postList: postDbGetInterface[] = [];
-
-
-            postQuerySnapshot.forEach(async (doc) => {
-                const postData = doc.data();
-                const post: postDbGetInterface = {
-                    postId: doc.id,
-                    email: postData.email,
-                    text: postData.text,
-                    imageURLs: postData.imageURLs,
-                    likes: postData.likes,
-                    uid: postData.uid,
-                    time: postData.time,
-                    displayName: postData.displayName,
-                    photoURL: postData.photoURL,
-                    type: postData.type,
-                    isDeleted: postData.isDeleted
-                };
-                if (loggedInUser.uid === postData.uid) {
-                    post.displayName = postData.displayName;
-                    post.photoURL = postData.photoURL;
-                    dispatch(addUserPosts(post));
+            const processedPosts = processPostQueryData(postQuerySnapshot)
+            setPosts([...posts, ...processedPosts].sort((a, b) => a.likes.length - b.likes.length).map((each => {
+                if (each.profileStatus === typeStatus.PRIVATE) {
+                    each.status = "Profile privated";
                 }
-                postList.push(post);
-            });
+                else if (each.type === typeStatus.PRIVATE) {
+                    each.status = "Post privated";
+                }
+                else if (each.isDeleted) {
+                    each.status = "Deleted";
+                }
+                return each;
+            })));
             if (postQuerySnapshot.empty) {
                 setHasMore(false);
                 setLastDocRef(null);
@@ -223,13 +300,13 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
                 setHasMore(true);
                 setLastDocRef(postQuerySnapshot.docs[postQuerySnapshot.docs.length - 1]);
             }
-            setPosts([...posts, ...postList].sort((a, b) => a.likes.length - b.likes.length));
         }
         catch (e) {
             console.log("Error in fetching posts: ", e);
         }
         finally {
             const timer = setTimeout(() => {
+                clearTimeout(timer);
                 setLoading(false);
             }, 100);
         }
@@ -251,6 +328,84 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
             return each;
         });
         setPosts(newPosts);
+    }
+
+    const processPostDocData = (doc: DocumentSnapshot<DocumentData, DocumentData>) => {
+        const postData = doc.data();
+        const post: postDbGetInterface = {
+            postId: doc.id,
+            email: postData?.email,
+            text: postData?.text,
+            imageURLs: postData?.imageURLs,
+            likes: postData?.likes,
+            uid: postData?.uid,
+            time: postData?.time,
+            displayName: postData?.displayName,
+            photoURL: postData?.photoURL ?? "/blank-profile-picture.svg",
+            type: postData?.type,
+            isDeleted: postData?.isDeleted,
+            status: "Commented",
+            profileStatus: postData?.profileStatus,
+            userId: doc.id
+        };
+        if (loggedInUser.uid === postData?.uid) {
+            post.displayName = postData.displayName;
+            post.photoURL = postData.photoURL;
+            dispatch(addUserPosts(post));
+        }
+        return post;
+    }
+
+    const processCommentQueryData = (snapshot: QuerySnapshot<DocumentData, DocumentData>) => {
+        const commentList: commentDbInterface[] = [];
+        snapshot.forEach((doc) => {
+            const commentData = doc.data();
+            const comment: commentDbInterface = {
+                authorUID: commentData.authorUID,
+                displayName: commentData.displayName,
+                parentId: commentData.parentId,
+                photoURL: commentData.photoURL,
+                postId: commentData.postId,
+                text: commentData.text,
+                time: commentData.time,
+            };
+            commentList.push(comment);
+        });
+        return commentList;
+    }
+
+    const processPostQueryData = (snapshot: QuerySnapshot<DocumentData, DocumentData>) => {
+        const postList: postDbGetInterface[] = [];
+        snapshot.forEach((doc) => {
+            const postData = doc.data();
+            const post: postDbGetInterface = {
+                postId: doc.id,
+                email: postData.email,
+                text: postData.text,
+                imageURLs: postData.imageURLs,
+                likes: postData.likes,
+                uid: postData.uid,
+                time: postData.time,
+                displayName: postData.displayName,
+                photoURL: postData.photoURL,
+                type: postData.type,
+                isDeleted: postData.isDeleted,
+                profileStatus: postData.profileStatus,
+                userId: doc.id
+            };
+            if (postData.likes.includes(loggedInUser.uid)) {
+                post.status = "Liked";
+            }
+            if (loggedInUser.uid === postData.uid) {
+                post.displayName = postData.displayName;
+                post.photoURL = postData.photoURL;
+                dispatch(addUserPosts(post));
+            }
+            if (post) {
+                postList.push(post);
+            }
+        });
+        return postList;
     }
 
     return (

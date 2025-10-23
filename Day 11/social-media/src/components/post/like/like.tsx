@@ -3,14 +3,14 @@ import { firestoreDb } from "@/config/firebase";
 import { useAppSelector } from "@/redux/hook";
 import { RootState } from "@/redux/store";
 import { Button } from "@mui/material";
-import { doc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { enqueueSnackbar } from "notistack";
 import { useState } from "react";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import style from "./style.module.css";
 
-const Like = ({ postId, likes }: { postId: string, likes: string[] }) => {
+const Like = ({ postId, likes, postCreatorId }: { postId: string, likes: string[], postCreatorId: string }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const [isLike, setLike] = useState<boolean>(likes.includes(loggedInUser.uid));
 
@@ -23,6 +23,14 @@ const Like = ({ postId, likes }: { postId: string, likes: string[] }) => {
             }
             else {
                 likes.push(loggedInUser.uid);
+                if (loggedInUser.id !== postCreatorId) {
+                    await addDoc(collection(firestoreDb, "notification"), {
+                        senderId: loggedInUser.id,
+                        receiverId: postCreatorId,
+                        postId: postId,
+                        notificationText: `${loggedInUser.displayName} like your post`,
+                    });
+                }
             }
             await updateDoc(docRef, { likes });
             setLike(!isLike);

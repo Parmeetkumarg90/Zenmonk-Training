@@ -99,6 +99,18 @@ const ProfileEditForm = ({ onClose }: { onClose: () => void }) => {
                     type: data.type
                 });
 
+                if (userDBData.totalPosts > 0) {
+                    const dbPostQuery = query(collection(firestoreDb, "posts"), where("uid", "==", loggedInUser.uid));
+                    const docPostSnapShot = await getDocs(dbPostQuery);
+                    docPostSnapShot.docs.forEach(async (each) => {
+                        const postData = each.data();
+                        await updateDoc(doc(firestoreDb, "posts", each.id), {
+                            ...postData,
+                            profileStatus: data.type,
+                        });
+                    });
+                }
+
                 dispatch(addCredentials(userDbObj));
                 enqueueSnackbar("Profile Updated Successfully");
             }

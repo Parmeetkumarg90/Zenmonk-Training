@@ -5,6 +5,8 @@
     margin-top: 2%;
     position: relative;
     box-shadow: 0px 0px 5px 1px #fff;
+    text-align: center;
+    padding: 1% 0;
 }
 
 .grid {
@@ -47,6 +49,6 @@
     color: black !important;
 }
 
-.button{
+.button {
     background: transparent !important;
 }

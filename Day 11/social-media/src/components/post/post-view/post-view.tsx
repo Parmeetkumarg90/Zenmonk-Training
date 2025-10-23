@@ -7,7 +7,7 @@ import Carousal from '@/components/image-carousal/carousal';
 import Like from '../like/like';
 import Comment from '../comment/comment';
 import Button from "@mui/material/Button";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { collection, deleteDoc, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
@@ -18,10 +18,18 @@ import Link from 'next/link';
 import { addCredentials } from '@/redux/user/currentUser';
 import { RootState } from '@/redux/store';
 import { typeStatus } from '@/interfaces/user/user';
+import Alert from "@mui/material/Alert";
 
-const PostItem = ({ post, loading, canDelete, canEdit, removePost, modifyPost }: { post: postDbGetInterface, loading: boolean, canDelete: boolean, canEdit: boolean, removePost: (postId: string) => void, modifyPost: (postId: string, type: typeStatus) => void }) => {
+const PostItem = ({ post, loading, canDelete, canEdit, removePost, modifyPost }: {
+    post: postDbGetInterface,
+    loading: boolean,
+    canDelete: boolean,
+    canEdit: boolean,
+    removePost: (postId: string) => void,
+    modifyPost: (postId: string, type: typeStatus) => void
+}
+) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
-    const [isLoading, setLoading] = useState<boolean>(!!loading);
     const [isShowComments, setShowComments] = useState<boolean>(false);
     const dispatch = useAppDispatch();
     const now = new Date().getTime();
@@ -45,7 +53,7 @@ const PostItem = ({ post, loading, canDelete, canEdit, removePost, modifyPost }:
         try {
             const docRef = doc(firestoreDb, "posts", post.postId);
             await updateDoc(docRef, { ...post, isDeleted: true });
-            await updateDoc(doc(firestoreDb, "users", loggedInUser.id), { ...loggedInUser, totalPosts: loggedInUser.totalPosts - 1 });
+            await updateDoc(doc(firestoreDb, "users", loggedInUser.id), { ...loggedInUser, totalPosts: loggedInUser.totalPosts > 0 ? loggedInUser.totalPosts - 1 : 0 });
 
             const commentDocRef = query(collection(firestoreDb, "comments"), where("postId", "==", post.postId));
             const commentSnapshots = await getDocs(commentDocRef);
@@ -54,8 +62,8 @@ const PostItem = ({ post, loading, canDelete, canEdit, removePost, modifyPost }:
                 const docRef = doc(firestoreDb, "comments", each.id);
                 await deleteDoc(docRef);
             });
-            
-            dispatch(addCredentials({ ...loggedInUser, totalPosts: loggedInUser.totalPosts - 1 }));
+
+            dispatch(addCredentials({ ...loggedInUser, totalPosts: loggedInUser.totalPosts > 0 ? loggedInUser.totalPosts - 1 : 0 }));
             dispatch(removeUserPost(post.postId));
             removePost(post.postId);
         }
@@ -81,9 +89,11 @@ const PostItem = ({ post, loading, canDelete, canEdit, removePost, modifyPost }:
 
     return (
         <Card className={`${style.card} ${style.grid} ${style.pX5} ${style.mY2} ${style.border}`} key={post.postId}>
-            {isLoading ?
+            {loading ?
                 <CircularProgress size={"3rem"} /> :
                 <>
+                    {post.status === "Commented" && <Alert severity="info" className={`${style.card}`}>You commented in this post.</Alert>}
+                    {post.status === "Liked" && <Alert severity="info" className={`${style.card}`}>You like this post.</Alert>}
                     <div className={`${style.rounded_logo} ${style.placeInRow}`}>
                         <Link href={`/profile/${post.uid}`} className={`${style.placeInRow} ${style.rounded_logo} ${style.card}`}>
                             {
@@ -100,13 +110,17 @@ const PostItem = ({ post, loading, canDelete, canEdit, removePost, modifyPost }:
                         }
                         {canDelete && <Button onClick={() => { deletePost(post); }}>Delete</Button>}
                     </div>
-                    <div>{post.text}</div>
-                    <Carousal list={post.imageURLs} />
-                    <div className={`${style.flex_evenly} ${style.mY2}`}>
-                        <Like postId={post.postId} likes={post.likes} />
-                        <Button onClick={() => { setShowComments(!isShowComments); }}>Comments</Button>
-                    </div>
-                    {isShowComments && <Comment postId={post.postId} />}
+                    {(!post.status || post.status === "Liked" || post.status === "Commented") && <div>{post.text}</div>}
+                    <Carousal list={post.imageURLs} status={post.status}
+                        isVisible={(!post.status || post.status === "Liked" || post.status === "Commented")}
+                    />
+                    {(!post.status || post.status === "Liked" || post.status === "Commented") &&
+                        <div className={`${style.flex_evenly} ${style.mY2}`}>
+                            <Like postId={post.postId} likes={post.likes} postCreatorId={post.userId!} />
+                            <Button onClick={() => { setShowComments(!isShowComments); }}>Comments</Button>
+                        </div>
+                    }
+                    {isShowComments && <Comment postId={post.postId} postCreatorId={post.userId!} />}
                 </>
             }
         </Card >

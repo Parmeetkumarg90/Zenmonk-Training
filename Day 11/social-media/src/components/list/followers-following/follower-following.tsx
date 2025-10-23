@@ -27,7 +27,7 @@ import { useEffect, useState } from 'react';
 const FollowerFollowing = ({ data, loading, handleFollowButtonClick }:
     {
         data: follow_following_view_Interface, loading: boolean,
-        handleFollowButtonClick: (userId: string, task: follower_following_action_type | null) => void
+        handleFollowButtonClick: (userId: string, task: follower_following_action_type | null, modalType: follower_following_type) => void
     }) => {
     return (
         <Card className={`${style.card} ${style.textCenter}`}>
@@ -46,7 +46,7 @@ const FollowerFollowing = ({ data, loading, handleFollowButtonClick }:
     )
 }
 
-const ListItemComponent = ({ profile, currentUserUid, type, handleFollowButtonClick }: { profile: follow_following_Interface, currentUserUid: string, type: follower_following_type, handleFollowButtonClick: (userId: string, task: follower_following_action_type | null) => void }) => {
+const ListItemComponent = ({ profile, currentUserUid, type, handleFollowButtonClick }: { profile: follow_following_Interface, currentUserUid: string, type: follower_following_type, handleFollowButtonClick: (userId: string, task: follower_following_action_type | null, modalType: follower_following_type) => void }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const [action, setAction] = useState<follower_following_action_type | null>(null);
 
@@ -78,7 +78,7 @@ const ListItemComponent = ({ profile, currentUserUid, type, handleFollowButtonCl
         secondaryAction={
             loggedInUser.uid !== profile.uid && action ?
                 < IconButton edge="end"
-                    onClick={() => { handleFollowButtonClick(profile.uid, action); setAction(findAction()); }}
+                    onClick={() => { handleFollowButtonClick(profile.uid, action,type); setAction(findAction()); }}
                     aria-label={action?.toUpperCase()}
                 >
                     {action === follower_following_action_type.FOLLOW && <PersonAddAlt1Icon />}

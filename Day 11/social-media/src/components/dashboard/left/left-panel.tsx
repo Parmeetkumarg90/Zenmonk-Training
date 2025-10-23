@@ -12,9 +12,9 @@ import { useEffect, useState } from 'react';
 import Popover from '@mui/material/Popover';
 import ProfileEditForm from '@/components/form/edit-form/profile-edit-form';
 import { addFollowing, logout, removeFollowing } from '@/redux/user/currentUser';
-import { authorizedInterface } from '@/interfaces/user/user';
+import { authorizedInterface, typeStatus } from '@/interfaces/user/user';
 import { CircularProgress, Typography } from '@mui/material';
-import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, and, collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import { removeAllPosts } from '@/redux/post/user-post';
 import FollowerFollowing from '@/components/list/followers-following/follower-following';
@@ -36,7 +36,6 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
     const router = useRouter();
     const [profileEditPopUp, setProfileEditPopUp] = useState<HTMLElement | null>(null);
 
-
     const findAction = () => {
         if (!userDetail?.uid || loggedInUser.uid === userDetail?.uid) {
             return null;
@@ -53,7 +52,6 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
     useEffect(() => {
         setUserDetail(null);
         setFollowing(null);
-        setProfileList({ list: [], type: follower_following_type.FOLLOWING, currentUserUid: "" });
 
         if (userUid && userUid?.trim() !== "" && userUid != loggedInUser.uid) {
             getUserData();
@@ -92,7 +90,6 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                     isOnline: userData.isOnline,
                     type: userData.type
                 };
-
                 setUserDetail(userDetails);
             }
         }
@@ -127,39 +124,72 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
         enqueueSnackbar("Logout Successfully");
     }
 
-    const handleFollowButtonClick = async (clickedUid: string, task: follower_following_action_type | null) => {
+    const handleFollowButtonClick = async (clickedUid: string, task: follower_following_action_type | null, modalType: follower_following_type) => {
         if (!clickedUid || clickedUid === loggedInUser.uid || !task) {
             enqueueSnackbar("Invalid Profile or operation");
             return;
         }
         try {
+            let receiverId = profileList.list.find((each) => each.uid === clickedUid)?.id;
+            if (clickedUid == userDetail?.uid && userDetail.type === typeStatus.PRIVATE) {
+                receiverId = userDetail.id;
+            }
+            if (receiverId) {
+                const docRef = await getDocs(query(collection(firestoreDb, "notification"), and(
+                    where("senderId", "==", loggedInUser.id),
+                    where("receiverId", "==", receiverId),
+                    where("postId", "==", null),
+                    where("notificationText", "==", `${loggedInUser.displayName} requested to follow you.`)
+                )));
+                const isNotificationAlredyPresent = docRef.docs.length > 0;
+
+                if (!isNotificationAlredyPresent) {
+                    addDoc(collection(firestoreDb, "notification"), {
+                        senderId: loggedInUser.id,
+                        receiverId: receiverId,
+                        postId: null,
+                        notificationText: `${loggedInUser.displayName} requested to follow you.`,
+                    });
+                    enqueueSnackbar("Request has been sent to profile user.");
+                }
+                else {
+                    enqueueSnackbar("Request has been already sent");
+                }
+                return;
+            }
             const logInUserUid = loggedInUser.uid;
             const followingQuery = query(collection(firestoreDb, "users"), where("uid", "==", logInUserUid));
             const followingSnapshot = await getDocs(followingQuery);
             const followingDocRef = followingSnapshot.docs[0];
             const followingData = followingDocRef.data();
             if (task !== follower_following_action_type.UNFOLLOW) {
-                if (!followingData.following.includes(clickedUid)) followingData.following.push(clickedUid);
+                if (!followingData.following.includes(clickedUid)) {
+                    followingData.following.push(clickedUid);
+                }
                 dispatch(addFollowing(clickedUid));
             } else {
                 followingData.following = followingData.following.filter((uid: string) => uid !== clickedUid);
                 dispatch(removeFollowing(clickedUid));
             }
             await updateDoc(followingDocRef.ref, { ...followingData });
+
             const followerQuery = query(collection(firestoreDb, "users"), where("uid", "==", clickedUid));
             const followerSnapshot = await getDocs(followerQuery);
             const followerDocRef = followerSnapshot.docs[0];
             const followerData = followerDocRef.data();
             if (task !== follower_following_action_type.UNFOLLOW) {
-                if (!followerData.followers.includes(logInUserUid)) followerData.followers.push(logInUserUid);
+                if (!followerData.followers.includes(logInUserUid)) {
+                    followerData.followers.push(logInUserUid);
+                }
             } else {
                 followerData.followers = followerData.followers.filter((uid: string) => uid !== logInUserUid);
             }
             await updateDoc(followerDocRef.ref, { ...followerData });
-            if (userDetail && userDetail.uid === clickedUid) {
+            if (userDetail && userDetail.uid === clickedUid && modalType === follower_following_type.FOLLOWING) {
+                setProfileList({ list: followingData.followers, type: follower_following_type.FOLLOWING, currentUserUid: "" });
                 setUserDetail({
                     ...userDetail,
-                    followers: followerData.followers
+                    followers: followerData.followers,
                 });
             }
         } catch (e) {
@@ -182,7 +212,9 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                 uid: data.uid,
                 photoURL: data.photoURL,
                 displayName: data.displayName,
-                email: data.email
+                email: data.email,
+                id: docRef[0].id,
+                type: data.type
             });
         }
         return null;
@@ -201,7 +233,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                 return await fetchProfileDetail(uid);
             })
             const result = await Promise.all(promises);
-            const list: follow_following_Interface[] | any = result.filter((each) => each);
+            const list: follow_following_Interface[] = result.filter((each) => each !== null);
             const finalList: follow_following_view_Interface = {
                 list,
                 type,
@@ -249,7 +281,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                                 <ProfileEditForm onClose={handleCloseEdit} />
                             </Popover>
                         </> :
-                        (loggedInUser.uid !== userDetail.uid) && <Button className={`${style.button}`} onClick={() => { handleFollowButtonClick(userDetail.uid, isFollowing); }}>{isFollowing?.toUpperCase()}</Button>
+                        (loggedInUser.uid !== userDetail.uid) && <Button className={`${style.button}`} onClick={() => { handleFollowButtonClick(userDetail.uid, isFollowing, follower_following_type.FOLLOWING); }}>{isFollowing?.toUpperCase()}</Button>
                     }
                 </Card>
             }

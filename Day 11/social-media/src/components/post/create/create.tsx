@@ -49,6 +49,7 @@ const Create = ({ onPostCreated }: { onPostCreated: (data: postDbGetInterface) =
             text: "",
             images: [],
             type: typeStatus.PUBLIC,
+            userId: loggedInUser.id
         }
     });
 
@@ -86,10 +87,11 @@ const Create = ({ onPostCreated }: { onPostCreated: (data: postDbGetInterface) =
                 photoURL: loggedInUser.photoURL,
                 type: data.type,
                 isDeleted: false,
+                userId: loggedInUser.id
             };
 
             const isPostCreationValid = postCreateDbSchema.safeParse(dbPostObject);
-            console.log(isPostCreationValid, dbPostObject);
+            // console.log(isPostCreationValid, dbPostObject);
             if (isPostCreationValid.success) {
                 try {
                     addDoc(collection(firestoreDb, "posts"), isPostCreationValid.data).then(async (result) => {
@@ -97,6 +99,7 @@ const Create = ({ onPostCreated }: { onPostCreated: (data: postDbGetInterface) =
                             ...dbPostObject,
                             postId: result.id,
                             isDeleted: false,
+                            profileStatus: loggedInUser.type
                         }
                         onPostCreated(currentUserPost);
                         dispatch(addUserPosts(currentUserPost));
