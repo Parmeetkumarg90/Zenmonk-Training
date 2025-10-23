@@ -268,7 +268,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                 <Card className={`${style.placeInColumn}`}>
                     <Button className={`${style.button}`} onClick={() => { redirectToUrl("/dashboard"); }}>Feed</Button>
                     <Button className={`${style.button}`} onClick={() => { redirectToUrl(`/profile/${loggedInUser.uid}`); }}>My Posts</Button>
-                    <Button className={`${style.button}`} onClick={() => { redirectToUrl(`/profile/${loggedInUser.uid}`); }}>Visited Posts</Button>
+                    <Button className={`${style.button}`} onClick={() => { redirectToUrl(`/visited`); }}>Visited Posts</Button>
                     <Button className={`${style.button}`} onClick={handleLogout}>Logout</Button>
                 </Card>
             </Card>

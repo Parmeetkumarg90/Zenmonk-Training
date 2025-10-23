@@ -17,7 +17,7 @@ import { addPostsCount } from '@/redux/user/currentUser';
 import { addUserPosts } from '@/redux/post/user-post';
 import { authorizedInterface, typeStatus } from '@/interfaces/user/user';
 
-const MainPanel = ({ userUid }: { userUid?: string }) => {
+const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage?: boolean }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const [currentProfileDetail, setcurrentProfileDetail] = useState<authorizedInterface | null>(null);
     const dispatch = useAppDispatch();
@@ -29,7 +29,12 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
 
 
     useEffect(() => {
-        initialFetch();
+        if (isVisitedPage) {
+            getVisitedPosts();
+        }
+        else {
+            initialFetch();
+        }
     }, []);
 
     useEffect(() => {
@@ -83,6 +88,62 @@ const MainPanel = ({ userUid }: { userUid?: string }) => {
             }
         };
     }, [lastDocRef, hasMore, targetRef]);
+
+    const getVisitedPosts = async () => {
+        try {
+            const docRef = !lastDocRef ?
+                query(collection(firestoreDb, "posts"), and(where("uid", "==", loggedInUser.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), limit(5)) :
+                query(collection(firestoreDb, "posts"), and(where("uid", "==", loggedInUser.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), startAfter(lastDocRef), limit(5));
+
+            if (!docRef) {
+                setHasMore(false);
+                setLastDocRef(null);
+                return;
+            }
+            const postQuerySnapshot = await getDocs(docRef);
+            const postList: postDbGetInterface[] = [];
+
+            postQuerySnapshot.forEach(async (doc) => {
+                const postData = doc.data();
+                const post: postDbGetInterface = {
+                    postId: doc.id,
+                    email: postData.email,
+                    text: postData.text,
+                    imageURLs: postData.imageURLs,
+                    likes: postData.likes,
+                    uid: postData.uid,
+                    time: postData.time,
+                    displayName: postData.displayName,
+                    photoURL: postData.photoURL,
+                    type: postData.type,
+                    isDeleted: postData.isDeleted
+                };
+                if (loggedInUser.uid === postData.uid) {
+                    post.displayName = postData.displayName;
+                    post.photoURL = postData.photoURL;
+                    dispatch(addUserPosts(post));
+                }
+                postList.push(post);
+            });
+            if (postQuerySnapshot.empty) {
+                setHasMore(false);
+                setLastDocRef(null);
+            }
+            else {
+                setHasMore(true);
+                setLastDocRef(postQuerySnapshot.docs[postQuerySnapshot.docs.length - 1]);
+            }
+            setPosts([...posts, ...postList].sort((a, b) => a.likes.length - b.likes.length));
+        }
+        catch (e) {
+            console.log("Error in fetching posts: ", e);
+        }
+        finally {
+            const timer = setTimeout(() => {
+                setLoading(false);
+            }, 100);
+        }
+    }
 
     const getAllPosts = async () => {
         try {
