@@ -19,14 +19,14 @@ const theme = createTheme({
                     backgroundColor: "#282828",
                     margin: "0",
                     borderRadius: "10px",
-                    overflowY:"auto",
+                    overflowY: "auto",
                 },
             },
         },
         MuiButton: {
             styleOverrides: {
                 root: {
-                    width:"60%",
+                    width: "60%",
                     minWidth: "fit-content",
                     fontSize: "1rem",
                     border: "1px solid #757575",
@@ -50,6 +50,21 @@ const theme = createTheme({
                     color: "#fff",
                 },
             },
+        },
+        MuiList: {
+            styleOverrides: {
+                root: {
+                    minWidth: "100%",
+                    maxWidth: "fit-content",
+                }
+            }
+        },
+        MuiListItem: {
+            styleOverrides: {
+                root: {
+                    maxWidth: "100%",
+                }
+            }
         },
         MuiTextField: {
             defaultProps: {

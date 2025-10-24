@@ -31,6 +31,8 @@ const postCreateDbSchema = zod.object({
     photoURL: zod.string().trim().nullable(),
     type: zod.enum(typeStatus).default(typeStatus.PUBLIC),
     isDeleted: zod.boolean(),
+    profileStatus: zod.enum(typeStatus).default(typeStatus.PUBLIC),
+    userId: zod.string().trim().min(3),
 });
 
 export { postCreateSchema, postCreateDbSchema, commentDbSchema };

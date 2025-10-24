@@ -14,6 +14,7 @@ import { commentDbSchema } from '@/schema/post/post';
 import { commentDbInterface } from '@/interfaces/post/user';
 import { useState } from 'react';
 import { Card, CircularProgress } from '@mui/material';
+import { notificationType } from '@/interfaces/notification/notification';
 
 
 const CommentAddForm = ({ parentId, postId, onCommentSubmit, postCreatorId }:
@@ -43,11 +44,13 @@ const CommentAddForm = ({ parentId, postId, onCommentSubmit, postCreatorId }:
             const dbRef = collection(firestoreDb, "comments");
             await addDoc(dbRef, data);
             if (loggedInUser.id !== postCreatorId) {
-                addDoc(collection(firestoreDb, "notification"), {
+                await addDoc(collection(firestoreDb, "notification"), {
                     senderId: loggedInUser.id,
                     receiverId: postCreatorId,
                     postId: postId,
                     notificationText: `${loggedInUser.displayName} commented on your post`,
+                    type: notificationType.COMMENT,
+                    senderUid: loggedInUser.uid,
                 });
             }
             enqueueSnackbar("Comment created Successfully");

@@ -87,7 +87,8 @@ const Create = ({ onPostCreated }: { onPostCreated: (data: postDbGetInterface) =
                 photoURL: loggedInUser.photoURL,
                 type: data.type,
                 isDeleted: false,
-                userId: loggedInUser.id
+                userId: loggedInUser.id,
+                profileStatus: loggedInUser.type
             };
 
             const isPostCreationValid = postCreateDbSchema.safeParse(dbPostObject);

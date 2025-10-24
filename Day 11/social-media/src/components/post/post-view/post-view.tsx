@@ -77,13 +77,13 @@ const PostItem = ({ post, loading, canDelete, canEdit, removePost, modifyPost }:
         try {
             const newType = post.type === "public" ? typeStatus.PRIVATE : typeStatus.PUBLIC;
             const docRef = doc(firestoreDb, "posts", post.postId);
-            await updateDoc(docRef, { ...post, type: newType });
+            await updateDoc(docRef, { type: newType });
 
             modifyPost(post.postId, newType);
         }
         catch (e) {
-            console.log("Error in post deletion: ", e);
-            enqueueSnackbar("Error in post deletion");
+            console.log("Error in post modification: ", e);
+            enqueueSnackbar("Error in post modification");
         }
     }
 
@@ -116,7 +116,7 @@ const PostItem = ({ post, loading, canDelete, canEdit, removePost, modifyPost }:
                     />
                     {(!post.status || post.status === "Liked" || post.status === "Commented") &&
                         <div className={`${style.flex_evenly} ${style.mY2}`}>
-                            <Like postId={post.postId} likes={post.likes} postCreatorId={post.userId!} />
+                            <Like postId={post.postId} likes={post.likes} postCreatorId={post.userId} />
                             <Button onClick={() => { setShowComments(!isShowComments); }}>Comments</Button>
                         </div>
                     }

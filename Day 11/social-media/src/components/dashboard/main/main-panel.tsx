@@ -1,7 +1,7 @@
 "use client";
 import { RootState } from '@/redux/store';
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { enqueueSnackbar } from 'notistack';
 import Cookies from 'js-cookie';
 import Create from '../../post//create/create';
@@ -10,15 +10,15 @@ import Card from "@mui/material/Card";
 import PostItem from '@/components/post/post-view/post-view';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { commentDbInterface, postDbGetInterface } from '@/interfaces/post/user';
-import { collection, getDocs, where, query, limit, startAfter, QueryDocumentSnapshot, DocumentData, setDoc, doc, and, or, getDoc, QuerySnapshot, DocumentSnapshot } from 'firebase/firestore';
+import { collection, getDocs, where, query, limit, startAfter, QueryDocumentSnapshot, DocumentData, doc, and, or, getDoc, QuerySnapshot, DocumentSnapshot } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import CircularProgress from '@mui/material/CircularProgress';
 import { addPostsCount } from '@/redux/user/currentUser';
-import { addUserPosts } from '@/redux/post/user-post';
+import { addUserPosts, removeUserPost } from '@/redux/post/user-post';
 import { authorizedInterface, typeStatus } from '@/interfaces/user/user';
 import { postCreateDbSchema } from '@/schema/post/post';
 
-const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage?: boolean }) => {
+const MainPanel = ({ userUid, isVisitedPage, postId }: { userUid?: string, isVisitedPage?: boolean, postId?: string }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const [currentProfileDetail, setcurrentProfileDetail] = useState<authorizedInterface | null>(null);
     const dispatch = useAppDispatch();
@@ -33,7 +33,10 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
     const [commentHasMore, setCommentHasMore] = useState<boolean>(true);
 
     useEffect(() => {
-        if (isVisitedPage) {
+        if (postId) {
+            getPost(postId);
+        }
+        else if (isVisitedPage) {
             getVisitedPosts();
         }
         else {
@@ -103,16 +106,54 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
         }
     }
 
+    const getPost = async (postId: string) => {
+        const docSnapshot = await getDoc(doc(firestoreDb, "posts", postId));
+        if (docSnapshot.exists()) {
+            const postData = docSnapshot.data();
+
+            const post: postDbGetInterface = {
+                postId: docSnapshot.id,
+                email: postData?.email,
+                text: postData?.text,
+                imageURLs: postData?.imageURLs,
+                likes: postData?.likes,
+                uid: postData?.uid,
+                time: postData?.time,
+                displayName: postData?.displayName,
+                photoURL: postData?.photoURL ?? "/blank-profile-picture.svg",
+                type: postData?.type,
+                isDeleted: postData?.isDeleted,
+                status: "Commented",
+                profileStatus: postData?.profileStatus,
+                userId: postData.userId
+            };
+            if (post.uid !== loggedInUser.uid && post.profileStatus === typeStatus.PRIVATE) {
+                post.status = "Profile privated";
+            }
+            else if (post.uid !== loggedInUser.uid && post.type === typeStatus.PRIVATE) {
+                post.status = "Post privated";
+            }
+            else if (post.isDeleted) {
+                post.status = "Deleted";
+            }
+            setPosts([post]);
+        }
+        else {
+            enqueueSnackbar("Invalid post");
+            redirect("/");
+        }
+    }
+
     const getVisitedPosts = async () => {
         try {
             const [likePosts, commentPosts] = await Promise.all([getLikedPosts(), getCommentedPost()]);
             const uniqueList: postDbGetInterface[] = getUniqueList([...likePosts, ...commentPosts]);
 
             setPosts(uniqueList.map(each => {
-                if (each.profileStatus === typeStatus.PRIVATE) {
+                if (each.uid !== loggedInUser.uid && each.profileStatus === typeStatus.PRIVATE) {
                     each.status = "Profile privated";
                 }
-                else if (each.type === typeStatus.PRIVATE) {
+                else if (each.uid !== loggedInUser.uid && each.type === typeStatus.PRIVATE) {
                     each.status = "Post privated";
                 }
                 else if (each.isDeleted) {
@@ -196,6 +237,7 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
                 setLikedHasMore(true);
                 setLikedLastDocRef(postQuerySnapshot.docs[postQuerySnapshot.docs.length - 1]);
             }
+            console.log(postQuerySnapshot.docs.length)
             return processPostQueryData(postQuerySnapshot);
         }
         catch (e) {
@@ -217,23 +259,23 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
                     );
             }
             // another user profile
-            // else if (currentProfileDetail && currentProfileDetail.uid != loggedInUser.uid) {
-            //     if (currentProfileDetail.type === typeStatus.PUBLIC) {
-            //         docRef = !lastDocRef ?
-            //             query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), limit(5)) :
-            //             query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), startAfter(lastDocRef), limit(5));
-            //     }
-            //     else {
-            //         if (currentProfileDetail.followers.includes(loggedInUser.uid)) {
-            //             docRef = !lastDocRef ?
-            //                 query(collection(firestoreDb, "posts"), where("uid", "==", currentProfileDetail.uid), limit(5)) :
-            //                 query(collection(firestoreDb, "posts"), where("uid", "==", currentProfileDetail.uid), startAfter(lastDocRef), limit(5));
-            //         }
-            //         else {
-            //             docRef = null;
-            //         }
-            //     }
-            // }
+            else if (currentProfileDetail && currentProfileDetail.uid != loggedInUser.uid) {
+                if (currentProfileDetail.type === typeStatus.PUBLIC) {
+                    docRef = !lastDocRef ?
+                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), limit(5)) :
+                        query(collection(firestoreDb, "posts"), and(where("uid", "==", currentProfileDetail.uid), where("type", "==", typeStatus.PUBLIC), where("isDeleted", "==", false)), startAfter(lastDocRef), limit(5));
+                }
+                else {
+                    if (currentProfileDetail.followers.includes(loggedInUser.uid)) {
+                        docRef = !lastDocRef ?
+                            query(collection(firestoreDb, "posts"), where("uid", "==", currentProfileDetail.uid), limit(5)) :
+                            query(collection(firestoreDb, "posts"), where("uid", "==", currentProfileDetail.uid), startAfter(lastDocRef), limit(5));
+                    }
+                    else {
+                        docRef = null;
+                    }
+                }
+            }
             // homepage
             else {
                 if (loggedInUser.following.length) {
@@ -279,19 +321,20 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
                 return;
             }
             const postQuerySnapshot = await getDocs(docRef);
-            const processedPosts = processPostQueryData(postQuerySnapshot)
-            setPosts([...posts, ...processedPosts].sort((a, b) => a.likes.length - b.likes.length).map((each => {
-                if (each.profileStatus === typeStatus.PRIVATE) {
+            const processedPosts = [...posts, ...processPostQueryData(postQuerySnapshot)].sort((a, b) => a.likes.length - b.likes.length);
+            const statusAddedPosts = processedPosts.map((each => {
+                if (each.uid !== loggedInUser.uid && each.profileStatus === typeStatus.PRIVATE) {
                     each.status = "Profile privated";
                 }
-                else if (each.type === typeStatus.PRIVATE) {
+                else if (each.uid !== loggedInUser.uid && each.type === typeStatus.PRIVATE) {
                     each.status = "Post privated";
                 }
                 else if (each.isDeleted) {
                     each.status = "Deleted";
                 }
                 return each;
-            })));
+            }));
+            setPosts(statusAddedPosts);
             if (postQuerySnapshot.empty) {
                 setHasMore(false);
                 setLastDocRef(null);
@@ -323,7 +366,7 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
     const editPost = (postId: string, type: typeStatus) => {
         const newPosts = posts.map(each => {
             if (each.postId === postId) {
-                each.type = type;
+                return { ...each, type: type };
             }
             return each;
         });
@@ -346,7 +389,7 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
             isDeleted: postData?.isDeleted,
             status: "Commented",
             profileStatus: postData?.profileStatus,
-            userId: doc.id
+            userId: postData?.userId
         };
         if (loggedInUser.uid === postData?.uid) {
             post.displayName = postData.displayName;
@@ -360,16 +403,18 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
         const commentList: commentDbInterface[] = [];
         snapshot.forEach((doc) => {
             const commentData = doc.data();
-            const comment: commentDbInterface = {
-                authorUID: commentData.authorUID,
-                displayName: commentData.displayName,
-                parentId: commentData.parentId,
-                photoURL: commentData.photoURL,
-                postId: commentData.postId,
-                text: commentData.text,
-                time: commentData.time,
-            };
-            commentList.push(comment);
+            if (doc.exists()) {
+                const comment: commentDbInterface = {
+                    authorUID: commentData.authorUID,
+                    displayName: commentData.displayName,
+                    parentId: commentData.parentId,
+                    photoURL: commentData.photoURL,
+                    postId: commentData.postId,
+                    text: commentData.text,
+                    time: commentData.time,
+                };
+                commentList.push(comment);
+            }
         });
         return commentList;
     }
@@ -377,32 +422,34 @@ const MainPanel = ({ userUid, isVisitedPage }: { userUid?: string, isVisitedPage
     const processPostQueryData = (snapshot: QuerySnapshot<DocumentData, DocumentData>) => {
         const postList: postDbGetInterface[] = [];
         snapshot.forEach((doc) => {
-            const postData = doc.data();
-            const post: postDbGetInterface = {
-                postId: doc.id,
-                email: postData.email,
-                text: postData.text,
-                imageURLs: postData.imageURLs,
-                likes: postData.likes,
-                uid: postData.uid,
-                time: postData.time,
-                displayName: postData.displayName,
-                photoURL: postData.photoURL,
-                type: postData.type,
-                isDeleted: postData.isDeleted,
-                profileStatus: postData.profileStatus,
-                userId: doc.id
-            };
-            if (postData.likes.includes(loggedInUser.uid)) {
-                post.status = "Liked";
-            }
-            if (loggedInUser.uid === postData.uid) {
-                post.displayName = postData.displayName;
-                post.photoURL = postData.photoURL;
-                dispatch(addUserPosts(post));
-            }
-            if (post) {
-                postList.push(post);
+            if (doc.exists()) {
+                const postData = doc.data();
+                const post: postDbGetInterface = {
+                    postId: doc.id,
+                    email: postData.email,
+                    text: postData.text,
+                    imageURLs: postData.imageURLs,
+                    likes: postData.likes,
+                    uid: postData.uid,
+                    time: postData.time,
+                    displayName: postData.displayName,
+                    photoURL: postData.photoURL,
+                    type: postData.type,
+                    isDeleted: postData.isDeleted,
+                    profileStatus: postData.profileStatus,
+                    userId: postData?.userId
+                };
+                if (postData.likes.includes(loggedInUser.uid)) {
+                    post.status = "Liked";
+                }
+                if (loggedInUser.uid === postData.uid) {
+                    post.displayName = postData.displayName;
+                    post.photoURL = postData.photoURL;
+                    dispatch(addUserPosts(post));
+                }
+                if (post) {
+                    postList.push(post);
+                }
             }
         });
         return postList;

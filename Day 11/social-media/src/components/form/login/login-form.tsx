@@ -14,14 +14,14 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Link from 'next/link';
 import Typography from '@mui/material/Typography';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, getAdditionalUserInfo } from 'firebase/auth';
 import { auth, provider } from '@/config/firebase';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Cookies from "js-cookie";
 import { ref, get, set, push } from "firebase/database";
 import { firestoreDb } from "../../../config/firebase";
-import { addDoc, collection, where, query, getDocs, getCountFromServer, setDoc, doc } from 'firebase/firestore';
+import { addDoc, collection, where, query, getDocs, getCountFromServer, updateDoc, doc } from 'firebase/firestore';
 
 const dummyName = (nameSize = 5) => {
     const character = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789";
@@ -110,6 +110,7 @@ function LoginForm() {
     const handleGoogleLogin = () => {
         signInWithPopup(auth, provider)
             .then(async (result) => {
+                console.log(result)
                 const token = await getToken();
                 if (!token) {
                     enqueueSnackbar("Invalid Credentials");
@@ -132,11 +133,12 @@ function LoginForm() {
                     type: typeStatus.PUBLIC,
                 };
 
+                const additionalInfo = getAdditionalUserInfo(result);
                 dispatch(addCredentials(userDetail));
-                if (result.user.metadata.creationTime === result.user.metadata.lastSignInTime) {
+                if (additionalInfo?.isNewUser) {
                     const result = await addDoc(collection(firestoreDb, "users"), userDetail);
                     userDetail.id = result.id;
-                    await setDoc(doc(firestoreDb, "users", result.id), userDetail);
+                    await updateDoc(doc(firestoreDb, "users", result.id), { ...userDetail });
                     Cookies.set("credentials", JSON.stringify(userDetail), {
                         path: "/",
                         expires: 7,
@@ -167,7 +169,7 @@ function LoginForm() {
                 const userDoc = docSnapshot.docs[0].data();
                 userDetail = { ...userDetail, ...userDoc, id: docSnapshot.docs[0].id, isOnline: true };
                 // console.log(userDetail,userDoc)
-                await setDoc(doc(firestoreDb, "users", docSnapshot.docs[0].id), userDetail);
+                await updateDoc(doc(firestoreDb, "users", docSnapshot.docs[0].id), { ...userDetail });
                 userDetail.photoURL = userDetail.photoURL ?? "/blank-profile-picture.svg";
                 // console.log(userDetail,userDoc)
                 dispatch(addCredentials(userDetail));

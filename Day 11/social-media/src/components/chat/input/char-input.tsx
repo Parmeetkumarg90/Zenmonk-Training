@@ -17,6 +17,7 @@ import { addDoc, and, collection, doc, getDocs, orderBy, query, updateDoc, where
 import { firestoreDb } from '@/config/firebase';
 import { useAppSelector } from '@/redux/hook';
 import { RootState } from '@/redux/store';
+import { notificationType } from '@/interfaces/notification/notification';
 
 const ChatInput = ({ receiverDetail, senderId }: { receiverDetail: userInterface, senderId: string }) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
@@ -55,6 +56,8 @@ const ChatInput = ({ receiverDetail, senderId }: { receiverDetail: userInterface
                     receiverId: data.receiverId,
                     postId: null,
                     notificationText: `${loggedInUser.displayName} sent you a message: ${data.text}`,
+                    type: notificationType.CHAT,
+                    senderUid: loggedInUser.uid,
                 });
                 reset();
             }).catch((error) => {

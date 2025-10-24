@@ -46,7 +46,9 @@
 }
 
 .style-module__MSU4Za__button {
-  border-radius: 5px;
+  margin: 2% 0;
+  text-align: center !important;
+  border-radius: 5px !important;
   width: 80% !important;
   padding: 2% 0 !important;
 }
@@ -97,6 +99,12 @@
 .style-module__MSU4Za__mY2 {
   margin-top: 2%;
   margin-bottom: 2%;
+}
+
+.style-module__MSU4Za__alert {
+  width: 80%;
+  margin: 2% 0;
+  background-color: #296d29 !important;
 }
 
 /*# sourceMappingURL=src_components_dashboard_left_style_module_css_bad6b30c._.single.css.map*/

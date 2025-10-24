@@ -14,13 +14,17 @@ import ProfileEditForm from '@/components/form/edit-form/profile-edit-form';
 import { addFollowing, logout, removeFollowing } from '@/redux/user/currentUser';
 import { authorizedInterface, typeStatus } from '@/interfaces/user/user';
 import { CircularProgress, Typography } from '@mui/material';
-import { addDoc, and, collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, and, collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { firestoreDb } from '@/config/firebase';
 import { removeAllPosts } from '@/redux/post/user-post';
 import FollowerFollowing from '@/components/list/followers-following/follower-following';
 import { follow_following_Interface, follow_following_view_Interface, follower_following_action_type, follower_following_type } from '@/interfaces/follower-following-list';
+import Alert from "@mui/material/Alert";
+import CheckIcon from "@mui/icons-material/Check";
+import { notificationType } from '@/interfaces/notification/notification';
 
 const LeftPanel = ({ userUid }: { userUid?: string }) => {
+    const [isButtonVisible, setButtonVisible] = useState<boolean>(true);
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const [userDetail, setUserDetail] = useState<authorizedInterface | null>(null);
     const [isFollowing, setFollowing] = useState<follower_following_action_type | null>(null);
@@ -92,6 +96,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                 };
                 setUserDetail(userDetails);
             }
+            
         }
         catch (e) {
             console.log("Error in profile detail fetching: ", e);
@@ -116,7 +121,7 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
     }
 
     const handleLogout = async () => {
-        await setDoc(doc(firestoreDb, "users", loggedInUser.id), { ...loggedInUser, isOnline: false });
+        await updateDoc(doc(firestoreDb, "users", loggedInUser.id), { isOnline: false });
         redirectToUrl("/");
         Cookies.remove("credentials");
         dispatch(removeAllPosts());
@@ -134,12 +139,14 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
             if (clickedUid == userDetail?.uid && userDetail.type === typeStatus.PRIVATE) {
                 receiverId = userDetail.id;
             }
-            if (receiverId) {
+            if (receiverId && userDetail?.type === typeStatus.PRIVATE && !userDetail.followers.includes(loggedInUser.uid)) {
                 const docRef = await getDocs(query(collection(firestoreDb, "notification"), and(
                     where("senderId", "==", loggedInUser.id),
                     where("receiverId", "==", receiverId),
+                    where("senderUid", "==", loggedInUser.uid),
                     where("postId", "==", null),
-                    where("notificationText", "==", `${loggedInUser.displayName} requested to follow you.`)
+                    where("notificationText", "==", `${loggedInUser.displayName} requested to follow you.`),
+                    where("type", "==", notificationType.REQUEST_TO_FOLLOW),
                 )));
                 const isNotificationAlredyPresent = docRef.docs.length > 0;
 
@@ -147,14 +154,17 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                     addDoc(collection(firestoreDb, "notification"), {
                         senderId: loggedInUser.id,
                         receiverId: receiverId,
+                        senderUid: loggedInUser.uid,
                         postId: null,
                         notificationText: `${loggedInUser.displayName} requested to follow you.`,
+                        type: notificationType.REQUEST_TO_FOLLOW,
                     });
                     enqueueSnackbar("Request has been sent to profile user.");
                 }
                 else {
                     enqueueSnackbar("Request has been already sent");
                 }
+                setButtonVisible(false);
                 return;
             }
             const logInUserUid = loggedInUser.uid;
@@ -281,8 +291,14 @@ const LeftPanel = ({ userUid }: { userUid?: string }) => {
                                 <ProfileEditForm onClose={handleCloseEdit} />
                             </Popover>
                         </> :
-                        (loggedInUser.uid !== userDetail.uid) && <Button className={`${style.button}`} onClick={() => { handleFollowButtonClick(userDetail.uid, isFollowing, follower_following_type.FOLLOWING); }}>{isFollowing?.toUpperCase()}</Button>
+                        (loggedInUser.uid !== userDetail.uid) && isButtonVisible &&
+                        <Button className={`${style.button}`}
+                            onClick={() => { handleFollowButtonClick(userDetail.uid, isFollowing, follower_following_type.FOLLOWING); }}
+                        >
+                            {isFollowing?.toUpperCase()}
+                        </Button>
                     }
+                    {!isButtonVisible && <Alert icon={<CheckIcon fontSize="inherit" />} severity="success" className={`${style.alert}`}>Request sent</Alert>}
                 </Card>
             }
             <Card className={`${style.card} ${style.textWrap} ${style.bottomElem} ${style.textCenter}`}>

@@ -1,8 +1,10 @@
 {
   "/chat/[id]/page": "app/chat/[id]/page.js",
+  "/chat/page": "app/chat/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/page": "app/page.js",
+  "/post/[postId]/page": "app/post/[postId]/page.js",
   "/profile/[uid]/page": "app/profile/[uid]/page.js",
   "/register/page": "app/register/page.js",
   "/visited/page": "app/visited/page.js"

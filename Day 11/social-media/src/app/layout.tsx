@@ -10,7 +10,7 @@ import { ThemeProvider } from "@mui/material";
 import theme from "@/theme";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { useEffect, useRef } from "react";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import { firestoreDb } from "@/config/firebase";
 import { useAppSelector } from "@/redux/hook";
 
@@ -49,11 +49,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   useEffect(() => {
     const loggedInUser = JSON.parse(JSON.parse(localStorage.getItem("currentUser")!));
     const handleOfflineStatus = async (event: BeforeUnloadEvent) => {
-      await setDoc(doc(firestoreDb, "users", loggedInUser.id), { ...loggedInUser, isOnline: false });
+      await updateDoc(doc(firestoreDb, "users", loggedInUser.id), { ...loggedInUser, isOnline: false });
     }
 
     const handleOnlineStatus = async (event: BeforeUnloadEvent) => {
-      await setDoc(doc(firestoreDb, "users", loggedInUser.id), { ...loggedInUser, isOnline: true });
+      await updateDoc(doc(firestoreDb, "users", loggedInUser.id), { ...loggedInUser, isOnline: true });
     }
     if (elemRef.current) {
       elemRef.current.addEventListener("load", handleOnlineStatus);

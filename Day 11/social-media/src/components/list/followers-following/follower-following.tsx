@@ -31,7 +31,7 @@ const FollowerFollowing = ({ data, loading, handleFollowButtonClick }:
     }) => {
     return (
         <Card className={`${style.card} ${style.textCenter}`}>
-            <Typography className={`${style.textYelow}`}>{data?.type}</Typography>
+            <Typography className={`${style.textYelow}`}>{data?.type.toUpperCase()}</Typography>
             {loading ? <CircularProgress size={"3rem"} title='Loadig profiles' /> :
                 <List>
                     {data?.list.length ? data?.list.map((profile) =>
@@ -46,7 +46,12 @@ const FollowerFollowing = ({ data, loading, handleFollowButtonClick }:
     )
 }
 
-const ListItemComponent = ({ profile, currentUserUid, type, handleFollowButtonClick }: { profile: follow_following_Interface, currentUserUid: string, type: follower_following_type, handleFollowButtonClick: (userId: string, task: follower_following_action_type | null, modalType: follower_following_type) => void }) => {
+const ListItemComponent = ({ profile, currentUserUid, type, handleFollowButtonClick }: {
+    profile: follow_following_Interface,
+    currentUserUid: string,
+    type: follower_following_type,
+    handleFollowButtonClick: (userId: string, task: follower_following_action_type | null, modalType: follower_following_type) => void,
+}) => {
     const loggedInUser = useAppSelector((state: RootState) => state.currentUser);
     const [action, setAction] = useState<follower_following_action_type | null>(null);
 
@@ -62,30 +67,37 @@ const ListItemComponent = ({ profile, currentUserUid, type, handleFollowButtonCl
         if (loggedInUser.uid === profile.uid) {
             return null;
         }
-        const isFollowing = loggedInUser.following.includes(profile.uid);
-        const isFollower = loggedInUser.followers.includes(profile.uid);
-        if (currentUserUid === loggedInUser.uid) {
-            if (isFollowing) return follower_following_action_type.UNFOLLOW;
-            if (isFollower) return follower_following_action_type.FOLLOW_BACK;
+        else {
+            const isFollowing = loggedInUser.following.includes(profile.uid);
+            const isFollower = loggedInUser.followers.includes(profile.uid);
+            if (currentUserUid === loggedInUser.uid) {
+                if (isFollowing) {
+                    return follower_following_action_type.UNFOLLOW;
+                }
+                if (isFollower) {
+                    return follower_following_action_type.FOLLOW_BACK;
+                }
+                return follower_following_action_type.FOLLOW;
+            }
+            if (isFollowing) {
+                return follower_following_action_type.UNFOLLOW;
+            }
             return follower_following_action_type.FOLLOW;
         }
-        if (isFollowing) return follower_following_action_type.UNFOLLOW;
-        return follower_following_action_type.FOLLOW;
     };
 
     return <ListItem
         key={profile.uid}
         secondaryAction={
-            loggedInUser.uid !== profile.uid && action ?
-                < IconButton edge="end"
-                    onClick={() => { handleFollowButtonClick(profile.uid, action,type); setAction(findAction()); }}
-                    aria-label={action?.toUpperCase()}
-                >
-                    {action === follower_following_action_type.FOLLOW && <PersonAddAlt1Icon />}
-                    {action === follower_following_action_type.UNFOLLOW && <PersonRemoveAlt1Icon />}
-                    {action === follower_following_action_type.FOLLOW_BACK && <CompareArrowsIcon />}
-                </IconButton>
-                : null
+            action &&
+            < IconButton edge="end"
+                onClick={() => { handleFollowButtonClick(profile.uid, action, type); setAction(findAction()); }}
+                aria-label={action?.toUpperCase()}
+            >
+                {action === follower_following_action_type.FOLLOW && <PersonAddAlt1Icon />}
+                {action === follower_following_action_type.UNFOLLOW && <PersonRemoveAlt1Icon />}
+                {action === follower_following_action_type.FOLLOW_BACK && <CompareArrowsIcon />}
+            </IconButton>
         }
     >
         <ListItemAvatar>

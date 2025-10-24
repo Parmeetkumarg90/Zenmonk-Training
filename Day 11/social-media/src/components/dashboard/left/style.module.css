@@ -48,7 +48,9 @@
 .button {
     width: 80% !important;
     padding: 2% 0 !important;
-    border-radius: 5px;
+    border-radius: 5px !important;
+    text-align: center !important;
+    margin: 2% 0;
 }
 
 .w_30 {
@@ -96,4 +98,10 @@
 .mY2 {
     margin-top: 2%;
     margin-bottom: 2%;
+}
+
+.alert {
+    margin: 2% 0;
+    width: 80%;
+    background-color: rgb(41, 109, 41) !important;
 }
